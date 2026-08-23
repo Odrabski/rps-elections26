@@ -1,0 +1,117 @@
+.piece-view {
+  position: relative;
+  width: 100%;
+}
+
+.piece-portrait {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+}
+
+.team-blue .piece-portrait {
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 8px rgba(56, 189, 248, 0.35));
+}
+
+.team-red .piece-portrait {
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 8px rgba(251, 113, 133, 0.35));
+}
+
+.piece-dead {
+  opacity: 0.3;
+}
+
+.piece-dead .piece-portrait {
+  filter: grayscale(1) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+}
+
+.piece-selected .piece-portrait {
+  filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold));
+}
+
+/* Your own pieces sit at the bottom of the board (closer to camera) and render 15% larger. */
+.piece-mine .piece-portrait {
+  transform: scale(1.15);
+  transform-origin: bottom center;
+}
+
+/* The opponent's figures sit a touch too high above their ground shadow (painted on the
+   surrounding .board-piece-wrap) — nudge the whole piece down to meet it. */
+.piece-view:not(.piece-mine) {
+  transform: translateY(2px);
+}
+
+/* The random disguise head worn by an unrevealed piece, layered over the headless decoy
+   body's neckline. Most portraits in the pool share the same full-canvas framing, so one rule
+   fits most of them by default — --mask-shift-x/--mask-shift-y are variables (not literals in
+   the transform below) so a per-portrait override (further down) also carries into the headNod
+   tilt keyframes in BoardGrid.css without those needing their own per-portrait rule. */
+.piece-mask {
+  position: absolute;
+  left: 50%;
+  top: -23%;
+  width: 44%;
+  --mask-shift-x: 0px;
+  --mask-shift-y: 5px;
+  transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y));
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+/* Per-portrait size/position corrections for heads whose art doesn't quite match the pool's
+   shared framing. */
+.piece-mask-op_lazimi {
+  width: 52.8%; /* 44% + 15% + 5% */
+  --mask-shift-x: -2px;
+  --mask-shift-y: 8px; /* 5px shared baseline + 8px - 4px - 1px */
+}
+
+.piece-mask-op_yairgolan {
+  width: 48.4%; /* 44% + 10% */
+  --mask-shift-x: -1.5px;
+  --mask-shift-y: 5px; /* 5px shared baseline + 6px - 6px */
+}
+
+.piece-mask-op_lapid {
+  width: 48.4%; /* 44% + 10% */
+  --mask-shift-y: 4px; /* 5px shared baseline + 4px - 5px */
+}
+
+.piece-mask-co_goldknopf {
+  width: 46.2%; /* 44% + 5% */
+}
+
+.piece-mask-op_liberman {
+  --mask-shift-x: -2px;
+}
+
+.piece-mask-co_aryederi {
+  width: 46.2%; /* 44% + 5% */
+  --mask-shift-x: -1.5px;
+}
+
+.piece-mask-co_taly {
+  width: 48.4%; /* 44% + 10% */
+  --mask-shift-x: -1px;
+}
+
+.piece-mask-co_bengvir {
+  width: 48.4%; /* 44% + 10% */
+  --mask-shift-x: -2px;
+  --mask-shift-y: 1px; /* 5px shared baseline - 4px */
+}
+
+.piece-mask-op_bennygantz {
+  width: 46.2%; /* 44% + 5% */
+  --mask-shift-x: -1px;
+}
+
+.piece-mask-op_yoaz {
+  --mask-shift-x: -1px;
+}
+
+.piece-mask-co_rottman {
+  width: 47.08%; /* 44% + 7% */
+  --mask-shift-x: -1px;
+}

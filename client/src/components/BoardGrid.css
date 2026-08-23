@@ -1,0 +1,126 @@
+.board-frame {
+  position: relative;
+  z-index: 1; /* sit above the screen's own background image */
+  width: min(96vw, 88svh, 560px);
+  aspect-ratio: 1353 / 1162; /* matches board.png exactly, no distortion */
+  background-image: url('/assets/board.png');
+  background-size: 100% 100%;
+  border-radius: 16px; /* affects background-clip regardless of overflow, so corners stay rounded */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  /* Deliberately NOT overflow:hidden — the top row's figures overflow above the frame itself
+     (no row behind them to overlap into instead), and must render fully instead of being
+     clipped at the frame edge. */
+}
+
+/* Aligned to the checkerboard region measured inside board.png (excludes the leafy border). */
+.board-grid {
+  position: absolute;
+  inset-inline: 4.45%;
+  top: 4.3%;
+  bottom: 5%;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+}
+
+.board-cell {
+  position: relative;
+}
+
+.board-tile {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.board-tile:disabled {
+  cursor: default;
+}
+
+.board-tile-legal {
+  box-shadow: 0 0 0 3px var(--gold) inset;
+  background: rgba(212, 175, 55, 0.18);
+}
+
+/* Anchors the figure's feet 10% up from the tile's bottom edge, letting it overflow upward
+   into the row behind it. pointer-events: none so clicks always fall through to .board-tile. */
+.board-piece-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  width: 150%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* A soft ellipse cast on the board right at the figure's feet — painted first (::before), so
+   the figure itself always renders on top of its own shadow. */
+.board-piece-wrap::before {
+  content: '';
+  position: absolute;
+  bottom: 2%; /* the source art has ~4% empty margin below the feet, so this sits right at the shoes */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 46%;
+  height: 13%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 75%);
+  border-radius: 50%;
+}
+
+/* An occasional idle wobble on one random piece at a time. Applied to the inner .piece-view
+   (not .board-piece-wrap itself) so the wrap's own centering transform and its ground shadow
+   stay put while just the figure rocks, pivoting from its feet. */
+.board-piece-tilt .piece-view {
+  animation: pieceTilt 0.7s ease-in-out;
+  transform-origin: 50% 100%;
+}
+
+/* Exception: an unrevealed (masked) piece tilts only its head, not its whole body — the mask
+   pivots near its own chin/neck rather than the figure's feet. */
+.board-piece-tilt .piece-view:has(.piece-mask) {
+  animation: none;
+}
+
+.board-piece-tilt .piece-mask {
+  animation: headNod 0.5s ease-in-out;
+  transform-origin: 50% 100%;
+}
+
+@keyframes pieceTilt {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Anchored at the bottom (neck), rotating right and back — like a nod, not a full wobble.
+   Must start/end at the mask's own resting transform (translate(calc(-50% + var(--mask-shift-x)),
+   var(--mask-shift-y)), both set on .piece-mask / its per-portrait overrides in PieceView.css)
+   or it jumps to this transform's 0%/100% state the instant the animation starts/ends. */
+@keyframes headNod {
+  0% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) rotate(0deg);
+  }
+  50% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) rotate(10deg);
+  }
+  100% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) rotate(0deg);
+  }
+}

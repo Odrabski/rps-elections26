@@ -1,0 +1,91 @@
+export type Team = 'red' | 'blue';
+export type RPSHand = 'rock' | 'paper' | 'scissors';
+export type PieceKind = 'king' | 'trap' | 'soldier';
+
+export interface Position {
+  row: number;
+  col: number;
+}
+
+/** Server-side truth for a single piece. Never sent to a client as-is. */
+export interface Piece {
+  id: string;
+  team: Team;
+  kind: PieceKind;
+  hand: RPSHand | null; // null for king/trap
+  characterId: string;
+  position: Position;
+  revealed: boolean; // flips true permanently once moved or battled
+  alive: boolean;
+}
+
+export type GamePhase = 'lobby' | 'setup' | 'playing' | 'gameover';
+
+export type GameEvent =
+  | { type: 'battle'; attackerId: string; defenderId: string; outcome: 'attacker-wins' | 'defender-wins' }
+  | { type: 'trap-triggered'; attackerId: string; trapId: string }
+  | { type: 'king-captured'; winner: Team }
+  | { type: 'tie-break-started'; attackerId: string; defenderId: string }
+  | { type: 'tie-break-repeat'; attackerId: string; defenderId: string };
+
+/**
+ * A tied clash (both soldiers showed the same hand) suspends normal play until both sides
+ * pick again for just that tile — repeating on another tie — instead of eliminating both.
+ * Server-side truth; never sent to a client as-is (see ClientTieBreakView).
+ */
+export interface TieBreakState {
+  attackerId: string;
+  defenderId: string;
+  picks: Record<Team, RPSHand | null>;
+  deadline: number; // epoch ms
+}
+
+/** Server-side truth for an entire match. Never serialized whole to a client. */
+export interface GameState {
+  roomCode: string;
+  phase: GamePhase;
+  pieces: Record<string, Piece>;
+  turn: Team | null;
+  setupDeadline: number | null; // epoch ms
+  turnDeadline: number | null; // epoch ms
+  tieBreak: TieBreakState | null;
+  readiness: Record<Team, boolean>;
+  winner: Team | null;
+  lastEvent: GameEvent | null;
+}
+
+/** Fog-of-war-filtered view of a single piece, as seen by one recipient. */
+export interface ClientPieceView {
+  id: string;
+  team: Team;
+  position: Position;
+  alive: boolean;
+  kind?: PieceKind;
+  hand?: RPSHand | null;
+  characterId?: string;
+  revealed: boolean;
+}
+
+/** Tie-break view for one recipient: never reveals the opponent's pick before both are in. */
+export interface ClientTieBreakView {
+  attackerId: string;
+  defenderId: string;
+  deadline: number;
+  yourPick: RPSHand | null;
+  opponentPicked: boolean;
+}
+
+/** The only game-state shape ever sent over the wire. */
+export interface ClientGameView {
+  roomCode: string;
+  you: Team;
+  phase: GamePhase;
+  pieces: ClientPieceView[];
+  turn: Team | null;
+  setupDeadline: number | null;
+  turnDeadline: number | null;
+  tieBreak: ClientTieBreakView | null;
+  readiness: Record<Team, boolean>;
+  winner: Team | null;
+  lastEvent: GameEvent | null;
+}

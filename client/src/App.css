@@ -1,0 +1,48 @@
+.lobby-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.lobby-panel {
+  width: min(92vw, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.lobby-hint {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.lobby-code {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  padding: 8px 20px;
+  border: 2px dashed var(--gold);
+  border-radius: 12px;
+}
+
+.lobby-team {
+  margin: 0;
+  font-weight: 600;
+}
+
+.disconnect-banner {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  background: var(--danger);
+  color: white;
+  text-align: center;
+  padding: calc(8px + env(safe-area-inset-top)) 8px 8px;
+  font-weight: 600;
+  z-index: 100;
+}

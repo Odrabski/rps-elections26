@@ -1,0 +1,43 @@
+.locked-in-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.locked-in-card {
+  width: min(90vw, 380px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  animation: lockedInPop 0.25s ease;
+}
+
+.locked-in-card h2 {
+  font-size: 1.4rem;
+  color: var(--gold);
+}
+
+.locked-in-subtitle {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+@keyframes lockedInPop {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

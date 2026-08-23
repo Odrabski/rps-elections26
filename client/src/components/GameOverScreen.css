@@ -1,0 +1,37 @@
+.gameover-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.gameover-panel {
+  width: min(92vw, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.gameover-emoji {
+  font-size: 3rem;
+}
+
+.gameover-detail {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.gameover-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.gameover-actions .btn-secondary,
+.gameover-actions .btn-primary {
+  flex: 1;
+  min-height: 48px;
+}

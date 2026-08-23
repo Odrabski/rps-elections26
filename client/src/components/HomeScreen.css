@@ -1,0 +1,77 @@
+.home-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.home-panel {
+  width: min(92vw, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.home-title {
+  font-size: 1.6rem;
+}
+
+.home-subtitle {
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.home-create-btn {
+  width: 100%;
+}
+
+.home-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: var(--text-dim);
+}
+
+.home-divider::before,
+.home-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--panel-border);
+}
+
+.home-join-form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.home-code-input {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-h);
+}
+
+.home-code-input:focus {
+  outline: 2px solid var(--gold);
+}
+
+.home-error {
+  color: var(--danger);
+  margin: 0;
+  font-size: 0.9rem;
+}

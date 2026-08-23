@@ -1,0 +1,33 @@
+.game-board-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: max(12px, env(safe-area-inset-top)) 10px calc(20px + env(safe-area-inset-bottom));
+  position: relative;
+  width: 100%;
+  background-image: url('/assets/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.turn-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: min(94vw, 520px);
+  padding: 8px 8px 8px 18px;
+  border-radius: 999px;
+  border: 1px solid;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.turn-banner-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
