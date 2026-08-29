@@ -91,6 +91,11 @@ export const HIDDEN_HEAD_POOL: Record<Team, string[]> = {
     'co_rottman.png',
     'co_bengvir.png',
     'co_taly.png',
+    'co_katz.png',
+    'co_gafni.png',
+    'co_levin.png',
+    'co_strook.png',
+    'co_karii.png',
   ],
   red: [
     'op_bennet.png',
