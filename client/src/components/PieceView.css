@@ -98,7 +98,7 @@
 }
 
 .piece-mask-op_lapid {
-  width: 58.44%; /* 55.66% * 1.05 */
+  width: 53.76%; /* 58.44% * 0.92 */
   --mask-shift-y: -5.5px; /* 5px shared baseline + 4px - 5px - 1px - 2px - 2px - 2.5px - 2px */
 }
 
