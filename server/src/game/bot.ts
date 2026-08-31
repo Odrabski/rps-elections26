@@ -9,9 +9,12 @@ const LOSES_TO: Record<RPSHand, RPSHand> = { rock: 'paper', paper: 'scissors', s
 const HANDS: RPSHand[] = ['rock', 'paper', 'scissors'];
 
 /**
- * Chooses the bot's move for its turn. Never reads a piece's true `kind`/`hand` unless it
- * belongs to the bot's own team or has already been `revealed` — the bot only ever acts on
- * information a human player in its seat could also see.
+ * Chooses the bot's move for its turn. Never reads a piece's true `hand`, or an unrevealed
+ * piece's `kind`, unless it belongs to the bot's own team — the bot only ever acts on
+ * information a human player in its seat could also see. The one narrow exception is checking
+ * *whether* the enemy's king is still alive and unrevealed at all (see `hasAliveUnrevealedKing`)
+ * — that's not hidden information, just the logical fact that an ongoing game's king is always
+ * exactly that; a human in the same seat could reason the same way.
  */
 export function chooseBotMove(
   state: GameState,
@@ -68,8 +71,15 @@ function scoreMove(
   }
 
   if (!defender.revealed) {
-    if (!residual) return -2; // medium: cautious about the unknown
-    return residualExpectedValue(attacker.hand as RPSHand, residual);
+    // As long as the enemy's king is still alive it's always unrevealed too (the game ends the
+    // instant it's captured) — so every unrevealed defender carries a real 1-in-N chance of
+    // *being* that king, which the plain "cautious about the unknown"/hand-odds estimate below
+    // completely ignores on its own. Blending that chance in is what stops the bot from treating
+    // a move onto the king exactly like any other risky guess and shying away from it.
+    const unrevealedCount = countAliveUnrevealed(state, defender.team);
+    const pKing = hasAliveUnrevealedKing(state, defender.team) && unrevealedCount > 0 ? 1 / unrevealedCount : 0;
+    const fallback = residual ? residualExpectedValue(attacker.hand as RPSHand, residual) : -2;
+    return pKing * 100 + (1 - pKing) * fallback;
   }
 
   if (defender.kind === 'king') return 100; // always a guaranteed, instant win
@@ -80,6 +90,22 @@ function scoreMove(
   if (BEATS[attackerHand] === defenderHand) return 10; // favorable — captures
   if (attackerHand === defenderHand) return 1; // a tie, not a loss
   return -10; // unfavorable — avoid
+}
+
+/** Whether `team` still has a living, unrevealed king on the board. */
+function hasAliveUnrevealedKing(state: GameState, team: Team): boolean {
+  return Object.values(state.pieces).some((p) => p.team === team && p.alive && !p.revealed && p.kind === 'king');
+}
+
+/** How many of `team`'s pieces are still alive and unrevealed right now — its king always among
+ * them (while the game continues), plus its trap if not yet sprung, plus whichever soldiers
+ * haven't fought yet. */
+function countAliveUnrevealed(state: GameState, team: Team): number {
+  let count = 0;
+  for (const piece of Object.values(state.pieces)) {
+    if (piece.team === team && piece.alive && !piece.revealed) count++;
+  }
+  return count;
 }
 
 /** How many of each hand remain among `team`'s soldiers that have never been revealed yet —

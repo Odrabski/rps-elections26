@@ -145,4 +145,29 @@ describe('chooseBotMove: hard', () => {
 
     expect(move).not.toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
   });
+
+  it('still attacks an unrevealed piece with bad hand odds when it might be the king', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3); // beats scissors, loses to paper
+    const target = soldier('d', 'blue', 'paper', 3, 3, false); // unrevealed — hand must not be read
+    // Same unfavorable residual pool as the test above (all revealed hands are rock/scissors,
+    // leaving only paper hidden) — but this time blue's king is also still alive and unrevealed
+    // somewhere else on the board, so `target` is genuinely one of only two possible pieces it
+    // could be. That real ~50% chance of an instant win must outweigh the bad hand odds alone.
+    const king: Piece = {
+      id: 'k',
+      team: 'blue',
+      kind: 'king',
+      hand: null,
+      characterId: 'k',
+      position: { row: 0, col: 0 },
+      revealed: false,
+      alive: true,
+    };
+    const revealed = [...revealedBlueSoldiers('rock', 'r'), ...revealedBlueSoldiers('scissors', 's')];
+    const state = makeState([attacker, target, king, ...revealed]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move).toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
 });
