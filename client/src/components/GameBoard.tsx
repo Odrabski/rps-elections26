@@ -249,7 +249,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
               size={88}
               numberWeight={500}
               numberSize="2.4rem"
-              fallbackLabel="FIGHT!"
+              fallbackLabel="FIGHT"
             />
           }
         />
