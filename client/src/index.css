@@ -47,6 +47,12 @@ body {
   overflow-x: hidden;
 }
 
+@media (orientation: landscape) {
+  body {
+    background-image: url('/assets/background-landscape.webp');
+  }
+}
+
 #root {
   min-height: 100svh;
   min-height: 100dvh;

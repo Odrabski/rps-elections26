@@ -38,16 +38,33 @@ function randomHeadTrio(team: Team): [string, string, string] {
   return [center, picked[0] ?? center, picked[1] ?? center];
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+function Modal({
+  title,
+  onClose,
+  children,
+  footer,
+}: {
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+  /** Rendered outside the card itself, pinned to the bottom of the screen — for a caption that
+   * shouldn't count as part of the modal's own frame. */
+  footer?: ReactNode;
+}) {
   return (
     <div className="home-modal-overlay" onClick={onClose}>
       <div className="home-modal panel" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="home-modal-x" onClick={onClose} aria-label="סגור">
+          ×
+        </button>
         <h2 className="gradient-heading home-modal-title">{title}</h2>
         <div className="home-modal-body">{children}</div>
-        <button type="button" className="btn-secondary home-modal-close" onClick={onClose}>
-          סגור
-        </button>
       </div>
+      {footer && (
+        <div className="home-modal-footer" onClick={(e) => e.stopPropagation()}>
+          {footer}
+        </div>
+      )}
     </div>
   );
 }
@@ -224,7 +241,19 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
       )}
 
       {modal === 'about' && (
-        <Modal title="אודות" onClose={() => setModal(null)}>
+        <Modal
+          title="אודות"
+          onClose={() => setModal(null)}
+          footer={
+            <>
+              <div className="about-figure">
+                <img src="/assets/pieces/sol_co_scrissors.webp" alt="" className="about-figure-body" />
+                <img src="/assets/pieces/omri.webp" alt="" className="about-figure-head" />
+              </div>
+              <p className="about-caption">המשחק נוצר על ידי עמרי דרבסקי</p>
+            </>
+          }
+        >
           <p>
             אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב
             אבן-נייר-מספריים קלאסי עם טקטיקה על לוח.

@@ -26,7 +26,10 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
 
   return (
     <div className={`splash-screen${fadingOut ? ' splash-screen-fading' : ''}`}>
-      <img src="/assets/splash2.webp" alt="" className="splash-image" />
+      <picture>
+        <source media="(orientation: landscape)" srcSet="/assets/splash-landscape.webp" />
+        <img src="/assets/splash2.webp" alt="" className="splash-image" />
+      </picture>
       <div className="splash-loader">
         <span className="splash-spinner" />
         <span className="splash-loading-text">טוען...</span>

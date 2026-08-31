@@ -120,7 +120,7 @@ const HEAD_DISPLAY_NAME: Record<string, string> = {
   op_lazimi: 'LAZIMI',
   op_liberman: 'LIEBERMAN',
   op_merav: 'BEN-ARI',
-  op_mikilevi: 'LEVI',
+  op_tibon: 'TIBON',
   op_ronen: 'RONEN',
   op_tibi: 'TIBI',
   op_yairgolan: 'GOLAN',

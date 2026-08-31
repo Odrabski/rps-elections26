@@ -121,7 +121,7 @@ export const HIDDEN_HEAD_POOL: Record<Team, string[]> = {
     'op_efrat.webp',
     'op_gilad.webp',
     'op_ronen.webp',
-    'op_mikilevi.webp',
+    'op_tibon.webp',
     'op_merav.webp',
   ],
 };

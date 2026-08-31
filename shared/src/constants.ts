@@ -14,7 +14,7 @@ export const FIGHT_STANDOFF_MS = 1500;
 export const FIGHT_CLASH_MS = 450;
 export const FIGHT_CLOUD_MS = 750;
 const FIGHT_BUILD_UP_MS = FIGHT_BEAT_MS * 4 + FIGHT_STANDOFF_MS + FIGHT_CLASH_MS + FIGHT_CLOUD_MS;
-const FIGHT_REVEAL_MS = 4100;
+const FIGHT_REVEAL_MS = 3600;
 /** A tie has no reveal screen of its own — the weapon picker itself is the "reveal", so the
  * cinematic ends the instant the clash-cloud beat finishes. */
 export const TIE_REVEAL_MS = 0;
