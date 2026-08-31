@@ -3,6 +3,7 @@ import type { ClientGameView, ClientPieceView, GameEvent, Position, RPSHand, Tea
 import { BOARD_COLS, BOARD_ROWS, TURN_SECONDS } from 'shared';
 import { TEAM_THEME } from '../data/theme';
 import { gameSeed } from '../data/characterAssets';
+import { useOpponentTease } from '../hooks/useOpponentTease';
 import { CountdownRing } from './CountdownRing';
 import { ScoreHeader } from './ScoreHeader';
 import { CombatOverlay } from './CombatOverlay';
@@ -51,6 +52,16 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
   const myTurn = view.turn === team && !view.tieBreak;
   const alivePieces = useMemo(() => view.pieces.filter((p) => p.alive), [view.pieces]);
   const selected = alivePieces.find((p) => p.id === selectedId) ?? null;
+  const opponentTeam: Team = team === 'red' ? 'blue' : 'red';
+  // Only ordinary soldiers get a tease bubble — a king or trap "talking" would look wrong. An
+  // opponent piece's `kind` is fog-of-war-hidden (undefined) until it's actually revealed in
+  // combat, at which point it's indistinguishable from a soldier's own disguise anyway, so
+  // "undefined" is included here too — only a *confirmed* revealed king/trap is excluded.
+  const opponentSoldiers = useMemo(
+    () => alivePieces.filter((p) => p.team === opponentTeam && p.kind !== 'king' && p.kind !== 'trap'),
+    [alivePieces, opponentTeam],
+  );
+  const tease = useOpponentTease({ active: true, myTurn, opponentPieces: opponentSoldiers, opponentTeam });
 
   useEffect(() => {
     setSelectedId(null);
@@ -235,6 +246,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
             trapEvent={trapEvent}
             clashEvent={clashEvent}
             lastMove={view.lastMove}
+            tease={tease}
           />
         </div>
 

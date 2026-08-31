@@ -57,6 +57,9 @@ interface BoardGridProps {
   /** The single most recently "won" tile and whose color it's highlighted in — always exactly
    * one tile, overwritten whenever another move (or a battle/trap override) claims a new one. */
   lastMove?: { team: Team; position: Position } | null;
+  /** The one opponent piece (if any) currently popping an ambient taunt speech bubble — set by
+   * GameBoard's useOpponentTease for a couple of seconds at a time, purely cosmetic. */
+  tease?: { pieceId: string; text: string } | null;
 }
 
 const TILT_DURATION_MS = 700; // matches the longer of the two tilt animations (pieceTilt, 0.7s)
@@ -136,6 +139,7 @@ export function BoardGrid({
   trapEvent,
   clashEvent,
   lastMove,
+  tease,
 }: BoardGridProps) {
   const cells: { display: Position; actual: Position }[] = [];
   for (let row = 0; row < BOARD_ROWS; row++) {
@@ -344,9 +348,10 @@ export function BoardGrid({
           const arrowDir = legal && selectedPosition ? arrowDirection(selectedPosition, actual, team) : null;
           const lastMoveTeam: Team | null =
             lastMove && samePos(actual, lastMove.position) ? lastMove.team : null;
+          const hasTease = tease?.pieceId === piece?.id;
 
           return (
-            <div key={key} className="board-cell">
+            <div key={key} className={`board-cell${hasTease ? ' board-cell-tease-active' : ''}`}>
               <button
                 type="button"
                 className={[
@@ -392,6 +397,11 @@ export function BoardGrid({
                       selected={isSelected?.(piece) ?? false}
                       mirrorAtEdge={display.col === 0}
                     />
+                    {tease?.pieceId === piece.id && (
+                      <div className={`board-tease-bubble ${display.col <= 1 ? 'board-tease-bubble-left' : 'board-tease-bubble-right'}`}>
+                        {tease.text}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

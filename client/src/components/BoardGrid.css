@@ -36,6 +36,16 @@
   position: relative;
 }
 
+/* Normally cells rely purely on DOM order for stacking (a lower/nearer row's figure naturally
+   overflows on top of the row behind it — see .board-piece-wrap's own comment). A taunt bubble
+   breaks that assumption by overflowing *sideways* into a neighboring cell's horizontal space,
+   which would otherwise render underneath that neighbor's own (later-in-DOM) piece. Giving just
+   this one cell an explicit stacking context lifts its whole subtree (piece + bubble) above every
+   other "auto" cell regardless of row/column DOM order. */
+.board-cell-tease-active {
+  z-index: 10;
+}
+
 .board-tile {
   position: absolute;
   inset: 0;
@@ -52,14 +62,12 @@
 }
 
 .board-tile-legal {
-  box-shadow: 0 0 0 3px var(--gold) inset;
   background: rgba(212, 175, 55, 0.18);
 }
 
 /* Calls out the one tile/piece the cursor is actually over, among all the legal ones —
    e.g. during setup, so it's clear exactly which soldier a click would designate. */
 .board-tile-legal:hover:not(:disabled) {
-  box-shadow: 0 0 0 4px var(--gold) inset, 0 0 18px 2px rgba(212, 175, 55, 0.65);
   background: rgba(212, 175, 55, 0.4);
 }
 
@@ -247,9 +255,17 @@
 /* Sized to exactly one cell, sitting between .board-cell and .board-piece-wrap purely so
    "100%" means "one tile" for the jump animation below — .board-piece-wrap's own centering/
    anchoring inside it is completely unchanged. */
+/* z-index:2 (a plain, non-conditional value shared by every cell) guarantees every piece figure
+   renders above any tile-level decoration (legal-move highlight, arrow, hole) in any cell it
+   visually overlaps, regardless of row/DOM order — previously this relied purely on DOM order,
+   which only reliably favored the *front* row and left the relationship inconsistent depending
+   on which row a legal-target tile happened to be in. Since every piece shares this same value,
+   relative piece-vs-piece stacking (closer row on top of the row behind it) still resolves by DOM
+   order exactly as before — only the piece-vs-tile-decoration relationship changes. */
 .board-piece-anim {
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -458,5 +474,73 @@
   }
   100% {
     transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+  }
+}
+
+/* Ambient taunt bubble (see useOpponentTease) — anchored to .board-piece-wrap (a position:absolute
+   box already spanning the whole figure), roughly at head height, poking out to whichever side
+   has room. Positioned via left/right (not transform), so the scale pop-in below never risks
+   dropping a base transform the way earlier translate-based pop bugs did this session. */
+.board-tease-bubble {
+  position: absolute;
+  /* Sits just below head height, with its tail (below) pointing up into the mouth — vertically
+     mirrored from a typical "above the head" bubble. */
+  top: calc(2% + 28px);
+  max-width: 120px;
+  width: max-content;
+  background: rgba(255, 255, 255, 0.7);
+  color: #1a1a2e;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+  padding: 5px 8px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  pointer-events: none;
+  animation: teaseBubblePop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.board-tease-bubble-right {
+  left: 100%;
+  margin-left: 6px;
+  transform-origin: top left;
+}
+
+.board-tease-bubble-right::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 10px;
+  border: 6px solid transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.7);
+  border-top: 0;
+}
+
+.board-tease-bubble-left {
+  right: 100%;
+  margin-right: 6px;
+  transform-origin: top right;
+}
+
+.board-tease-bubble-left::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 10px;
+  border: 6px solid transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.7);
+  border-top: 0;
+}
+
+@keyframes teaseBubblePop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }
