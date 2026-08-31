@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { SETUP_SECONDS, ZONE_ROWS } from 'shared';
 import type { ClientGameView, Position, Team } from 'shared';
 import { TEAM_THEME } from '../data/theme';
-import { hiddenPieceAsset } from '../data/characterAssets';
+import { gameSeed } from '../data/characterAssets';
 import { CountdownRing } from './CountdownRing';
+import { ScoreHeader } from './ScoreHeader';
 import { LockedInOverlay } from './LockedInOverlay';
 import { BoardGrid } from './BoardGrid';
 import './SetupScreen.css';
@@ -16,29 +18,43 @@ interface SetupScreenProps {
   onExit: () => void;
 }
 
-const TOTAL_ZONE_PIECES = 14;
+const PULSE_DURATION_MS = 700;
 
 export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, onExit }: SetupScreenProps) {
   const theme = TEAM_THEME[team];
   const opponent: Team = team === 'red' ? 'blue' : 'red';
   const isReady = view.readiness[team];
   const [zoneStart, zoneEnd] = ZONE_ROWS[team];
+  const [pulsePosition, setPulsePosition] = useState<Position | null>(null);
+  const seed = gameSeed(view);
 
   const ownPieces = view.pieces.filter((p) => p.team === team);
   const ownKing = ownPieces.find((p) => p.kind === 'king');
   const ownTrap = ownPieces.find((p) => p.kind === 'trap');
   const step: 'king' | 'trap' | 'ready' = !ownKing ? 'king' : !ownTrap ? 'trap' : 'ready';
-  const benchCount = Math.max(0, TOTAL_ZONE_PIECES - ownPieces.length);
+
+  useEffect(() => {
+    if (!pulsePosition) return;
+    const timer = setTimeout(() => setPulsePosition(null), PULSE_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [pulsePosition]);
 
   const handleExit = () => {
     if (window.confirm('לצאת מהמשחק? המשחק יימשך בלעדיכם.')) onExit();
   };
 
+  /** A tile can take the next designation only if it's your own piece and still unassigned. */
+  const isDesignatable = (actual: Position): boolean => {
+    if (isReady || step === 'ready') return false;
+    if (actual.row < zoneStart || actual.row > zoneEnd) return false;
+    const occupant = ownPieces.find((p) => p.position.row === actual.row && p.position.col === actual.col);
+    return occupant?.kind === 'unassigned';
+  };
+
   const handleTileClick = (actual: Position) => {
-    if (isReady || step === 'ready') return;
-    const inOwnZone = actual.row >= zoneStart && actual.row <= zoneEnd;
-    if (!inOwnZone) return;
+    if (step === 'ready' || !isDesignatable(actual)) return;
     onPlaceSpecial(step, actual);
+    setPulsePosition(actual);
   };
 
   return (
@@ -47,51 +63,56 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
         🚪
       </button>
 
-      <header className="setup-header">
-        <div className="setup-team-badge" style={{ color: theme.text, background: theme.bg, borderColor: theme.border }}>
-          משחק בתור {theme.label}
-        </div>
-        <CountdownRing deadline={view.setupDeadline} totalSeconds={SETUP_SECONDS} color={theme.solid} size={56} />
-      </header>
-
-      {step !== 'ready' && !isReady && (
-        <div className="setup-step-banner" style={{ borderColor: theme.border, color: theme.text }}>
-          {step === 'king' ? '👑 בחרו מלך' : '🪤 בחרו מלכודת'}
-        </div>
-      )}
-
-      <BoardGrid
+      <ScoreHeader
         team={team}
-        getPieceAt={(actual) => ownPieces.find((p) => p.position.row === actual.row && p.position.col === actual.col)}
-        isClickable={(actual) => !isReady && step !== 'ready' && actual.row >= zoneStart && actual.row <= zoneEnd}
-        isLegalTarget={(actual) => !isReady && step !== 'ready' && actual.row >= zoneStart && actual.row <= zoneEnd}
-        onTileClick={handleTileClick}
+        pieces={view.pieces}
+        center={
+          <CountdownRing
+            deadline={view.setupDeadline}
+            totalSeconds={SETUP_SECONDS}
+            color={theme.solid}
+            size={88}
+            numberWeight={500}
+            numberSize="2.4rem"
+          />
+        }
       />
 
-      {benchCount > 0 && (
-        <div className="soldier-bench" aria-hidden="true">
-          {Array.from({ length: benchCount }, (_, i) => (
-            <img key={i} src={hiddenPieceAsset(team)} alt="" className="soldier-bench-icon" />
-          ))}
-        </div>
-      )}
+      <div className="setup-board-area">
+        <BoardGrid
+          team={team}
+          seed={seed}
+          getPieceAt={(actual) => view.pieces.find((p) => p.position.row === actual.row && p.position.col === actual.col)}
+          isClickable={isDesignatable}
+          isLegalTarget={isDesignatable}
+          onTileClick={handleTileClick}
+          pulsePosition={pulsePosition}
+        />
 
-      {step === 'ready' && !isReady && (
-        <div className="setup-controls panel">
-          <p className="setup-instructions">אפשר לערבב לוחמים או ללחוץ אני מוכן</p>
-          <div className="setup-button-row">
-            <button type="button" className="btn-secondary" onClick={onShuffle}>
-              🔀 ערבב לוחמים
+        {!isReady && step !== 'ready' && (
+          <div className="setup-onboard-banner" style={{ borderColor: theme.border, color: theme.text }}>
+            {step === 'king' && '👑 בחרו מלך'}
+            {step === 'trap' && '🪤 בחרו מלכודת'}
+          </div>
+        )}
+
+        {!isReady && step === 'ready' && (
+          <div className="setup-onboard-buttons">
+            <button type="button" className="btn-primary setup-btn-onboard setup-btn-onboard-start" onClick={onReady}>
+              להתחיל לשחק
             </button>
-            <button type="button" className="btn-primary" onClick={onReady}>
-              אני מוכן
+            <button type="button" className="btn-secondary setup-btn-onboard setup-btn-onboard-shuffle" onClick={onShuffle}>
+              ערבב כלי-נשק
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {isReady && (
-        <LockedInOverlay title="נעלת את ההרכב שלך! 🔒" subtitle={`ממתינים ל${TEAM_THEME[opponent].label}...`}>
+        <LockedInOverlay subtitle="עכשיו, מחכים ליריב.">
+          {!view.readiness[opponent] && (
+            <CountdownRing deadline={view.setupDeadline} totalSeconds={SETUP_SECONDS} color={theme.solid} size={56} />
+          )}
           <p className="locked-in-hint">
             {view.readiness[opponent] ? 'שני הצדדים מוכנים, המשחק מתחיל...' : 'המשחק יתחיל ברגע שהיריב יסיים'}
           </p>

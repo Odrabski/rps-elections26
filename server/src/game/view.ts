@@ -32,6 +32,7 @@ export function toClientView(state: GameState, team: Team): ClientGameView {
         deadline: state.tieBreak.deadline,
         yourPick: state.tieBreak.picks[team],
         opponentPicked: state.tieBreak.picks[otherTeam] !== null,
+        round: state.tieBreak.round,
       }
     : null;
 
@@ -47,5 +48,6 @@ export function toClientView(state: GameState, team: Team): ClientGameView {
     readiness: state.readiness,
     winner: state.winner,
     lastEvent: state.lastEvent,
+    lastMove: state.lastMove,
   };
 }

@@ -38,7 +38,9 @@ export function applyMove(state: GameState, attacker: Piece, to: Position): Game
   }
 
   if (defender.kind === 'trap') {
+    // One-time use: the trap is spent along with whoever triggered it, not just the attacker.
     attacker.alive = false;
+    defender.alive = false;
     return { type: 'trap-triggered', attackerId: attacker.id, trapId: defender.id };
   }
 

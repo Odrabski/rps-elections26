@@ -1,15 +1,21 @@
-import { TIE_BREAK_SECONDS } from 'shared';
+import { TIE_SEQUENCE_MS, TIE_BREAK_SECONDS } from 'shared';
 import type { GameEvent, GameState, RPSHand, Team } from 'shared';
 import { BEATS } from './combat.js';
 
 export type TieBreakError = 'no-tie-break' | 'already-picked';
+
+/** The weapon picker only appears on each client once its collision cinematic (the same one for
+ * both the initial tie and every repeat) finishes playing, so the actual picking window — both
+ * the deadline shown and the server's own auto-fill timeout — starts that much later too. */
+export const TIE_BREAK_WINDOW_MS = TIE_SEQUENCE_MS + TIE_BREAK_SECONDS * 1000;
 
 export function startTieBreak(state: GameState, attackerId: string, defenderId: string): void {
   state.tieBreak = {
     attackerId,
     defenderId,
     picks: { red: null, blue: null },
-    deadline: Date.now() + TIE_BREAK_SECONDS * 1000,
+    deadline: Date.now() + TIE_BREAK_WINDOW_MS,
+    round: 1,
   };
 }
 
@@ -48,10 +54,16 @@ export function tryResolveTieBreak(state: GameState): GameEvent | null {
   const attackerHand = tb.picks[attacker.team]!;
   const defenderHand = tb.picks[defender.team]!;
 
+  // The tie-break pick replaces whichever hand caused the original tie — otherwise the piece
+  // (and anything rendered from it, like the fight sequence) would keep showing the stale hand.
+  attacker.hand = attackerHand;
+  defender.hand = defenderHand;
+
   if (attackerHand === defenderHand) {
     tb.picks = { red: null, blue: null };
-    tb.deadline = Date.now() + TIE_BREAK_SECONDS * 1000;
-    return { type: 'tie-break-repeat', attackerId: tb.attackerId, defenderId: tb.defenderId };
+    tb.deadline = Date.now() + TIE_BREAK_WINDOW_MS;
+    tb.round += 1;
+    return { type: 'tie-break-repeat', attackerId: tb.attackerId, defenderId: tb.defenderId, round: tb.round };
   }
 
   state.tieBreak = null;

@@ -1,0 +1,225 @@
+.fight-sequence {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.fight-countdown {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 4px 20px rgba(212, 175, 55, 0.6);
+  animation: fightCountPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fight-intro-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-h);
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.fight-vs {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--gold);
+  margin: 0 4px;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
+}
+
+.fight-intro-heads {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* "200% big" — matches the old tie-only head-card sizing (double a normal 108px portrait). */
+.fight-intro-head {
+  width: 216px;
+  height: 216px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  animation: fightRevealPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fight-arena {
+  position: relative;
+  width: min(90vw, 420px);
+  height: 200px;
+}
+
+.fight-figure {
+  position: absolute;
+  top: 0;
+  width: 130px;
+}
+
+.fight-figure-left {
+  left: 10px;
+}
+
+.fight-figure-right {
+  right: 10px;
+}
+
+/* Converge on the arena's exact center regardless of its (viewport-dependent) width. */
+.fight-figure-clash-left {
+  animation: fightClashLeft 450ms ease-in forwards;
+}
+
+.fight-figure-clash-right {
+  animation: fightClashRight 450ms ease-in forwards;
+}
+
+@keyframes fightClashLeft {
+  from {
+    left: 10px;
+  }
+  to {
+    left: calc(50% - 65px);
+  }
+}
+
+@keyframes fightClashRight {
+  from {
+    right: 10px;
+  }
+  to {
+    right: calc(50% - 65px);
+  }
+}
+
+.fight-figure-hidden {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.fight-cloud {
+  position: absolute;
+  /* Matches .fight-figure's own vertical center (top: 0, 130px tall), not the arena's — the
+     figures don't fill the arena's full 200px height, so centering on the arena itself would
+     put the cloud lower than where the figures actually collide. */
+  top: 65px;
+  left: 50%;
+  width: 238px;
+  animation: fightCloudLoop 750ms ease-in-out forwards;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5));
+}
+
+/* The two soldiers effectively "become" this cloud — tilted, restlessly wobbling the whole time
+   the clash is hidden inside it (never settling into a static pose), then dissolving away right
+   as the reveal is about to appear. Duration matches CLOUD_MS (750ms) exactly, so the fade-out
+   finishes the same instant the phase flips to 'reveal'. */
+@keyframes fightCloudLoop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6) rotate(-6deg);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, -50%) scale(1.08) rotate(-16deg);
+    opacity: 1;
+  }
+  32% {
+    transform: translate(-50%, -50%) scale(1) rotate(-8deg);
+  }
+  48% {
+    transform: translate(-50%, -50%) scale(1.05) rotate(-17deg);
+  }
+  64% {
+    transform: translate(-50%, -50%) scale(1) rotate(-9deg);
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(1.04) rotate(-15deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.85) rotate(-11deg);
+    opacity: 0;
+  }
+}
+
+.fight-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: fightRevealPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fight-figure-winner {
+  width: 150px;
+}
+
+/* A quick, repeating head shake on the winner's portrait — celebratory, not the slow single
+   idle nod used elsewhere. Preserves the head's own --mask-shift-x/y positioning (set by its
+   piece-mask-{id} rule in PieceView.css) since the keyframes re-declare the full transform. */
+.fight-head-tilt {
+  animation: fightHeadTiltFast 0.28s ease-in-out infinite;
+}
+
+@keyframes fightHeadTiltFast {
+  0%,
+  100% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+  }
+  25% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(-14deg);
+  }
+  75% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(14deg);
+  }
+}
+
+.fight-result-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
+}
+
+.fight-result-subtext {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.fight-you-result {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
+  margin-bottom: 14px;
+  transform: translateY(-20px);
+}
+
+.fight-you-win {
+  color: var(--gold);
+}
+
+.fight-you-lose {
+  color: var(--danger);
+}
+
+@keyframes fightRevealPop {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fightCountPop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

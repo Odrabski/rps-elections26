@@ -16,6 +16,7 @@ function makeState(pieces: Piece[]): GameState {
     readiness: { red: true, blue: true },
     winner: null,
     lastEvent: null,
+    lastMove: null,
   };
 }
 
@@ -81,6 +82,7 @@ describe('toClientView: fog of war', () => {
       defenderId: 'blue-soldier-0',
       picks: { red: 'rock', blue: null },
       deadline: 123456,
+      round: 1,
     };
 
     const redView = toClientView(state, 'red');
@@ -90,6 +92,7 @@ describe('toClientView: fog of war', () => {
       deadline: 123456,
       yourPick: 'rock',
       opponentPicked: false,
+      round: 1,
     });
 
     const blueView = toClientView(state, 'blue');
@@ -99,6 +102,7 @@ describe('toClientView: fog of war', () => {
       deadline: 123456,
       yourPick: null,
       opponentPicked: true, // blue can see red HAS picked, never what red picked
+      round: 1,
     });
 
     const raw = JSON.parse(JSON.stringify(blueView));

@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+    <!-- The CSS `color-scheme: dark` on :root isn't always enough to stop Android WebView/Chrome's
+         own "force dark" from algorithmically re-coloring images (e.g. washing out the blue
+         team's suits) — this meta tag is what that feature actually checks to opt a page out. -->
+    <meta name="color-scheme" content="dark" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

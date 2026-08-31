@@ -32,7 +32,20 @@
 
 /* Your own pieces sit at the bottom of the board (closer to camera) and render 15% larger. */
 .piece-mine .piece-portrait {
-  transform: scale(1.15);
+  transform: scale(1.3225);
+  transform-origin: bottom center;
+}
+
+/* The revealed rock/scissors back sprites hold their weapon out far enough to one side that, in
+   the board's rightmost column, it would spill past the board's edge — flip it horizontally
+   there instead (see PieceView.tsx's mirrorAtEdge). Composed with .piece-mine's own scale(1.3225)
+   since these sprites are always a viewer's own revealed soldier. */
+.piece-portrait-mirrored {
+  transform: scaleX(-1);
+}
+
+.piece-mine .piece-portrait.piece-portrait-mirrored {
+  transform: scale(1.3225) scaleX(-1);
   transform-origin: bottom center;
 }
 
@@ -40,6 +53,16 @@
    surrounding .board-piece-wrap) — nudge the whole piece down to meet it. */
 .piece-view:not(.piece-mine) {
   transform: translateY(2px);
+}
+
+/* Setup screen: your own not-yet-designated pieces are grayed out — the same treatment as a
+   dead piece — until they're actually assigned a role (King, Trap, or a soldier's weapon). */
+.piece-unassigned-dim {
+  opacity: 0.6;
+}
+
+.piece-unassigned-dim .piece-portrait {
+  filter: grayscale(1) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
 }
 
 /* The random disguise head worn by an unrevealed piece, layered over the headless decoy
@@ -51,67 +74,137 @@
   position: absolute;
   left: 50%;
   top: -23%;
-  width: 44%;
+  width: 48.4%; /* base 44% + a global +10% bump applied to every portrait */
   --mask-shift-x: 0px;
-  --mask-shift-y: 5px;
-  transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y));
+  --mask-shift-y: -0.5px; /* 5px baseline - a global 1px-up bump applied to every portrait - 2.5px - 2px */
+  transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225);
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
   pointer-events: none;
 }
 
 /* Per-portrait size/position corrections for heads whose art doesn't quite match the pool's
-   shared framing. */
+   shared framing. Widths already include the global +10% bump above (i.e. each is its old
+   per-portrait width * 1.1). */
 .piece-mask-op_lazimi {
-  width: 52.8%; /* 44% + 15% + 5% */
+  width: 59.77%; /* 62.92% * 0.95 */
   --mask-shift-x: -2px;
-  --mask-shift-y: 8px; /* 5px shared baseline + 8px - 4px - 1px */
+  --mask-shift-y: -2.5px; /* 5px shared baseline + 8px - 4px - 1px - 1px - 2px - 1px - 2px - 2.5px - 2px */
 }
 
 .piece-mask-op_yairgolan {
-  width: 48.4%; /* 44% + 10% */
-  --mask-shift-x: -1.5px;
-  --mask-shift-y: 5px; /* 5px shared baseline + 6px - 6px */
+  width: 53.24%; /* (44% + 10%) * 1.1 */
+  --mask-shift-x: -2.2px; /* -1.5px - 0.7px */
+  --mask-shift-y: -0.5px; /* 5px shared baseline + 6px - 6px - 1px - 2.5px - 2px */
 }
 
 .piece-mask-op_lapid {
-  width: 48.4%; /* 44% + 10% */
-  --mask-shift-y: 4px; /* 5px shared baseline + 4px - 5px */
+  width: 58.44%; /* 55.66% * 1.05 */
+  --mask-shift-y: -5.5px; /* 5px shared baseline + 4px - 5px - 1px - 2px - 2px - 2.5px - 2px */
 }
 
 .piece-mask-co_goldknopf {
-  width: 46.2%; /* 44% + 5% */
+  width: 50.82%; /* (44% + 5%) * 1.1 */
 }
 
 .piece-mask-op_liberman {
   --mask-shift-x: -2px;
+  --mask-shift-y: 1.5px; /* -0.5px shared baseline + 2px down */
 }
 
 .piece-mask-co_aryederi {
-  width: 46.2%; /* 44% + 5% */
+  width: 55.9%; /* (44% + 5%) * 1.1 * 1.1 */
   --mask-shift-x: -1.5px;
+  --mask-shift-y: -2.5px; /* 4px shared baseline - 2px - 2.5px - 2px */
 }
 
 .piece-mask-co_taly {
-  width: 48.4%; /* 44% + 10% */
+  width: 58.56%; /* (44% + 10%) * 1.1 * 1.1 */
+  --mask-shift-x: -1px;
+  --mask-shift-y: -2.5px; /* 4px shared baseline - 2px - 2.5px - 2px */
+}
+
+.piece-mask-co_miriregev {
+  width: 53.24%; /* (44% + 10%) * 1.1 */
+}
+
+.piece-mask-co_levin {
+  width: 55.66%; /* 48.4% * 1.15 */
+  --mask-shift-x: -1px;
+  --mask-shift-y: -2.5px; /* 4px shared baseline - 2px - 2.5px - 2px */
+}
+
+.piece-mask-co_karii {
+  width: 53.24%; /* 48.4% * 1.1 */
+}
+
+.piece-mask-op_keren {
+  width: 53.24%; /* 48.4% * 1.1 */
+}
+
+.piece-mask-op_ronen {
+  width: 53.24%; /* 48.4% * 1.1 */
+  --mask-shift-y: -1.5px; /* 4px shared baseline - 1px - 2.5px - 2px */
+}
+
+.piece-mask-co_gafni {
+  width: 53.24%; /* 48.4% * 1.1 */
   --mask-shift-x: -1px;
 }
 
 .piece-mask-co_bengvir {
-  width: 48.4%; /* 44% + 10% */
+  width: 53.24%; /* (44% + 10%) * 1.1 */
   --mask-shift-x: -2px;
-  --mask-shift-y: 1px; /* 5px shared baseline - 4px */
+  --mask-shift-y: -4.5px; /* 5px shared baseline - 4px - 1px - 2.5px - 2px */
 }
 
 .piece-mask-op_bennygantz {
-  width: 46.2%; /* 44% + 5% */
+  width: 50.82%; /* (44% + 5%) * 1.1 */
   --mask-shift-x: -1px;
 }
 
 .piece-mask-op_yoaz {
+  width: 56.69%; /* 58.44% * 0.97 */
   --mask-shift-x: -1px;
+  --mask-shift-y: -4.5px; /* 4px shared baseline - 2px - 2px - 2.5px - 2px */
 }
 
 .piece-mask-co_rottman {
-  width: 47.08%; /* 44% + 7% */
+  width: 51.788%; /* (44% + 7%) * 1.1 */
   --mask-shift-x: -1px;
+}
+
+.piece-mask-op_efrat {
+  width: 58.08%; /* (44% + 20%) * 1.1 */
+  --mask-shift-x: -2px;
+}
+
+.piece-mask-op_mikilevi {
+  width: 50.82%; /* (44% + 5%) * 1.1 */
+  --mask-shift-x: -1px;
+}
+
+.piece-mask-op_merav {
+  width: 53.24%; /* (44% + 10%) * 1.1 */
+  --mask-shift-x: -1px;
+  --mask-shift-y: -0.1px; /* 5px shared baseline + 0.4px - 1px - 2.5px - 2px */
+}
+
+.piece-mask-co_smotrich {
+  width: 53.24%; /* (44% + 10%) * 1.1 */
+  --mask-shift-y: -1.5px; /* 5px shared baseline - 1px - 1px - 2.5px - 2px */
+}
+
+.piece-mask-co_katz {
+  width: 56.97%; /* 53.24% * 1.07 */
+  --mask-shift-y: -3.5px; /* 5px shared baseline - 1px - 1px - 1.5px - 0.5px - 2.5px - 2px */
+}
+
+.piece-mask-co_bibi {
+  width: 55.66%; /* (44% + 5% + 10%) * 1.1 */
+  --mask-shift-y: -2.5px; /* 5px shared baseline - 1px (global) - 2px - 2.5px - 2px */
+}
+
+.piece-mask-co_saar {
+  width: 49.51%; /* 48.4% shared baseline * 1.1 * 0.93 */
+  --mask-shift-y: -2px; /* -0.5px shared baseline - 1.5px */
 }

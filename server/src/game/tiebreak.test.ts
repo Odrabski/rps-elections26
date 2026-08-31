@@ -21,6 +21,7 @@ function makeState(attacker: Piece, defender: Piece): GameState {
     readiness: { red: true, blue: true },
     winner: null,
     lastEvent: null,
+    lastMove: null,
   };
 }
 
@@ -68,6 +69,10 @@ describe('tie-break flow', () => {
     expect(defender.alive).toBe(false);
     expect(attacker.alive).toBe(true);
     expect(attacker.position).toEqual({ row: 3, col: 4 });
+    // Both fixtures start at 'rock' — defender's re-pick ('scissors') must replace it, not just
+    // decide the outcome, or the piece (and anything rendered from it) keeps showing the stale hand.
+    expect(attacker.hand).toBe('rock');
+    expect(defender.hand).toBe('scissors');
   });
 
   it('a repeated tie resets picks and extends the deadline instead of resolving', () => {
@@ -81,12 +86,16 @@ describe('tie-break flow', () => {
     submitTiePick(state, 'blue', 'paper');
     const event = tryResolveTieBreak(state);
 
-    expect(event).toEqual({ type: 'tie-break-repeat', attackerId: 'a', defenderId: 'd' });
+    expect(event).toEqual({ type: 'tie-break-repeat', attackerId: 'a', defenderId: 'd', round: 2 });
     expect(state.tieBreak).not.toBeNull();
     expect(state.tieBreak!.picks).toEqual({ red: null, blue: null });
     expect(state.tieBreak!.deadline).toBeGreaterThanOrEqual(firstDeadline);
     expect(attacker.alive).toBe(true);
     expect(defender.alive).toBe(true);
+    // Both fixtures start at 'rock' — the repeat's 'paper'/'paper' pick must replace it, so the
+    // next fight-sequence replay shows what was actually just chosen, not the original tied hand.
+    expect(attacker.hand).toBe('paper');
+    expect(defender.hand).toBe('paper');
   });
 
   it('autoFillTiePicks only fills sides that have not picked yet', () => {

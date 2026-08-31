@@ -1,40 +1,61 @@
-import { SOLDIER_COUNT, balancedHandPool } from 'shared';
-import type { GameState, Position, RPSHand, Team } from 'shared';
+import { balancedHandPool } from 'shared';
+import type { GameState, Piece, Position, RPSHand, Team } from 'shared';
 import { isInOwnZone, samePosition, zoneTiles } from './board.js';
 import { shuffleInPlace, shuffled } from '../util/random.js';
 
 export interface TeamSetupData {
-  kingPos: Position | null;
-  trapPos: Position | null;
-  /** Permutation of balancedHandPool(); handOrder[i] is the hand for soldier slot i. */
+  /** Permutation of balancedHandPool(); handOrder[i] is the hand for the i-th soldier once finalized. */
   handOrder: RPSHand[];
   ready: boolean;
 }
 
 export function createInitialSetupData(): TeamSetupData {
-  return { kingPos: null, trapPos: null, handOrder: balancedHandPool(), ready: false };
+  // balancedHandPool() itself is deliberately unshuffled (4 rock, then 4 paper, then 4
+  // scissors) — shuffle it here so the very first auto-finalized layout is already random,
+  // not just after the player manually hits "shuffle".
+  return { handOrder: shuffleInPlace(balancedHandPool()), ready: false };
 }
 
-export function kingId(team: Team): string {
-  return `${team}-king`;
+export function pieceId(team: Team, index: number): string {
+  return `${team}-piece-${index}`;
 }
 
-export function trapId(team: Team): string {
-  return `${team}-trap`;
-}
-
-export function soldierId(team: Team, index: number): string {
-  return `${team}-soldier-${index}`;
+/**
+ * Creates all 14 of a team's pieces at once, occupying every tile in their zone, all
+ * `'unassigned'` — no weapon, no role decided yet. Called once when setup begins, so both
+ * players' full armies exist and are visible (fog-of-war filtered) from turn one; King/Trap
+ * are designated in place from among these, never placed into a previously-empty tile.
+ */
+export function initializeTeamPieces(state: GameState, team: Team): void {
+  const tiles = zoneTiles(team);
+  tiles.forEach((position, i) => {
+    const id = pieceId(team, i);
+    state.pieces[id] = {
+      id,
+      team,
+      kind: 'unassigned',
+      hand: null,
+      characterId: `${team}-piece`,
+      position,
+      revealed: false,
+      alive: true,
+    };
+  });
 }
 
 export type SetupError =
   | 'not-setup-phase'
   | 'already-ready'
   | 'out-of-zone'
-  | 'overlaps-other-special'
+  | 'not-unassigned'
+  | 'role-already-taken'
   | 'specials-not-placed';
 
-/** Placing King or Trap is sequential: King first, then Trap — see the `step` derivation client-side. */
+function teamPieces(state: GameState, team: Team): Piece[] {
+  return Object.values(state.pieces).filter((p) => p.team === team);
+}
+
+/** Designates one of the team's existing (still-unassigned) pieces as King or Trap. */
 export function placeSpecial(
   state: GameState,
   setupData: Record<Team, TeamSetupData>,
@@ -47,15 +68,33 @@ export function placeSpecial(
   if (data.ready) return 'already-ready';
   if (!isInOwnZone(team, position)) return 'out-of-zone';
 
-  const other = which === 'king' ? data.trapPos : data.kingPos;
-  if (other && samePosition(other, position)) return 'overlaps-other-special';
+  const pieces = teamPieces(state, team);
+  const piece = pieces.find((p) => samePosition(p.position, position));
+  if (!piece || piece.kind !== 'unassigned') return 'not-unassigned';
+  if (pieces.some((p) => p.kind === which)) return 'role-already-taken';
 
-  if (which === 'king') data.kingPos = position;
-  else data.trapPos = position;
+  piece.kind = which;
+  piece.characterId = which === 'king' ? `${team}-king` : 'trap';
 
-  // The 12 soldiers only get shuffled onto the board once both King and Trap are placed.
-  applyTeamLayout(state, setupData, team);
+  finalizeSoldiersIfReady(state, setupData, team);
   return null;
+}
+
+/** Once both King and Trap exist for a team, gives the rest a balanced rock/paper/scissors hand. */
+function finalizeSoldiersIfReady(state: GameState, setupData: Record<Team, TeamSetupData>, team: Team): void {
+  const pieces = teamPieces(state, team);
+  const hasKing = pieces.some((p) => p.kind === 'king');
+  const hasTrap = pieces.some((p) => p.kind === 'trap');
+  if (!hasKing || !hasTrap) return;
+
+  const data = setupData[team];
+  pieces
+    .filter((p) => p.kind === 'unassigned')
+    .forEach((p, i) => {
+      p.kind = 'soldier';
+      p.hand = data.handOrder[i];
+      p.characterId = `${team}-soldier`;
+    });
 }
 
 export function shuffleHands(
@@ -66,10 +105,14 @@ export function shuffleHands(
   if (state.phase !== 'setup') return 'not-setup-phase';
   const data = setupData[team];
   if (data.ready) return 'already-ready';
-  if (!data.kingPos || !data.trapPos) return 'specials-not-placed';
+
+  const soldiers = teamPieces(state, team).filter((p) => p.kind === 'soldier');
+  if (soldiers.length === 0) return 'specials-not-placed';
 
   shuffleInPlace(data.handOrder);
-  applyTeamLayout(state, setupData, team);
+  soldiers.forEach((p, i) => {
+    p.hand = data.handOrder[i];
+  });
   return null;
 }
 
@@ -81,7 +124,11 @@ export function markReady(
   if (state.phase !== 'setup') return 'not-setup-phase';
   const data = setupData[team];
   if (data.ready) return 'already-ready';
-  if (!data.kingPos || !data.trapPos) return 'specials-not-placed';
+
+  const pieces = teamPieces(state, team);
+  const hasKing = pieces.some((p) => p.kind === 'king');
+  const hasTrap = pieces.some((p) => p.kind === 'trap');
+  if (!hasKing || !hasTrap) return 'specials-not-placed';
 
   data.ready = true;
   state.readiness[team] = true;
@@ -89,78 +136,34 @@ export function markReady(
 }
 
 /** Called when the setup timer expires; fills in anything the player never confirmed. */
-export function autoFinalizeTeam(
-  state: GameState,
-  setupData: Record<Team, TeamSetupData>,
-  team: Team
-): void {
+export function autoFinalizeTeam(state: GameState, setupData: Record<Team, TeamSetupData>, team: Team): void {
   const data = setupData[team];
   if (data.ready) return;
 
-  if (!data.kingPos || !data.trapPos) {
-    const tiles = shuffled(zoneTiles(team));
-    const king = data.kingPos ?? tiles[0];
-    const trap = data.trapPos ?? tiles.find((t) => !samePosition(t, king)) ?? tiles[1];
-    data.kingPos = king;
-    data.trapPos = trap;
-  }
-  shuffleInPlace(data.handOrder);
+  const pieces = teamPieces(state, team);
+  const hasKing = pieces.some((p) => p.kind === 'king');
+  const hasTrap = pieces.some((p) => p.kind === 'trap');
 
-  applyTeamLayout(state, setupData, team);
+  if (!hasKing || !hasTrap) {
+    const candidates = shuffled(pieces.filter((p) => p.kind === 'unassigned'));
+    if (!hasKing) {
+      const king = candidates.shift();
+      if (king) {
+        king.kind = 'king';
+        king.characterId = `${team}-king`;
+      }
+    }
+    if (!hasTrap) {
+      const trap = candidates.shift();
+      if (trap) {
+        trap.kind = 'trap';
+        trap.characterId = 'trap';
+      }
+    }
+  }
+
+  shuffleInPlace(data.handOrder);
+  finalizeSoldiersIfReady(state, setupData, team);
   data.ready = true;
   state.readiness[team] = true;
-}
-
-/** Rebuilds this team's King/Trap/soldier Piece objects in state.pieces from setupData. */
-function applyTeamLayout(state: GameState, setupData: Record<Team, TeamSetupData>, team: Team): void {
-  const data = setupData[team];
-
-  if (data.kingPos) {
-    state.pieces[kingId(team)] = {
-      id: kingId(team),
-      team,
-      kind: 'king',
-      hand: null,
-      characterId: `${team}-king`,
-      position: data.kingPos,
-      revealed: false,
-      alive: true,
-    };
-  }
-
-  if (data.trapPos) {
-    state.pieces[trapId(team)] = {
-      id: trapId(team),
-      team,
-      kind: 'trap',
-      hand: null,
-      characterId: 'trap',
-      position: data.trapPos,
-      revealed: false,
-      alive: true,
-    };
-  }
-
-  if (data.kingPos && data.trapPos) {
-    const occupied = [data.kingPos, data.trapPos];
-    const freeTiles = zoneTiles(team).filter((tile) => !occupied.some((o) => samePosition(o, tile)));
-
-    // Regular soldiers are anonymous — no individual character portrait, just team + hand.
-    for (let i = 0; i < SOLDIER_COUNT; i++) {
-      const id = soldierId(team, i);
-      state.pieces[id] = {
-        id,
-        team,
-        kind: 'soldier',
-        hand: data.handOrder[i],
-        characterId: `${team}-soldier`,
-        position: freeTiles[i],
-        revealed: false,
-        alive: true,
-      };
-    }
-  } else {
-    // Both specials aren't placed yet, so soldier tiles aren't determined — clear any stale ones.
-    for (let i = 0; i < SOLDIER_COUNT; i++) delete state.pieces[soldierId(team, i)];
-  }
 }

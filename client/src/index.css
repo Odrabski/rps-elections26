@@ -1,5 +1,4 @@
 :root {
-  --bg-gradient: radial-gradient(ellipse at top, #294f22 0%, #142b12 55%, #050e06 100%);
   --text: #d9e6d2;
   --text-h: #f4faf0;
   --text-dim: rgba(224, 240, 216, 0.5);
@@ -27,15 +26,25 @@
 
 html {
   overscroll-behavior-y: none;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  background: var(--bg-gradient);
+  background-color: #142b12;
+  background-image: url('/assets/background.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
   min-height: 100svh;
   min-height: 100dvh;
   overscroll-behavior-y: none;
+  /* The clash cloud (BoardGrid.css) intentionally spills past the board's own frame, and can
+     spill past the viewport edge too near the board's left/right columns. Clipping it here
+     instead of letting it grow the page's scrollable width keeps the board itself pinned in
+     place — the cloud just gets visually cut off at the edge, which is fine. */
+  overflow-x: hidden;
 }
 
 #root {

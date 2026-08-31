@@ -3,6 +3,8 @@ import type { ClientMessage, ServerMessage, Team } from 'shared';
 import { RoomManager } from '../rooms/RoomManager.js';
 import type { Room } from '../rooms/Room.js';
 
+const OTHER_TEAM: Record<Team, Team> = { red: 'blue', blue: 'red' };
+
 export function handleConnection(socket: WebSocket, rooms: RoomManager): void {
   let room: Room | null = null;
   let team: Team | null = null;
@@ -19,9 +21,13 @@ export function handleConnection(socket: WebSocket, rooms: RoomManager): void {
 
     if (msg.type === 'create-room') {
       room = rooms.createRoom();
-      const slot = room.addPlayer(socket);
+      const slot = room.addPlayer(socket, msg.team);
       team = slot!.team;
-      return send({ type: 'room-created', roomCode: room.code, team: slot!.team, token: slot!.token });
+      send({ type: 'room-created', roomCode: room.code, team: slot!.team, token: slot!.token });
+      // Sent after room-created so the client's roomCode/team are already set by the time the
+      // state broadcast that setBot's startSetupPhase triggers arrives.
+      if (msg.vsBot) room.setBot(OTHER_TEAM[slot!.team], msg.botDifficulty ?? 'medium');
+      return;
     }
 
     if (msg.type === 'join-room') {

@@ -1,7 +1,7 @@
-import type { ClientGameView, Position, RPSHand, Team } from './types.js';
+import type { BotDifficulty, ClientGameView, Position, RPSHand, Team } from './types.js';
 
 export type ClientMessage =
-  | { type: 'create-room' }
+  | { type: 'create-room'; team?: Team; vsBot?: boolean; botDifficulty?: BotDifficulty }
   | { type: 'join-room'; roomCode: string }
   | { type: 'rejoin'; roomCode: string; token: string }
   | { type: 'place-special'; piece: 'king' | 'trap'; position: Position }

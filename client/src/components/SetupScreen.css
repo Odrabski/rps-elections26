@@ -9,72 +9,74 @@
   width: 100%;
 }
 
-.setup-header {
+/* Positioned relative to the board, not stacked in flow below it — so its size (which changes
+   as the step banner becomes the ready panel becomes nothing at all, behind the locked-in
+   overlay) can never shift the board's own position. */
+/* Matches GameBoard's .board-wrap positioning exactly, so the board sits at the same y position
+   in setup as it does during actual play. */
+.setup-board-area {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: min(94vw, 520px);
+  justify-content: center;
+  width: 100%;
+  transform: translateY(70px);
 }
 
-.setup-team-badge {
+/* Matches GameBoard's .game-board-content .score-header override, so badges+timer sit at the
+   same y position in setup as they do during actual play. */
+.setup-screen .score-header {
+  transform: translateY(27px);
+}
+
+/* Sits directly on the board itself, vertically centered between the two zones (row 3/4) —
+   mirrors .trap-warning-banner's positioning pattern but centered rather than pinned near the
+   top, since this isn't reacting to a specific tile. */
+.setup-onboard-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  max-width: 92%;
+  white-space: nowrap;
+  text-align: center;
   padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.setup-step-banner {
-  padding: 8px 20px;
-  border-radius: 999px;
-  border: 1px solid;
-  background: rgba(10, 14, 30, 0.7);
+  background: rgba(10, 14, 30, 0.82);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: clamp(0.6rem, 3.2vw, 0.85rem);
+  pointer-events: none;
+  animation: trapWarningPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Plain images, deliberately no circular card/background — just the anonymous pool waiting
-   to be assigned a role. */
-.soldier-bench {
+/* The start/shuffle actions, right on the board itself — same centered positioning as
+   .setup-onboard-banner. */
+.setup-onboard-buttons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2px;
-  width: min(94vw, 520px);
+  gap: 8px;
+  animation: trapWarningPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.soldier-bench-icon {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  opacity: 0.9;
+.setup-btn-onboard {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  min-height: 0;
+  white-space: nowrap;
 }
 
-.setup-controls {
-  width: min(94vw, 480px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+.setup-btn-onboard-shuffle {
+  background: #2a2a2e;
+  border-color: #3d3d42;
 }
 
-.setup-instructions {
-  text-align: center;
-  color: var(--text-dim);
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.setup-button-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-.setup-button-row .btn-secondary,
-.setup-button-row .btn-primary {
-  flex: 1;
-  min-height: 48px;
+.setup-btn-onboard-shuffle:hover:not(:disabled) {
+  background: #38383d;
 }
 
 .locked-in-hint {

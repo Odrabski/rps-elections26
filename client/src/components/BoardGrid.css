@@ -1,9 +1,9 @@
 .board-frame {
   position: relative;
   z-index: 1; /* sit above the screen's own background image */
-  width: min(96vw, 88svh, 560px);
-  aspect-ratio: 1353 / 1162; /* matches board.png exactly, no distortion */
-  background-image: url('/assets/board.png');
+  width: min(96vw, 88svh);
+  aspect-ratio: 1270 / 1088; /* matches board.webp exactly, no distortion */
+  background-image: url('/assets/board.webp');
   background-size: 100% 100%;
   border-radius: 16px; /* affects background-clip regardless of overflow, so corners stay rounded */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -12,12 +12,21 @@
      clipped at the frame edge. */
 }
 
-/* Aligned to the checkerboard region measured inside board.png (excludes the leafy border). */
+/* On a phone-width viewport, stretch further still so the board fills the screen with larger,
+   more tappable squares instead of staying capped at a size meant for wider layouts. */
+@media (max-width: 600px) {
+  .board-frame {
+    width: min(98vw, 92svh);
+  }
+}
+
+/* Aligned to the checkerboard region measured inside board.webp — a thin gold border only, no
+   decorative leafy frame like the previous art. */
 .board-grid {
   position: absolute;
-  inset-inline: 4.45%;
-  top: 4.3%;
-  bottom: 5%;
+  inset-inline: 1.6%;
+  top: 1.5%;
+  bottom: 1.8%;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(6, 1fr);
@@ -47,13 +56,293 @@
   background: rgba(212, 175, 55, 0.18);
 }
 
+/* Calls out the one tile/piece the cursor is actually over, among all the legal ones —
+   e.g. during setup, so it's clear exactly which soldier a click would designate. */
+.board-tile-legal:hover:not(:disabled) {
+  box-shadow: 0 0 0 4px var(--gold) inset, 0 0 18px 2px rgba(212, 175, 55, 0.65);
+  background: rgba(212, 175, 55, 0.4);
+}
+
+/* Each team's most recent move destination — a diagonal-line fill in that team's color (no
+   border), left in place until they move again. */
+.board-tile-last-move-red {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(159, 18, 57, 0.45) 0,
+    rgba(159, 18, 57, 0.45) 6px,
+    transparent 6px,
+    transparent 16px
+  );
+}
+
+.board-tile-last-move-blue {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(12, 74, 110, 0.5) 0,
+    rgba(12, 74, 110, 0.5) 6px,
+    transparent 6px,
+    transparent 16px
+  );
+}
+
+/* Points from the selected piece toward a legal target tile, pinned to the tile's far edge in
+   that direction. Plain DOM-order stacking, same as the tile's own yellow highlight — a
+   neighboring row's figure overflowing into this tile (see .board-piece-wrap) still paints over
+   both, same as it always has. */
+/* Drawn as a plain CSS border-triangle rather than a Unicode glyph — some mobile browsers (seen
+   on Android) render triangle characters like ▶/◀ with their colored "emoji" presentation
+   instead of solid text, and font-variant-emoji isn't reliably supported everywhere either. A
+   border-triangle can't have an emoji presentation at all, so it's immune to that entirely. */
+.board-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 4px rgba(0, 0, 0, 0.85));
+  animation: arrowPulse 1.1s ease-in-out infinite;
+}
+
+.board-arrow-up {
+  top: 4%;
+  left: 50%;
+  --arrow-base: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 12px solid var(--gold);
+}
+
+.board-arrow-down {
+  bottom: 4%;
+  left: 50%;
+  --arrow-base: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid var(--gold);
+}
+
+.board-arrow-left {
+  left: 4%;
+  top: 50%;
+  --arrow-base: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid var(--gold);
+}
+
+.board-arrow-right {
+  right: 4%;
+  top: 50%;
+  --arrow-base: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid var(--gold);
+}
+
+@keyframes arrowPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: var(--arrow-base) scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: var(--arrow-base) scale(1.1);
+  }
+}
+
+/* The trap's tile once it's spent — sits above the checkerboard background, below whatever
+   piece is currently jumping onto or sinking into it. */
+.board-hole {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* Both fighters vanish into this the moment the attacker's jump lands — big and tilted, restlessly
+   wobbling (never a static pose) for as long as the outcome is undecided, through any number of
+   tie repeats. Bigger than one tile so it visibly spills toward the attacker's own tile too,
+   reading as "both of them" rather than just whoever was standing here. z-index because it must
+   fully hide the fighters even where a nearer row's own figures would normally overflow on top. */
+.board-clash-cloud {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 182%; /* 260% * 0.7 */
+  z-index: 3;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  pointer-events: none;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.55));
+  animation: clashCloudWobble 1.8s ease-in-out infinite;
+}
+
+@keyframes clashCloudWobble {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(-15deg) scale(1);
+  }
+  25% {
+    transform: translate(-50%, -50%) rotate(-6deg) scale(1.05);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(-17deg) scale(0.97);
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(-8deg) scale(1.03);
+  }
+}
+
+/* The fight is decided — the cloud dissolves away to expose the winner underneath. */
+.board-clash-cloud-dissolving {
+  animation: clashCloudDissolve 0.4s ease-in forwards;
+}
+
+@keyframes clashCloudDissolve {
+  from {
+    transform: translate(-50%, -50%) rotate(-10deg) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-4deg) scale(0.55);
+    opacity: 0;
+  }
+}
+
+/* "!נפלת במלכודת" — a brief alert while the trap is still shown for real, before it dissolves. */
+.trap-warning-banner {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: rgba(225, 29, 69, 0.92);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 10px 22px;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: trapWarningPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes trapWarningPop {
+  from {
+    transform: translateX(-50%) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.board-cell:has(.board-tile-legal:hover) .board-piece-wrap .piece-portrait {
+  filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold)) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+}
+
+/* Sized to exactly one cell, sitting between .board-cell and .board-piece-wrap purely so
+   "100%" means "one tile" for the jump animation below — .board-piece-wrap's own centering/
+   anchoring inside it is completely unchanged. */
+.board-piece-anim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* A soldier moving to an adjacent tile slides in from that direction with a small hop, instead
+   of teleporting. --jump-from-x/y (set inline per piece) is "one cell" in the direction it came
+   from, e.g. 100% / 0% for "arrived from the right". Always exactly one axis, since a move is
+   always exactly one tile. */
+.piece-jumping {
+  animation: pieceJump 0.5s ease-out;
+}
+
+@keyframes pieceJump {
+  0% {
+    transform: translate(var(--jump-from-x, 0%), var(--jump-from-y, 0%));
+  }
+  50% {
+    transform: translate(calc(var(--jump-from-x, 0%) * 0.5), calc(var(--jump-from-y, 0%) * 0.5 - 18%));
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* The trap and the soldier that triggers it both dissolve in place once spent — must re-declare
+   .board-piece-wrap's own centering transform (translateX(-50%)) or the fade would also snap
+   sideways. */
+.piece-dissolving {
+  animation: pieceDissolve 0.4s ease-in forwards;
+}
+
+@keyframes pieceDissolve {
+  from {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-50%) scale(0.4);
+    opacity: 0;
+  }
+}
+
+/* The attacker sinking into the trap's hole, rather than fading in place — same centering
+   transform as .piece-dissolving (translateX(-50%)), plus a downward sink. */
+.piece-falling {
+  animation: pieceFall 0.6s ease-in forwards;
+}
+
+/* A physical sink, not a fade — full opacity throughout, vanishing by shrinking into the hole
+   rather than dissolving. */
+@keyframes pieceFall {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-14%) scale(0.6);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(0);
+  }
+}
+
+/* The defender's own reaction to the incoming attacker — a quick startled hop-and-shake in
+   place, not a slide anywhere — right before both of them turn into the clash cloud together.
+   Same centering transform as the other piece animations (translateX(-50%)). */
+.piece-flinching {
+  animation: pieceFlinch 0.5s ease-in-out;
+}
+
+@keyframes pieceFlinch {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-50%) translateY(-6%) rotate(-4deg);
+  }
+  50% {
+    transform: translateX(-50%) translateY(0) rotate(3deg);
+  }
+  75% {
+    transform: translateX(-50%) translateY(-3%) rotate(-2deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+  }
+}
+
 /* Anchors the figure's feet 10% up from the tile's bottom edge, letting it overflow upward
    into the row behind it. pointer-events: none so clicks always fall through to .board-tile. */
 .board-piece-wrap {
   position: absolute;
   left: 50%;
-  bottom: 10%;
-  width: 150%;
+  bottom: -4%;
+  width: 127.5%; /* 150% * 0.85 — every piece's body 15% smaller, both teams alike */
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -115,12 +404,59 @@
    or it jumps to this transform's 0%/100% state the instant the animation starts/ends. */
 @keyframes headNod {
   0% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
   }
   50% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) rotate(10deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(10deg);
   }
   100% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+  }
+}
+
+/* A second, independent idle wobble on a fixed 8s cadence (see BoardGrid.tsx's tiltKey2) — the
+ * mirror image of .board-piece-tilt (every rotate() sign flipped), so the two never read as the
+ * same recurring animation even if they happen to land on the same tile. */
+.board-piece-tilt-reverse .piece-view {
+  animation: pieceTiltReverse 0.7s ease-in-out;
+  transform-origin: 50% 100%;
+}
+
+.board-piece-tilt-reverse .piece-view:has(.piece-mask) {
+  animation: none;
+}
+
+.board-piece-tilt-reverse .piece-mask {
+  animation: headNodReverse 0.5s ease-in-out;
+  transform-origin: 50% 100%;
+}
+
+@keyframes pieceTiltReverse {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(7deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes headNodReverse {
+  0% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+  }
+  50% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(-10deg);
+  }
+  100% {
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
   }
 }

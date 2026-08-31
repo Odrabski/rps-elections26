@@ -26,26 +26,33 @@
   color: var(--gold);
 }
 
+/* The page is RTL (index.html dir="rtl"), so the Hebrew text flows right-to-left and the
+ * trailing number naturally lands at the sentence's visual left/end — no extra markup needed. */
+.tiebreak-subheader {
+  margin: -6px 0 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
 .tiebreak-portraits {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-.tiebreak-portraits img {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: contain;
-  padding: 6%;
-  background: #0f172a;
-  border: 2px solid var(--panel-border);
+/* Sized wrapper for the shared .piece-view body+head layering (see PieceView.css) — gives it a
+ * fixed width to size against, same as every other place that pattern is reused. */
+.tiebreak-fighter {
+  width: 90px;
 }
 
+/* Matches .fight-vs on the collision-cinematic intro screen (FightSequence.css). */
 .tiebreak-vs {
-  color: var(--text-dim);
-  font-weight: 700;
-  font-size: 0.85rem;
+  color: var(--gold);
+  font-weight: 900;
+  font-size: 1.4rem;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
 }
 
 .tiebreak-hand-row {

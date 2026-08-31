@@ -16,6 +16,7 @@ function makeState(pieces: Piece[]): GameState {
     readiness: { red: true, blue: true },
     winner: null,
     lastEvent: null,
+    lastMove: null,
   };
 }
 
@@ -80,7 +81,7 @@ describe('applyMove: RPS soldier combat', () => {
 });
 
 describe('applyMove: trap and king', () => {
-  it('attacking a trap eliminates only the attacker, trap stays put', () => {
+  it('attacking a trap is one-time use — it eliminates the attacker and is spent itself', () => {
     const attacker = soldier('a', 'red', 'rock', 3, 3);
     const trap: Piece = {
       id: 'blue-trap', team: 'blue', kind: 'trap', hand: null,
@@ -92,7 +93,7 @@ describe('applyMove: trap and king', () => {
 
     expect(event).toEqual({ type: 'trap-triggered', attackerId: 'a', trapId: 'blue-trap' });
     expect(attacker.alive).toBe(false);
-    expect(trap.alive).toBe(true);
+    expect(trap.alive).toBe(false);
     expect(trap.position).toEqual({ row: 3, col: 4 });
     expect(trap.revealed).toBe(true);
   });

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ClientGameView, ClientMessage, Position, RPSHand, ServerMessage, Team } from 'shared';
+import type { BotDifficulty, ClientGameView, ClientMessage, Position, RPSHand, ServerMessage, Team } from 'shared';
 import { clearSession, loadSession, saveSession } from '../utils/rejoin';
 
 export type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error';
@@ -8,7 +8,11 @@ function socketUrl(): string {
   const explicit = import.meta.env.VITE_WS_URL as string | undefined;
   if (explicit) return explicit;
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  return `${protocol}://${window.location.hostname}:8787`;
+  // Local dev runs the server on its own fixed port (see server/src/index.ts). A deployed build
+  // has the same process serving both the page and the socket — `location.host` (not
+  // `hostname`) already carries whatever port that actually is (or none, for 80/443).
+  if (import.meta.env.DEV) return `${protocol}://${window.location.hostname}:8787`;
+  return `${protocol}://${window.location.host}`;
 }
 
 export function useGameSocket() {
@@ -21,6 +25,7 @@ export function useGameSocket() {
   const [view, setView] = useState<ClientGameView | null>(null);
   const [opponentConnected, setOpponentConnected] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [vsBot, setVsBot] = useState(false);
 
   const ensureSocket = useCallback((): WebSocket => {
     const existing = socketRef.current;
@@ -77,7 +82,16 @@ export function useGameSocket() {
     [ensureSocket, sendWhenOpen]
   );
 
-  const createRoom = useCallback(() => send({ type: 'create-room' }), [send]);
+  const createRoom = useCallback(
+    (team: Team, botDifficulty?: BotDifficulty) => {
+      // Set synchronously, before the server round-trip, so the UI can render bot-appropriate
+      // copy (skip the "share this code" lobby screen) immediately rather than waiting on a
+      // confirmation that's only ever an instant away anyway.
+      setVsBot(!!botDifficulty);
+      send({ type: 'create-room', team, ...(botDifficulty ? { vsBot: true, botDifficulty } : {}) });
+    },
+    [send]
+  );
   const joinRoom = useCallback(
     (code: string) => send({ type: 'join-room', roomCode: code.toUpperCase() }),
     [send]
@@ -101,6 +115,7 @@ export function useGameSocket() {
     setView(null);
     setOpponentConnected(false);
     setStatus('idle');
+    setVsBot(false);
   }, []);
 
   // Attempt to resume a previous session (e.g. after a page refresh) exactly once.
@@ -120,6 +135,7 @@ export function useGameSocket() {
     view,
     opponentConnected,
     errorMessage,
+    vsBot,
     createRoom,
     joinRoom,
     placeSpecial,

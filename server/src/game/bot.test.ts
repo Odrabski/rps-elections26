@@ -1,0 +1,148 @@
+import { describe, expect, it } from 'vitest';
+import type { GameState, Piece, RPSHand, Team } from 'shared';
+import { chooseBotMove } from './bot.js';
+import { legalMovesFor } from './movement.js';
+
+function makeState(pieces: Piece[], turn: Team = 'red'): GameState {
+  const map: Record<string, Piece> = {};
+  for (const p of pieces) map[p.id] = p;
+  return {
+    roomCode: 'TEST',
+    phase: 'playing',
+    pieces: map,
+    turn,
+    setupDeadline: null,
+    turnDeadline: null,
+    tieBreak: null,
+    readiness: { red: true, blue: true },
+    winner: null,
+    lastEvent: null,
+    lastMove: null,
+  };
+}
+
+function soldier(
+  id: string,
+  team: Team,
+  hand: RPSHand,
+  row: number,
+  col: number,
+  revealed = false,
+): Piece {
+  return { id, team, kind: 'soldier', hand, characterId: id, position: { row, col }, revealed, alive: true };
+}
+
+describe('chooseBotMove: easy', () => {
+  it('always returns one of the currently legal moves', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3);
+    const state = makeState([attacker]);
+
+    const move = chooseBotMove(state, 'red', 'easy');
+    const legal = legalMovesFor(state, 'red');
+
+    expect(move).not.toBeNull();
+    expect(legal).toContainEqual(move);
+  });
+
+  it('returns null when the team has no living soldiers left to move', () => {
+    const deadSoldier = { ...soldier('a', 'red', 'rock', 2, 3), alive: false };
+    const state = makeState([deadSoldier]);
+
+    expect(chooseBotMove(state, 'red', 'easy')).toBeNull();
+  });
+});
+
+describe('chooseBotMove: medium', () => {
+  it('prefers a revealed favorable attack over a neutral empty-tile move', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3); // can attack (3,3) or step to (2,2)
+    const defender = soldier('d', 'blue', 'scissors', 3, 3, true); // revealed — rock beats scissors
+    const state = makeState([attacker, defender]);
+
+    const move = chooseBotMove(state, 'red', 'medium');
+
+    expect(move).toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
+
+  it('avoids a revealed unfavorable attack when a safe move exists', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3); // can attack (3,3) or step to (2,2)
+    const defender = soldier('d', 'blue', 'paper', 3, 3, true); // revealed — paper beats rock
+    const state = makeState([attacker, defender]);
+
+    const move = chooseBotMove(state, 'red', 'medium');
+
+    expect(move).not.toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
+
+  it('always attacks a revealed king regardless of hand', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3);
+    const king: Piece = {
+      id: 'k',
+      team: 'blue',
+      kind: 'king',
+      hand: null,
+      characterId: 'k',
+      position: { row: 3, col: 3 },
+      revealed: true,
+      alive: true,
+    };
+    const state = makeState([attacker, king]);
+
+    const move = chooseBotMove(state, 'red', 'medium');
+
+    expect(move).toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
+
+  it('never attacks a revealed trap', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3);
+    const trap: Piece = {
+      id: 't',
+      team: 'blue',
+      kind: 'trap',
+      hand: null,
+      characterId: 't',
+      position: { row: 3, col: 3 },
+      revealed: true,
+      alive: true,
+    };
+    const state = makeState([attacker, trap]);
+
+    const move = chooseBotMove(state, 'red', 'medium');
+
+    expect(move).not.toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
+});
+
+describe('chooseBotMove: hard', () => {
+  /**
+   * Consumes 4 of blue's soldiers into "already revealed" with a given hand, so the residual
+   * pool the hard bot deduces from is entirely determined by the test — mirrors what a human
+   * could also legitimately track (revealing is permanent and public).
+   */
+  function revealedBlueSoldiers(hand: RPSHand, startId: string): Piece[] {
+    return [0, 1, 2, 3].map((i) => soldier(`${startId}${i}`, 'blue', hand, 5, i, true));
+  }
+
+  it('attacks an unrevealed piece when the residual pool heavily favors the attacker', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3); // beats scissors, loses to paper
+    const target = soldier('d', 'blue', 'scissors', 3, 3, false); // unrevealed — hand must not be read
+    // Every already-revealed blue soldier is 'rock' or 'paper', leaving only 'scissors' hidden.
+    const revealed = [...revealedBlueSoldiers('rock', 'r'), ...revealedBlueSoldiers('paper', 'p')];
+    const state = makeState([attacker, target, ...revealed]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move).toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
+
+  it('avoids an unrevealed piece when the residual pool heavily favors the defender', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3); // beats scissors, loses to paper
+    const target = soldier('d', 'blue', 'paper', 3, 3, false); // unrevealed — hand must not be read
+    // Every already-revealed blue soldier is 'rock' or 'scissors', leaving only 'paper' hidden.
+    const revealed = [...revealedBlueSoldiers('rock', 'r'), ...revealedBlueSoldiers('scissors', 's')];
+    const state = makeState([attacker, target, ...revealed]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move).not.toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
+});

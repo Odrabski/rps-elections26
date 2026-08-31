@@ -1,20 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useGameSocket } from './hooks/useGameSocket';
 import { HomeScreen } from './components/HomeScreen';
 import { SetupScreen } from './components/SetupScreen';
 import { GameBoard } from './components/GameBoard';
 import { GameOverScreen } from './components/GameOverScreen';
+import { SplashScreen } from './components/SplashScreen';
 import { TEAM_THEME } from './data/theme';
+import { preloadPieceAssets } from './utils/preloadAssets';
+import { loadSession } from './utils/rejoin';
+import { APP_VERSION } from './version';
 import './App.css';
 
 export default function App() {
   const [codeCopied, setCodeCopied] = useState(false);
+  // Mobile browsers (Android Chrome especially) routinely discard a backgrounded tab under
+  // memory pressure and reload it fresh from scratch the moment it's foregrounded again — with
+  // no visible navigation, that looks to the player like the splash screen randomly popping up
+  // mid-game for a second before the existing session reconnects. A saved session (see
+  // rejoin.ts) is exactly the signal that this is one of those silent reloads, not a genuine
+  // fresh launch, so the splash is skipped entirely in that case.
+  const [showSplash, setShowSplash] = useState(() => !loadSession());
+
+  useEffect(() => {
+    preloadPieceAssets();
+  }, []);
   const {
     roomCode,
     team,
     view,
     opponentConnected,
     errorMessage,
+    vsBot,
     createRoom,
     joinRoom,
     placeSpecial,
@@ -26,12 +42,21 @@ export default function App() {
     leave,
   } = useGameSocket();
 
-  if (!roomCode || !team) {
-    return <HomeScreen onCreate={createRoom} onJoin={joinRoom} errorMessage={errorMessage} />;
-  }
+  let content: ReactNode;
 
-  if (!view || view.phase === 'lobby') {
-    return (
+  if (!roomCode || !team) {
+    content = <HomeScreen onCreate={createRoom} onJoin={joinRoom} errorMessage={errorMessage} />;
+  } else if (!view || view.phase === 'lobby') {
+    // A bot room moves past 'lobby' almost immediately (no real second player to wait for) — this
+    // only ever shows for an instant, so it gets simple loading copy instead of the human-facing
+    // "share this code" panel, which would make no sense here.
+    content = vsBot ? (
+      <div className="lobby-screen">
+        <div className="lobby-panel panel">
+          <h1 className="gradient-heading">מכינים את המשחק...</h1>
+        </div>
+      </div>
+    ) : (
       <div className="lobby-screen">
         <button type="button" className="exit-btn" onClick={leave} aria-label="עזוב">
           🚪
@@ -61,32 +86,46 @@ export default function App() {
         </div>
       </div>
     );
+  } else {
+    content = (
+      <>
+        {!opponentConnected && view.phase !== 'gameover' && (
+          <div className="disconnect-banner">היריב התנתק — ממתין לחיבור מחדש...</div>
+        )}
+
+        {view.phase === 'setup' && (
+          <SetupScreen
+            view={view}
+            team={team}
+            onPlaceSpecial={placeSpecial}
+            onShuffle={shuffleHands}
+            onReady={ready}
+            onExit={leave}
+          />
+        )}
+
+        {view.phase === 'playing' && (
+          <GameBoard view={view} team={team} onMove={move} onTiePick={tiePick} onExit={leave} />
+        )}
+
+        {view.phase === 'gameover' && view.winner && (
+          <GameOverScreen
+            winner={view.winner}
+            you={team}
+            reason={view.lastEvent}
+            onRematch={rematch}
+            onBackToLobby={leave}
+          />
+        )}
+      </>
+    );
   }
 
   return (
     <>
-      {!opponentConnected && view.phase !== 'gameover' && (
-        <div className="disconnect-banner">היריב התנתק — ממתין לחיבור מחדש...</div>
-      )}
-
-      {view.phase === 'setup' && (
-        <SetupScreen
-          view={view}
-          team={team}
-          onPlaceSpecial={placeSpecial}
-          onShuffle={shuffleHands}
-          onReady={ready}
-          onExit={leave}
-        />
-      )}
-
-      {view.phase === 'playing' && (
-        <GameBoard view={view} team={team} onMove={move} onTiePick={tiePick} onExit={leave} />
-      )}
-
-      {view.phase === 'gameover' && view.winner && (
-        <GameOverScreen winner={view.winner} you={team} onRematch={rematch} onBackToLobby={leave} />
-      )}
+      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+      {content}
+      <div className="app-version">v{APP_VERSION}</div>
     </>
   );
 }

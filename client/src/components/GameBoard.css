@@ -5,29 +5,61 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  padding: max(12px, env(safe-area-inset-top)) 10px calc(20px + env(safe-area-inset-bottom));
+  padding: max(12px, env(safe-area-inset-top)) 10px calc(16px + env(safe-area-inset-bottom));
   position: relative;
   width: 100%;
-  background-image: url('/assets/background.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
-.turn-banner {
+/* Matches BoardGrid's own narrow-viewport breakpoint — less side padding so the board can
+   actually reach the wider size that breakpoint allows. */
+@media (max-width: 600px) {
+  .game-board-screen {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
+
+/* Groups the turn pill, board, and score header for shared flex-column/gap layout — each of the
+   three now gets its own independent translateY below, on top of this shared flow, since they no
+   longer all move down by the same amount. */
+.game-board-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: min(94vw, 520px);
-  padding: 8px 8px 8px 18px;
-  border-radius: 999px;
-  border: 1px solid;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  gap: 16px;
+  width: 100%;
 }
 
-.turn-banner-text {
-  font-size: 1.05rem;
-  font-weight: 700;
+/* Board moves down 40px more than the turn pill above it, and score-header below is allowed to
+   overlap it slightly. */
+.board-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  transform: translateY(70px);
+}
+
+/* A small pill, at least 3 of its 7 columns wide — sits above the board (swapped with
+   ScoreHeader, which moved below), centered by .game-board-screen's own flex layout. Stays at
+   its prior y position (the +30px group shift from before the board/score-header were split
+   apart) while the board and score-header move further down independently. */
+.turn-pill {
+  transform: translateY(30px);
+  min-width: min(94vw, 220px);
+  text-align: center;
+  padding: 8px 20px;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* ScoreHeader's own -15px (see ScoreHeader.css) plus 30px more down, scoped to the game board
+   specifically so the setup screen's copy of ScoreHeader is unaffected. Allowed to overlap the
+   board above it slightly. */
+.game-board-content .score-header {
+  transform: translateY(27px);
 }

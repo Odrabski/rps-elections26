@@ -1,6 +1,7 @@
 export type Team = 'red' | 'blue';
 export type RPSHand = 'rock' | 'paper' | 'scissors';
-export type PieceKind = 'king' | 'trap' | 'soldier';
+export type PieceKind = 'king' | 'trap' | 'soldier' | 'unassigned';
+export type BotDifficulty = 'easy' | 'medium' | 'hard';
 
 export interface Position {
   row: number;
@@ -25,8 +26,9 @@ export type GameEvent =
   | { type: 'battle'; attackerId: string; defenderId: string; outcome: 'attacker-wins' | 'defender-wins' }
   | { type: 'trap-triggered'; attackerId: string; trapId: string }
   | { type: 'king-captured'; winner: Team }
+  | { type: 'no-moves-left'; winner: Team }
   | { type: 'tie-break-started'; attackerId: string; defenderId: string }
-  | { type: 'tie-break-repeat'; attackerId: string; defenderId: string };
+  | { type: 'tie-break-repeat'; attackerId: string; defenderId: string; round: number };
 
 /**
  * A tied clash (both soldiers showed the same hand) suspends normal play until both sides
@@ -38,6 +40,8 @@ export interface TieBreakState {
   defenderId: string;
   picks: Record<Team, RPSHand | null>;
   deadline: number; // epoch ms
+  /** 1 for the original tie; incremented each time picks tie again ("the first rematch is #2"). */
+  round: number;
 }
 
 /** Server-side truth for an entire match. Never serialized whole to a client. */
@@ -52,6 +56,10 @@ export interface GameState {
   readiness: Record<Team, boolean>;
   winner: Team | null;
   lastEvent: GameEvent | null;
+  /** The single most recently "won" tile — the mover's destination, unless combat there handed
+   * the tile to someone else instead (a battle the defender won, or a trap's owner), in which
+   * case it's overridden to that side's color instead. Null until anyone has moved this game. */
+  lastMove: { team: Team; position: Position } | null;
 }
 
 /** Fog-of-war-filtered view of a single piece, as seen by one recipient. */
@@ -73,6 +81,8 @@ export interface ClientTieBreakView {
   deadline: number;
   yourPick: RPSHand | null;
   opponentPicked: boolean;
+  /** 1 for the original tie; incremented each further repeat ("the first rematch is #2"). */
+  round: number;
 }
 
 /** The only game-state shape ever sent over the wire. */
@@ -88,4 +98,5 @@ export interface ClientGameView {
   readiness: Record<Team, boolean>;
   winner: Team | null;
   lastEvent: GameEvent | null;
+  lastMove: { team: Team; position: Position } | null;
 }

@@ -1,31 +1,66 @@
 .home-screen {
-  flex: 1;
+  /* Fixed to the viewport (not just flex:1 in normal flow) so this screen can never scroll and
+     never lets the mobile browser's chrome collapse/expand from a scroll gesture — it always
+     exactly fills the visible viewport. */
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background-image: linear-gradient(rgba(4, 10, 4, 0.35), rgba(4, 10, 4, 0.55)), url('/assets/background.webp');
+  background-size: cover;
+  background-position: center;
+}
+
+.home-card-wrap {
+  position: relative;
+  width: min(92vw, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 100%;
+}
+
+/* logo.webp is pre-cropped to its opaque bounding box (no transparent canvas padding), so this
+   width/margin-bottom pair maps directly to real visible overlap into the panel below. */
+.home-logo {
+  width: 78%;
+  max-width: 310px;
+  margin-bottom: -24px;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.6));
+  z-index: 2;
+  pointer-events: none;
+  animation: homeLogoFloat 3.6s ease-in-out infinite;
+}
+
+@keyframes homeLogoFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
 }
 
 .home-panel {
-  width: min(92vw, 420px);
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 18px;
   text-align: center;
+  padding-top: 40px;
 }
 
-.home-title {
-  font-size: 1.6rem;
-}
-
-.home-subtitle {
-  color: var(--text-dim);
-  margin: 0;
-}
-
-.home-create-btn {
+.home-create-btn,
+.home-vs-bot-btn {
   width: 100%;
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .home-divider {
@@ -74,4 +109,185 @@
   color: var(--danger);
   margin: 0;
   font-size: 0.9rem;
+}
+
+.team-pick-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.team-pick-btn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 10px;
+  border-radius: 14px;
+  border: 2px solid;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.team-pick-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.team-pick-btn:disabled {
+  cursor: default;
+}
+
+.team-pick-fan {
+  position: relative;
+  display: block;
+  width: 98px;
+  height: 79px;
+}
+
+.team-pick-head {
+  position: absolute;
+  bottom: 0;
+  object-fit: contain;
+  filter: none;
+  transition: filter 0.4s ease;
+}
+
+.team-pick-head-center {
+  left: 50%;
+  transform: translateX(-50%);
+  width: 79px;
+  height: 79px;
+  z-index: 3;
+}
+
+/* Side heads are anchored to the same bottom line as the center head (transform-origin keeps
+   that anchor fixed as they rotate) and overlap the center head by 85% of their own width. */
+.team-pick-head-side {
+  width: 60px;
+  height: 60px;
+  z-index: 1;
+  opacity: 0.85;
+  transform-origin: bottom center;
+}
+
+.team-pick-head-left {
+  left: calc(50% - 39.5px - 60px + 51px);
+  transform: rotate(-30deg);
+}
+
+.team-pick-head-right {
+  left: calc(50% + 39.5px - 51px);
+  transform: rotate(30deg);
+}
+
+.team-pick-head-gray .team-pick-head {
+  filter: grayscale(1) brightness(0.75);
+}
+
+.team-pick-label {
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.team-pick-back {
+  width: 100%;
+}
+
+.difficulty-btn {
+  gap: 6px;
+}
+
+.difficulty-emoji {
+  font-size: 2.4rem;
+}
+
+/* Swapped footer positions: the copyright line now sits where the version number used to (fixed
+   at the very bottom of the screen), and the version number moves up to where the copyright line
+   used to sit (see the .home-screen ~ .app-version override in App.css). */
+.home-copyright {
+  position: fixed;
+  bottom: calc(4px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.65rem;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.home-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: -6px;
+}
+
+.home-footer-link {
+  font-family: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-footer-link:hover {
+  color: var(--text-h);
+}
+
+.home-footer-dot {
+  color: var(--panel-border);
+  font-size: 0.7rem;
+}
+
+.home-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.home-modal {
+  width: min(92vw, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.home-modal-title {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.home-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.home-modal-body p {
+  margin: 0;
+}
+
+.home-modal-close {
+  width: 100%;
 }

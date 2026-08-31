@@ -14,6 +14,7 @@ function baseState(overrides: Partial<GameState> = {}): GameState {
     readiness: { red: true, blue: true },
     winner: null,
     lastEvent: null,
+    lastMove: null,
     ...overrides,
   };
 }
@@ -100,7 +101,7 @@ describe('validateMove', () => {
 
   it('rejects any move while a tie-break is pending', () => {
     const state = baseState({
-      tieBreak: { attackerId: 'x', defenderId: 'y', picks: { red: null, blue: null }, deadline: Date.now() },
+      tieBreak: { attackerId: 'x', defenderId: 'y', picks: { red: null, blue: null }, deadline: Date.now(), round: 1 },
     });
     state.pieces.a = piece({ id: 'a', team: 'red', position: { row: 3, col: 3 } });
     expect(validateMove(state, 'red', 'a', { row: 3, col: 4 })).toBe('tie-break-in-progress');
