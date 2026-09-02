@@ -7,6 +7,10 @@
 }
 
 .gameover-panel {
+  /* Above the celebration overlay (z-index: 5) so the result and buttons stay readable through
+     the confetti and bouncing heads. */
+  position: relative;
+  z-index: 10;
   width: min(92vw, 420px);
   display: flex;
   flex-direction: column;

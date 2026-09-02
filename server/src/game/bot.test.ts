@@ -170,4 +170,19 @@ describe('chooseBotMove: hard', () => {
 
     expect(move).toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
   });
+
+  it('avoids stepping next to an already-revealed enemy soldier that would beat it', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 6); // corner: only up/down/left are legal
+    // Advancing straight down (row 3) would normally score highest of the three (see the plain
+    // empty-tile advancement heuristic), but a revealed paper soldier sits right next to that
+    // tile — paper beats rock, so it's a free piece for blue next turn. The bot should sidestep
+    // to the (lower-scoring but safe) tile instead.
+    const threat = soldier('t', 'blue', 'paper', 4, 6, true);
+    const state = makeState([attacker, threat]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move).not.toEqual({ pieceId: 'a', to: { row: 3, col: 6 } });
+    expect(move).toEqual({ pieceId: 'a', to: { row: 2, col: 5 } });
+  });
 });

@@ -1,6 +1,7 @@
 import { balancedHandPool, BOARD_ROWS } from 'shared';
-import type { BotDifficulty, GameState, Position, RPSHand, Team } from 'shared';
+import type { BotDifficulty, GameState, Piece, Position, RPSHand, Team } from 'shared';
 import { findRandomLegalMove, legalMovesFor } from './movement.js';
+import { isAdjacent } from './board.js';
 import { BEATS } from './combat.js';
 
 /** The hand that beats each hand — the reverse of BEATS (which maps a hand to what *it* beats). */
@@ -64,9 +65,29 @@ function scoreMove(
     (p) => p.alive && p.position.row === move.to.row && p.position.col === move.to.col,
   );
 
+  const base = scoreOutcome(state, team, attacker, defender, move.to, residual);
+
+  // Hard only: look one ply further than the immediate interaction — does landing on `move.to`
+  // leave this piece sitting next to an *already-revealed* enemy soldier that's known to beat
+  // it? That's not a guess, it's public information the bot already legitimately has, so a
+  // genuinely harder bot should avoid handing a piece right back next turn for free.
+  if (residual) {
+    return base + exposurePenalty(state, team, attacker.hand as RPSHand, move.to, defender?.id);
+  }
+  return base;
+}
+
+function scoreOutcome(
+  state: GameState,
+  team: Team,
+  attacker: Piece,
+  defender: Piece | undefined,
+  to: Position,
+  residual: Record<RPSHand, number> | null,
+): number {
   if (!defender) {
     // An empty tile: mildly prefer advancing into the opponent's half over shuffling in place.
-    const advancement = team === 'red' ? move.to.row : BOARD_ROWS - 1 - move.to.row;
+    const advancement = team === 'red' ? to.row : BOARD_ROWS - 1 - to.row;
     return advancement * 0.5;
   }
 
@@ -90,6 +111,26 @@ function scoreMove(
   if (BEATS[attackerHand] === defenderHand) return 10; // favorable — captures
   if (attackerHand === defenderHand) return 1; // a tie, not a loss
   return -10; // unfavorable — avoid
+}
+
+/** Penalizes ending a move next to an already-revealed enemy soldier whose known hand beats the
+ * moving piece's hand — a real, public threat of losing it right back next turn, not a guess.
+ * `excludeId` skips the piece just captured at `to` (it's dead, not a threat). */
+function exposurePenalty(
+  state: GameState,
+  team: Team,
+  attackerHand: RPSHand,
+  to: Position,
+  excludeId: string | undefined,
+): number {
+  let penalty = 0;
+  for (const piece of Object.values(state.pieces)) {
+    if (piece.id === excludeId) continue;
+    if (piece.team === team || !piece.alive || !piece.revealed || piece.kind !== 'soldier') continue;
+    if (!isAdjacent(piece.position, to)) continue;
+    if (piece.hand === LOSES_TO[attackerHand]) penalty -= 8;
+  }
+  return penalty;
 }
 
 /** Whether `team` still has a living, unrevealed king on the board. */

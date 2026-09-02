@@ -1,6 +1,9 @@
 .splash-screen {
   position: fixed;
   inset: 0;
+  /* Wins over inset:0's own top/bottom-derived height on a cold mobile load, where that can
+     briefly under-report while the browser's dynamic toolbar is still settling (see main.tsx). */
+  height: calc(var(--app-vh, 1vh) * 100);
   z-index: 1000;
   display: flex;
   align-items: center;

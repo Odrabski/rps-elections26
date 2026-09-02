@@ -26,3 +26,8 @@ dist-ssr
 
 # TS build info
 *.tsbuildinfo
+.env
+*.env
+config.json
+.DS_Store
+node_modules/

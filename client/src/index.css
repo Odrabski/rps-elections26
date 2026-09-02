@@ -39,6 +39,10 @@ body {
   background-attachment: fixed;
   min-height: 100svh;
   min-height: 100dvh;
+  /* --app-vh (set in main.tsx from an actual measured viewport height) wins over the dvh/svh
+     units above on a cold mobile load, where those can briefly under-report while the browser's
+     dynamic toolbar is still settling. */
+  min-height: calc(var(--app-vh, 1vh) * 100);
   overscroll-behavior-y: none;
   /* The clash cloud (BoardGrid.css) intentionally spills past the board's own frame, and can
      spill past the viewport edge too near the board's left/right columns. Clipping it here
@@ -56,6 +60,7 @@ body {
 #root {
   min-height: 100svh;
   min-height: 100dvh;
+  min-height: calc(var(--app-vh, 1vh) * 100);
   display: flex;
   flex-direction: column;
 }
