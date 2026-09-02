@@ -59,15 +59,23 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
 
   return (
     <div className="setup-screen">
+      <ScoreHeader
+        team={team}
+        pieces={view.pieces}
+        center={
+          <CountdownRing
+            deadline={view.setupDeadline}
+            totalSeconds={SETUP_SECONDS}
+            color={theme.solid}
+            size={88}
+            numberWeight={500}
+            numberSize="2.4rem"
+          />
+        }
+      />
       <button type="button" className="exit-btn" onClick={handleExit} aria-label="עזוב משחק">
         🚪
       </button>
-
-      {/* Same height as GameBoard's .turn-pill — an invisible stand-in so this screen's flex
-          flow has the exact same total height as the game board's, which makes the board and
-          score-header below land at the exact same y position on both screens once each gets
-          the same extra translateY (see SetupScreen.css). */}
-      <div className="setup-turn-pill-spacer" aria-hidden="true" />
 
       <div className="setup-board-area">
         <BoardGrid
@@ -99,20 +107,11 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
         )}
       </div>
 
-      <ScoreHeader
-        team={team}
-        pieces={view.pieces}
-        center={
-          <CountdownRing
-            deadline={view.setupDeadline}
-            totalSeconds={SETUP_SECONDS}
-            color={theme.solid}
-            size={88}
-            numberWeight={500}
-            numberSize="2.4rem"
-          />
-        }
-      />
+      {/* Same height as GameBoard's .turn-pill — an invisible stand-in, in the same slot the pill
+          occupies there, so this screen's flex flow has the exact same total height and ordering.
+          That's what makes the board and score-header land at the exact same y on both screens
+          once each gets the same extra translateY (see SetupScreen.css). */}
+      <div className="setup-turn-pill-spacer" aria-hidden="true" />
 
       {isReady && (
         <LockedInOverlay subtitle="עכשיו, מחכים ליריב.">

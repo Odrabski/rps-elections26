@@ -15,6 +15,7 @@ function baseState(overrides: Partial<GameState> = {}): GameState {
     winner: null,
     lastEvent: null,
     lastMove: null,
+    resolvingUntil: null,
     ...overrides,
   };
 }
@@ -105,6 +106,22 @@ describe('validateMove', () => {
     });
     state.pieces.a = piece({ id: 'a', team: 'red', position: { row: 3, col: 3 } });
     expect(validateMove(state, 'red', 'a', { row: 3, col: 4 })).toBe('tie-break-in-progress');
+  });
+
+  it('rejects a move while a battle or trap is still resolving on the board', () => {
+    // `turn` has already flipped to red (that's how the cinematic knows who's up next), so red
+    // would otherwise pass every other check and get to move mid-fight.
+    const state = baseState({ turn: 'red', resolvingUntil: Date.now() + 5000 });
+    state.pieces.a = piece({ id: 'a', team: 'red', position: { row: 3, col: 3 } });
+
+    expect(validateMove(state, 'red', 'a', { row: 3, col: 4 })).toBe('resolving');
+  });
+
+  it('allows the move again once the resolve window has passed', () => {
+    const state = baseState({ turn: 'red', resolvingUntil: Date.now() - 1 });
+    state.pieces.a = piece({ id: 'a', team: 'red', position: { row: 3, col: 3 } });
+
+    expect(validateMove(state, 'red', 'a', { row: 3, col: 4 })).toBeNull();
   });
 });
 

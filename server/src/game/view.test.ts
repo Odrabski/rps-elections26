@@ -17,6 +17,7 @@ function makeState(pieces: Piece[]): GameState {
     winner: null,
     lastEvent: null,
     lastMove: null,
+    resolvingUntil: null,
   };
 }
 

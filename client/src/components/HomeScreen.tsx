@@ -181,12 +181,12 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
       <div className="home-card-wrap">
         <img src="/assets/logo.webp" alt="אבניהו - מהדורת בחירות 2026" className="home-logo" />
         <div className="home-panel panel">
-          <button type="button" className="btn-primary home-create-btn" onClick={() => startTeamPick(false)}>
-          יצירת משחק חדש
+          <button type="button" className="btn-primary home-vs-bot-btn" onClick={() => startTeamPick(true)}>
+          משחק מול המחשב
         </button>
 
-        <button type="button" className="btn-secondary home-vs-bot-btn" onClick={() => startTeamPick(true)}>
-          משחק מול המחשב
+        <button type="button" className="btn-primary home-create-btn" onClick={() => startTeamPick(false)}>
+          יצירת משחק חדש
         </button>
 
         <div className="home-divider">

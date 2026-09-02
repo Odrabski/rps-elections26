@@ -24,6 +24,7 @@ function freshState(): GameState {
     winner: null,
     lastEvent: null,
     lastMove: null,
+    resolvingUntil: null,
   };
 }
 

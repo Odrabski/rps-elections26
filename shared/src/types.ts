@@ -60,6 +60,11 @@ export interface GameState {
    * the tile to someone else instead (a battle the defender won, or a trap's owner), in which
    * case it's overridden to that side's color instead. Null until anyone has moved this game. */
   lastMove: { team: Team; position: Position } | null;
+  /** While a battle or trap is still playing out, the epoch-ms instant the board finishes
+   * resolving. `turn` flips to the next player the moment combat starts (so the cinematic can
+   * show who's up next), which would otherwise let them move pieces mid-fight — no move is
+   * accepted until this passes. Null whenever nothing is resolving. */
+  resolvingUntil: number | null;
 }
 
 /** Fog-of-war-filtered view of a single piece, as seen by one recipient. */
@@ -99,4 +104,7 @@ export interface ClientGameView {
   winner: Team | null;
   lastEvent: GameEvent | null;
   lastMove: { team: Team; position: Position } | null;
+  /** See GameState.resolvingUntil — mirrored so the client can keep the board unclickable for
+   * exactly as long as the server will keep rejecting moves. */
+  resolvingUntil: number | null;
 }

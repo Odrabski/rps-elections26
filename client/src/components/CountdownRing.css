@@ -9,12 +9,12 @@
 .countdown-ring-track {
   fill: rgba(10, 14, 30, 0.85);
   stroke: rgba(255, 255, 255, 0.12);
-  stroke-width: 4;
+  stroke-width: 6;
 }
 
 .countdown-ring-progress {
   fill: none;
-  stroke-width: 4;
+  stroke-width: 6;
   stroke-linecap: round;
   transition:
     stroke-dashoffset 0.3s linear,

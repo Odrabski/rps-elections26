@@ -11,11 +11,16 @@ export type MoveError =
   | 'out-of-bounds'
   | 'not-adjacent'
   | 'occupied-by-own-piece'
-  | 'tie-break-in-progress';
+  | 'tie-break-in-progress'
+  | 'resolving';
 
 export function validateMove(state: GameState, team: Team, pieceId: string, to: Position): MoveError | null {
   if (state.phase !== 'playing') return 'wrong-phase';
   if (state.tieBreak) return 'tie-break-in-progress';
+  // `turn` flips the instant combat starts so the cinematic knows who's up next, so being the
+  // current player isn't enough on its own — the battle/trap still playing out on both boards
+  // has to finish first, or pieces could be moved mid-fight.
+  if (state.resolvingUntil !== null && Date.now() < state.resolvingUntil) return 'resolving';
   if (state.turn !== team) return 'not-your-turn';
 
   const piece = state.pieces[pieceId];

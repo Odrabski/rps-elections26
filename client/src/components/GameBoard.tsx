@@ -50,6 +50,16 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
 
   const seed = gameSeed(view);
   const myTurn = view.turn === team && !view.tieBreak;
+  // Mirrors the server's own move guard (see validateMove): holding the turn isn't enough while
+  // a battle/trap is still resolving — `turn` flips the moment combat starts, so without this
+  // the board stays clickable for the whole length of the fight cinematic.
+  // `activeEvent`/`cinematicPending` cover the same window locally, so the board locks on the
+  // very frame the fight starts rather than waiting for the next broadcast to arrive.
+  const resolving =
+    (view.resolvingUntil !== null && Date.now() < view.resolvingUntil) ||
+    activeEvent !== null ||
+    cinematicPending;
+  const canMove = myTurn && !resolving;
   const alivePieces = useMemo(() => view.pieces.filter((p) => p.alive), [view.pieces]);
   const selected = alivePieces.find((p) => p.id === selectedId) ?? null;
   const opponentTeam: Team = team === 'red' ? 'blue' : 'red';
@@ -61,7 +71,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     () => alivePieces.filter((p) => p.team === opponentTeam && p.kind !== 'king' && p.kind !== 'trap'),
     [alivePieces, opponentTeam],
   );
-  const tease = useOpponentTease({ active: true, myTurn, opponentPieces: opponentSoldiers, opponentTeam });
+  const tease = useOpponentTease({ active: true, myTurn: canMove, opponentPieces: opponentSoldiers, opponentTeam });
 
   useEffect(() => {
     setSelectedId(null);
@@ -199,7 +209,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
   }, [selected, alivePieces, team]);
 
   const handleTileClick = (actual: Position) => {
-    if (!myTurn) return;
+    if (!canMove) return;
     const occupant = alivePieces.find((p) => p.position.row === actual.row && p.position.col === actual.col);
 
     if (occupant && occupant.team === team && occupant.kind === 'soldier') {
@@ -227,29 +237,6 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       </button>
 
       <div className="game-board-content">
-        <div className="turn-pill" style={{ background: turnTheme.solid }}>
-          {view.tieBreak ? 'קרב הכרעה!' : myTurn ? 'התור שלך' : `תור ${turnTheme.label}`}
-        </div>
-
-        <div className="board-wrap">
-          <BoardGrid
-            team={team}
-            seed={seed}
-            getPieceAt={(actual) =>
-              alivePieces.find((p) => p.position.row === actual.row && p.position.col === actual.col)
-            }
-            isClickable={() => myTurn}
-            isLegalTarget={(actual) => legalTargets.some((t) => t.row === actual.row && t.col === actual.col)}
-            isSelected={(piece) => piece.id === selectedId}
-            onTileClick={handleTileClick}
-            selectedPosition={selected?.position ?? null}
-            trapEvent={trapEvent}
-            clashEvent={clashEvent}
-            lastMove={view.lastMove}
-            tease={tease}
-          />
-        </div>
-
         <ScoreHeader
           team={team}
           pieces={view.pieces}
@@ -265,6 +252,28 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
             />
           }
         />
+        <div className="board-wrap">
+          <BoardGrid
+            team={team}
+            seed={seed}
+            getPieceAt={(actual) =>
+              alivePieces.find((p) => p.position.row === actual.row && p.position.col === actual.col)
+            }
+            isClickable={() => canMove}
+            isLegalTarget={(actual) => legalTargets.some((t) => t.row === actual.row && t.col === actual.col)}
+            isSelected={(piece) => piece.id === selectedId}
+            onTileClick={handleTileClick}
+            selectedPosition={selected?.position ?? null}
+            trapEvent={trapEvent}
+            clashEvent={clashEvent}
+            lastMove={view.lastMove}
+            tease={tease}
+          />
+        </div>
+
+        <div className="turn-pill" style={{ background: turnTheme.solid }}>
+          {view.tieBreak ? 'קרב הכרעה!' : myTurn ? 'התור שלך' : `תור ${turnTheme.label}`}
+        </div>
       </div>
 
       {activeEvent && <CombatOverlay event={activeEvent} pieces={view.pieces} team={team} seed={seed} />}

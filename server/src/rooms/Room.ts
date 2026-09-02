@@ -270,9 +270,12 @@ export class Room {
     if (event?.type === 'battle') {
       // The next turn's clock only starts once the winning cinematic + board resolve has had
       // time to finish playing on both clients — otherwise it'd already be ticking down while
-      // the outcome is still animating in.
+      // the outcome is still animating in. `resolvingUntil` makes that same window authoritative:
+      // no move is accepted from anyone until the fight has actually finished.
+      this.state.resolvingUntil = Date.now() + BATTLE_SEQUENCE_MS;
       setTimeout(() => {
         if (this.state.phase !== 'playing') return;
+        this.state.resolvingUntil = null;
         this.startTurnTimer();
         this.scheduleBotTurnIfNeeded();
         this.broadcast();
@@ -285,8 +288,10 @@ export class Room {
       // piece onto the vacated trap tile (or the attacker's own origin tile) before the client's
       // trap sequence finishes, and the client's position-keyed animation override would then
       // keep painting the stale dead piece there instead of the real new occupant.
+      this.state.resolvingUntil = Date.now() + TRAP_SEQUENCE_MS;
       setTimeout(() => {
         if (this.state.phase !== 'playing') return;
+        this.state.resolvingUntil = null;
         this.startTurnTimer();
         this.scheduleBotTurnIfNeeded();
         this.broadcast();
@@ -414,5 +419,6 @@ function freshState(code: string): GameState {
     winner: null,
     lastEvent: null,
     lastMove: null,
+    resolvingUntil: null,
   };
 }

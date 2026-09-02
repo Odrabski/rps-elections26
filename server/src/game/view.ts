@@ -49,5 +49,6 @@ export function toClientView(state: GameState, team: Team): ClientGameView {
     winner: state.winner,
     lastEvent: state.lastEvent,
     lastMove: state.lastMove,
+    resolvingUntil: state.resolvingUntil,
   };
 }

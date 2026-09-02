@@ -18,6 +18,7 @@ function makeState(pieces: Piece[], turn: Team = 'red'): GameState {
     winner: null,
     lastEvent: null,
     lastMove: null,
+    resolvingUntil: null,
   };
 }
 
