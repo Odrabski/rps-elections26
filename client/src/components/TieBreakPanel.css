@@ -35,10 +35,23 @@
   color: var(--text-dim);
 }
 
+/* Fixed height: the two bodies swap sprites as picks come in (the shrug becomes the chosen
+   weapon) and the block is empty entirely if a combatant can't be resolved — without a reserved
+   slot either one resizes the card while the player is mid-pick. */
 .tiebreak-portraits {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 14px;
+  height: 96px;
+}
+
+/* Same reservation for the ring, which unmounts itself once the countdown runs out. */
+.tiebreak-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
 }
 
 /* Sized wrapper for the shared .piece-view body+head layering (see PieceView.css) — gives it a
@@ -100,11 +113,13 @@
   font-size: 1.8rem;
 }
 
+/* Two lines' worth: the locked-in message ("נעלת מספריים, ממתין ליריב") is long enough to wrap
+   on a narrow phone, which would otherwise grow the card the moment a pick lands. */
 .tiebreak-status {
   margin: 0;
   color: var(--text-dim);
   font-size: 0.9rem;
-  min-height: 1.3em;
+  min-height: 2.6em;
 }
 
 @keyframes tiebreakPop {

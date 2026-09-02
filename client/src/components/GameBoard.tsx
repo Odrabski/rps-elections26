@@ -5,6 +5,7 @@ import { TEAM_THEME } from '../data/theme';
 import { gameSeed } from '../data/characterAssets';
 import { useOpponentTease } from '../hooks/useOpponentTease';
 import { CountdownRing } from './CountdownRing';
+import { ExitButton } from './ExitButton';
 import { ScoreHeader } from './ScoreHeader';
 import { CombatOverlay } from './CombatOverlay';
 import { FIGHT_SEQUENCE_MS, TIE_SEQUENCE_MS } from './FightSequence';
@@ -232,9 +233,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
 
   return (
     <div className="game-board-screen">
-      <button type="button" className="exit-btn" onClick={handleExit} aria-label="עזוב משחק">
-        🚪
-      </button>
+      <ExitButton onClick={handleExit} />
 
       <div className="game-board-content">
         <ScoreHeader

@@ -10,14 +10,16 @@ interface HomeScreenProps {
   errorMessage: string | null;
 }
 
-type Step = 'menu' | 'team-pick' | 'difficulty-pick';
+type Step = 'menu' | 'team-pick';
 type ModalKind = 'how-to-play' | 'about' | null;
 
-const DIFFICULTY_OPTIONS: Array<{ difficulty: BotDifficulty; label: string; emoji: string; color: string }> = [
-  { difficulty: 'easy', label: 'קל', emoji: '🙂', color: '#22c55e' },
-  { difficulty: 'medium', label: 'בינוני', emoji: '😐', color: '#f59e0b' },
-  { difficulty: 'hard', label: 'קשה', emoji: '😈', color: '#e11d48' },
-];
+// The difficulty picker is switched off for now — the bot always plays at 'hard'. Kept here (and
+// in the commented-out step further down) so it can be dropped back in as-is.
+// const DIFFICULTY_OPTIONS: Array<{ difficulty: BotDifficulty; label: string; emoji: string; color: string }> = [
+//   { difficulty: 'easy', label: 'קל', emoji: '🙂', color: '#22c55e' },
+//   { difficulty: 'medium', label: 'בינוני', emoji: '😐', color: '#f59e0b' },
+//   { difficulty: 'hard', label: 'קשה', emoji: '😈', color: '#e11d48' },
+// ];
 
 // Three distinct heads per team for the fanned team-pick button (center + two tucked behind).
 // These portraits don't read well as the prominent front-and-center head — they can still show
@@ -93,57 +95,59 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
     // Brief pause so the head's grayscale-to-color transition is actually visible before
     // navigating on.
     setTimeout(() => {
-      if (vsBotFlow) setStep('difficulty-pick');
-      else onCreate(team);
+      // No difficulty step while the picker is switched off — a bot game is always 'hard'.
+      onCreate(team, vsBotFlow ? 'hard' : undefined);
     }, 400);
   };
 
-  const chooseDifficulty = (difficulty: BotDifficulty) => {
-    if (!chosenTeam) return;
-    onCreate(chosenTeam, difficulty);
-  };
+  // const chooseDifficulty = (difficulty: BotDifficulty) => {
+  //   if (!chosenTeam) return;
+  //   onCreate(chosenTeam, difficulty);
+  // };
 
-  if (step === 'difficulty-pick') {
-    return (
-      <div className="home-screen">
-        <div className="home-panel panel">
-          <h1 className="gradient-heading home-title">באיזו רמת קושי לשחק?</h1>
-          <div className="team-pick-row">
-            {DIFFICULTY_OPTIONS.map(({ difficulty, label, emoji, color }) => (
-              <button
-                key={difficulty}
-                type="button"
-                className="team-pick-btn difficulty-btn"
-                style={{ background: `${color}26`, borderColor: `${color}80` }}
-                onClick={() => chooseDifficulty(difficulty)}
-              >
-                <span className="difficulty-emoji">{emoji}</span>
-                <span className="team-pick-label" style={{ color }}>
-                  {label}
-                </span>
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            className="btn-secondary team-pick-back"
-            onClick={() => {
-              setChosenTeam(null);
-              setStep('team-pick');
-            }}
-          >
-            חזרה
-          </button>
-        </div>
-      </div>
-    );
-  }
+  /* Difficulty picker, switched off for now (see DIFFICULTY_OPTIONS above):
+  // if (step === 'difficulty-pick') {
+  //   return (
+  //     <div className="home-screen">
+  //       <div className="home-panel panel">
+  //         <h1 className="gradient-heading home-title">באיזו רמת קושי לשחק?</h1>
+  //         <div className="team-pick-row">
+  //           {DIFFICULTY_OPTIONS.map(({ difficulty, label, emoji, color }) => (
+  //             <button
+  //               key={difficulty}
+  //               type="button"
+  //               className="team-pick-btn difficulty-btn"
+  //               style={{ background: `${color}26`, borderColor: `${color}80` }}
+  //               onClick={() => chooseDifficulty(difficulty)}
+  //             >
+  //               <span className="difficulty-emoji">{emoji}</span>
+  //               <span className="team-pick-label" style={{ color }}>
+  //                 {label}
+  //               </span>
+  //             </button>
+  //           ))}
+  //         </div>
+  //         <button
+  //           type="button"
+  //           className="btn-secondary team-pick-back"
+  //           onClick={() => {
+  //             setChosenTeam(null);
+  //             setStep('team-pick');
+  //           }}
+  //         >
+  //           חזרה
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+  */
 
   if (step === 'team-pick') {
     return (
       <div className="home-screen">
         <div className="home-panel panel">
-          <h1 className="gradient-heading home-title">באיזה צד תרצו לשחק?</h1>
+          <h1 className="gradient-heading home-title">באיזה גוש אתם?</h1>
           <div className="team-pick-row">
             {(['blue', 'red'] as Team[]).map((team) => {
               const theme = TEAM_THEME[team];
@@ -186,7 +190,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
         </button>
 
         <button type="button" className="btn-primary home-create-btn" onClick={() => startTeamPick(false)}>
-          יצירת משחק חדש
+          משחק מול חבר
         </button>
 
         <div className="home-divider">

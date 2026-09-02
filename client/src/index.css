@@ -152,25 +152,50 @@ button {
   padding: 24px;
 }
 
+/* Physical `right`, not inset-inline-start — the app is RTL, so a logical property would put
+   this on the left. */
 .exit-btn {
   position: fixed;
-  top: calc(10px + env(safe-area-inset-top));
-  inset-inline-start: 10px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  right: calc(12px + env(safe-area-inset-right));
   z-index: 40;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--panel-border);
-  background: rgba(10, 14, 30, 0.75);
-  color: var(--text);
-  font-size: 1.1rem;
+  padding: 0;
+  border: none;
+  background: none;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.exit-btn-x {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(120, 124, 133, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
-.exit-btn:hover {
-  background: rgba(225, 29, 72, 0.25);
+.exit-btn-label {
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.exit-btn:hover .exit-btn-x {
+  background: rgba(225, 29, 72, 0.85);
   border-color: var(--danger);
 }

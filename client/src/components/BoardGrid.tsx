@@ -123,8 +123,10 @@ function arrowDirection(fromActual: Position, toActual: Position, team: Team): A
  * button grid (exact per-tile hit-testing, so overlapping piece art never steals a neighboring
  * tile's click) and a piece layer (pointer-events: none) where each figure is anchored by its
  * feet at its tile's vertical center and allowed to visually overflow into the row behind it.
- * Rows are rendered top-to-bottom in DOM order, so a lower (nearer) row's figure naturally
- * paints over the row behind it — no z-index bookkeeping needed.
+ * Each figure carries its display row as `--piece-row`, which BoardGrid.css turns into an
+ * explicit per-row z-index so a nearer row always paints over the row behind it — DOM order
+ * alone used to imply the same thing, but it inverts the moment anything gives a single cell its
+ * own stacking context.
  */
 export function BoardGrid({
   team,
@@ -348,10 +350,8 @@ export function BoardGrid({
           const arrowDir = legal && selectedPosition ? arrowDirection(selectedPosition, actual, team) : null;
           const lastMoveTeam: Team | null =
             lastMove && samePos(actual, lastMove.position) ? lastMove.team : null;
-          const hasTease = tease?.pieceId === piece?.id;
-
           return (
-            <div key={key} className={`board-cell${hasTease ? ' board-cell-tease-active' : ''}`}>
+            <div key={key} className="board-cell">
               <button
                 type="button"
                 className={[
@@ -368,7 +368,7 @@ export function BoardGrid({
               {showHole && <img src="/assets/pieces/hole.webp" alt="" className="board-hole" />}
               {arrowDir && <span className={`board-arrow board-arrow-${arrowDir}`} aria-hidden="true" />}
               {defenderFlinch && (
-                <div className="board-piece-anim">
+                <div className="board-piece-anim" style={{ '--piece-row': display.row } as CSSProperties}>
                   <div className="board-piece-wrap piece-flinching">
                     <PieceView piece={defenderFlinch} team={team} seed={seed} mirrorAtEdge={display.col === 0} />
                   </div>
@@ -377,7 +377,12 @@ export function BoardGrid({
               {piece && (
                 <div
                   className={`board-piece-anim${jump ? ' piece-jumping' : ''}`}
-                  style={jump ? ({ '--jump-from-x': jump.x, '--jump-from-y': jump.y } as CSSProperties) : undefined}
+                  style={
+                    {
+                      '--piece-row': display.row,
+                      ...(jump ? { '--jump-from-x': jump.x, '--jump-from-y': jump.y } : {}),
+                    } as CSSProperties
+                  }
                 >
                   <div
                     className={[

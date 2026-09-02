@@ -50,19 +50,23 @@
    top, since this isn't reacting to a specific tile. */
 .setup-onboard-banner {
   position: absolute;
-  top: 50%;
+  /* Nudged up off the exact centre line; the pop keyframes carry the translate, so the offset
+     lives here in `top` rather than in the transform. */
+  top: calc(50% - 20px);
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 4;
   max-width: 92%;
   white-space: nowrap;
   text-align: center;
-  padding: 6px 14px;
+  /* Box doubled; the text itself only goes up 60%, so the banner reads bigger without the words
+     growing out of proportion to it. */
+  padding: 12px 28px;
   border-radius: 999px;
   border: 1px solid;
   background: rgba(10, 14, 30, 0.82);
   font-weight: 700;
-  font-size: clamp(0.6rem, 3.2vw, 0.85rem);
+  font-size: clamp(0.96rem, 5.12vw, 1.36rem);
   pointer-events: none;
   animation: setupOnboardPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

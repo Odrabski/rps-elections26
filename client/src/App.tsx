@@ -5,6 +5,7 @@ import { SetupScreen } from './components/SetupScreen';
 import { GameBoard } from './components/GameBoard';
 import { GameOverScreen } from './components/GameOverScreen';
 import { SplashScreen } from './components/SplashScreen';
+import { ExitButton } from './components/ExitButton';
 import { TEAM_THEME } from './data/theme';
 import { preloadPieceAssets } from './utils/preloadAssets';
 import { loadSession } from './utils/rejoin';
@@ -58,28 +59,41 @@ export default function App() {
       </div>
     ) : (
       <div className="lobby-screen">
-        <button type="button" className="exit-btn" onClick={leave} aria-label="עזוב">
-          🚪
-        </button>
+        <ExitButton onClick={leave} />
         <div className="lobby-panel panel">
           <h1 className="gradient-heading">ממתין ליריב...</h1>
           <p className="lobby-hint">שלחו את הקוד הזה ליריב שלכם:</p>
-          <div className="lobby-code-row">
-            <div className="lobby-code">{roomCode}</div>
-            <button
-              type="button"
-              className="lobby-copy-btn"
-              aria-label="העתק קוד"
-              title={codeCopied ? 'הועתק!' : 'העתק קוד'}
-              onClick={async () => {
+          <button
+            type="button"
+            className="lobby-code"
+            aria-label="העתקת הקוד"
+            onClick={async () => {
+              try {
                 await navigator.clipboard.writeText(roomCode);
-                setCodeCopied(true);
-                setTimeout(() => setCodeCopied(false), 1500);
-              }}
-            >
-              {codeCopied ? '✅' : '📋'}
-            </button>
-          </div>
+              } catch {
+                // Clipboard access can be refused (an insecure context, or a browser that just
+                // says no) — the code is right there to read either way, so there's nothing to
+                // recover from and nothing worth interrupting the player about.
+                return;
+              }
+              setCodeCopied(true);
+              setTimeout(() => setCodeCopied(false), 1600);
+            }}
+          >
+            {roomCode}
+          </button>
+          {/* Always rendered so the panel doesn't jump a line taller when it appears. */}
+          <span className={`lobby-copied${codeCopied ? ' lobby-copied-visible' : ''}`}>הקוד הועתק ✅</span>
+          <a
+            className="btn-primary lobby-share-btn"
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `בואו לשחק אבניהו - מהדורת בחירות 2026!\nקוד המשחק: ${roomCode}\n${window.location.origin}`,
+            )}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            שיתוף בוואטסאפ
+          </a>
           <p className="lobby-team" style={{ color: TEAM_THEME[team].text }}>
             אתם משחקים בתור {TEAM_THEME[team].label}
           </p>

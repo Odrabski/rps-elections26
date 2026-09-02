@@ -50,17 +50,24 @@ export function TieBreakPanel({ tieBreak, pieces, team, seed, onPick }: TieBreak
             one higher: round 1's picker is attempt #2, the first actual rematch. */}
         <p className="tiebreak-subheader">קרב מספר {tieBreak.round + 1}</p>
 
-        {/* DOM order [opponent, vs, mine]: the page is RTL, where the first flex child lands on
+        {/* Both of these keep their (fixed, CSS-reserved) slot whether or not there's anything to
+            put in it — the portraits can be missing entirely and the ring unmounts itself when the
+            countdown runs out, either of which would otherwise resize the whole card mid-pick.
+            DOM order [opponent, vs, mine]: the page is RTL, where the first flex child lands on
             the right — so this order is what actually puts your own soldier on the left. */}
-        {mineBody && mineVisual && opponentBody && opponentVisual && (
-          <div className="tiebreak-portraits">
-            <TieFighter bodyAsset={opponentBody} headAsset={opponentVisual.headAsset} headId={opponentVisual.headId} />
-            <span className="tiebreak-vs">VS</span>
-            <TieFighter bodyAsset={mineBody} headAsset={mineVisual.headAsset} headId={mineVisual.headId} />
-          </div>
-        )}
+        <div className="tiebreak-portraits">
+          {mineBody && mineVisual && opponentBody && opponentVisual && (
+            <>
+              <TieFighter bodyAsset={opponentBody} headAsset={opponentVisual.headAsset} headId={opponentVisual.headId} />
+              <span className="tiebreak-vs">VS</span>
+              <TieFighter bodyAsset={mineBody} headAsset={mineVisual.headAsset} headId={mineVisual.headId} />
+            </>
+          )}
+        </div>
 
-        <CountdownRing deadline={tieBreak.deadline} totalSeconds={TIE_BREAK_SECONDS} color="var(--gold)" size={56} />
+        <div className="tiebreak-timer">
+          <CountdownRing deadline={tieBreak.deadline} totalSeconds={TIE_BREAK_SECONDS} color="var(--gold)" size={56} />
+        </div>
 
         <div className="tiebreak-hand-row">
           {HAND_OPTIONS.map(({ hand, label, emoji }) => (

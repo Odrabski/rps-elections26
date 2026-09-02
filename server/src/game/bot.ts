@@ -66,15 +66,23 @@ function scoreMove(
   );
 
   const base = scoreOutcome(state, team, attacker, defender, move.to, residual);
+  if (!residual) return base;
 
-  // Hard only: look one ply further than the immediate interaction — does landing on `move.to`
-  // leave this piece sitting next to an *already-revealed* enemy soldier that's known to beat
-  // it? That's not a guess, it's public information the bot already legitimately has, so a
-  // genuinely harder bot should avoid handing a piece right back next turn for free.
-  if (residual) {
-    return base + exposurePenalty(state, team, attacker.hand as RPSHand, move.to, defender?.id);
-  }
-  return base;
+  // Hard only: everything below looks one ply past the immediate interaction, using nothing but
+  // public information (which enemy pieces have been revealed, and where everything stands).
+  const hand = attacker.hand as RPSHand;
+  return (
+    base +
+    // Don't hand a piece straight back by parking it next to a revealed soldier known to beat it.
+    exposurePenalty(state, team, hand, move.to, defender?.id) +
+    // ...and do walk a piece *out* of that situation when it's already in one.
+    escapeBonus(state, team, hand, attacker.position) +
+    // Line up next turn's capture: end adjacent to a revealed soldier this piece beats.
+    threatBonus(state, team, hand, move.to, defender?.id) +
+    // Keep the squares around your own king plugged — an enemy can only take it by standing on
+    // one of them, so an occupied neighbour is the only real protection there is.
+    kingShieldDelta(state, team, attacker.position, move.to)
+  );
 }
 
 function scoreOutcome(
@@ -123,14 +131,62 @@ function exposurePenalty(
   to: Position,
   excludeId: string | undefined,
 ): number {
-  let penalty = 0;
+  return threatsAt(state, team, attackerHand, to, excludeId) * -8;
+}
+
+/** Moving a piece off a square where a revealed enemy soldier known to beat it is already
+ * standing next door — the mirror image of `exposurePenalty`, which only judges the destination
+ * and so can't tell "safe square" apart from "escaped a threat". */
+function escapeBonus(state: GameState, team: Team, attackerHand: RPSHand, from: Position): number {
+  return threatsAt(state, team, attackerHand, from, undefined) > 0 ? 6 : 0;
+}
+
+/** Ending the move next to a revealed enemy soldier this piece beats — a capture set up for next
+ * turn, on a matchup that's already public. */
+function threatBonus(
+  state: GameState,
+  team: Team,
+  attackerHand: RPSHand,
+  to: Position,
+  excludeId: string | undefined,
+): number {
+  let bonus = 0;
   for (const piece of Object.values(state.pieces)) {
     if (piece.id === excludeId) continue;
     if (piece.team === team || !piece.alive || !piece.revealed || piece.kind !== 'soldier') continue;
     if (!isAdjacent(piece.position, to)) continue;
-    if (piece.hand === LOSES_TO[attackerHand]) penalty -= 8;
+    if (BEATS[attackerHand] === piece.hand) bonus += 4;
   }
-  return penalty;
+  return bonus;
+}
+
+/** How much this move changes the number of own pieces standing on squares adjacent to the bot's
+ * own king. Those squares are the only way in — an enemy captures the king by moving onto it, so
+ * occupying its neighbours is what actually denies the approach. */
+function kingShieldDelta(state: GameState, team: Team, from: Position, to: Position): number {
+  const king = Object.values(state.pieces).find((p) => p.team === team && p.kind === 'king' && p.alive);
+  if (!king) return 0;
+  const left = isAdjacent(from, king.position) ? -5 : 0;
+  const joined = isAdjacent(to, king.position) ? 3 : 0;
+  return left + joined;
+}
+
+/** Revealed enemy soldiers adjacent to `square` whose known hand beats `attackerHand`. */
+function threatsAt(
+  state: GameState,
+  team: Team,
+  attackerHand: RPSHand,
+  square: Position,
+  excludeId: string | undefined,
+): number {
+  let count = 0;
+  for (const piece of Object.values(state.pieces)) {
+    if (piece.id === excludeId) continue;
+    if (piece.team === team || !piece.alive || !piece.revealed || piece.kind !== 'soldier') continue;
+    if (!isAdjacent(piece.position, square)) continue;
+    if (piece.hand === LOSES_TO[attackerHand]) count++;
+  }
+  return count;
 }
 
 /** Whether `team` still has a living, unrevealed king on the board. */

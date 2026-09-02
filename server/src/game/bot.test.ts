@@ -172,6 +172,50 @@ describe('chooseBotMove: hard', () => {
     expect(move).toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
   });
 
+  it('walks a piece out from under a revealed enemy soldier that beats it', () => {
+    // Rock is already standing next to a revealed paper: staying put isn't an option, but of the
+    // squares it can run to, only one is clear of that same soldier's reach.
+    const attacker = soldier('a', 'red', 'rock', 2, 3);
+    const threat = soldier('t', 'blue', 'paper', 2, 4, true);
+    const state = makeState([attacker, threat]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    // (2,4) is the threat itself (a losing attack), (1,3)/(3,3) stay adjacent to nothing —
+    // whichever it picks, it must not be the one square still next to the paper soldier.
+    expect(move).not.toEqual({ pieceId: 'a', to: { row: 2, col: 4 } });
+    const stillAdjacent = move && Math.abs(move.to.row - 2) + Math.abs(move.to.col - 4) === 1;
+    expect(stillAdjacent).toBe(false);
+  });
+
+  it('moves in beside a revealed enemy soldier it beats, to take it next turn', () => {
+    // Rock beats scissors. Stepping to (2,4) puts it next to the revealed scissors at (2,5)
+    // without ever being in danger — strictly better than drifting somewhere neutral.
+    const attacker = soldier('a', 'red', 'rock', 2, 3);
+    const prey = soldier('p', 'blue', 'scissors', 2, 5, true);
+    const state = makeState([attacker, prey]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move).toEqual({ pieceId: 'a', to: { row: 2, col: 4 } });
+  });
+
+  it('keeps a soldier parked on the square guarding its own king', () => {
+    // The guard is the only thing standing between the enemy and the king's one open approach.
+    // Every move it has walks off that square, so it should sit tight and move the spare instead.
+    const guard = soldier('g', 'red', 'rock', 2, 3);
+    const king: Piece = {
+      id: 'k', team: 'red', kind: 'king', hand: null, characterId: 'k',
+      position: { row: 1, col: 3 }, revealed: false, alive: true,
+    };
+    const spare = soldier('s', 'red', 'rock', 5, 0);
+    const state = makeState([guard, king, spare]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move?.pieceId).toBe('s');
+  });
+
   it('avoids stepping next to an already-revealed enemy soldier that would beat it', () => {
     const attacker = soldier('a', 'red', 'rock', 2, 6); // corner: only up/down/left are legal
     // Advancing straight down (row 3) would normally score highest of the three (see the plain

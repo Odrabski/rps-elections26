@@ -4,6 +4,7 @@ import type { ClientGameView, Position, Team } from 'shared';
 import { TEAM_THEME } from '../data/theme';
 import { gameSeed } from '../data/characterAssets';
 import { CountdownRing } from './CountdownRing';
+import { ExitButton } from './ExitButton';
 import { ScoreHeader } from './ScoreHeader';
 import { LockedInOverlay } from './LockedInOverlay';
 import { BoardGrid } from './BoardGrid';
@@ -73,9 +74,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
           />
         }
       />
-      <button type="button" className="exit-btn" onClick={handleExit} aria-label="עזוב משחק">
-        🚪
-      </button>
+      <ExitButton onClick={handleExit} />
 
       <div className="setup-board-area">
         <BoardGrid

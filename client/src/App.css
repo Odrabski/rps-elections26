@@ -20,14 +20,47 @@
   color: var(--text-dim);
 }
 
+/* The code itself is the copy button — tapping it puts it on the clipboard. */
 .lobby-code {
+  font-family: inherit;
   font-size: 2.4rem;
   font-weight: 800;
   letter-spacing: 0.3em;
+  /* The tracking above adds a trailing gap after the last character, which would otherwise read
+     as the code sitting off-center inside its own frame. */
+  text-indent: 0.3em;
   color: var(--gold);
   padding: 8px 20px;
   border: 2px dashed var(--gold);
   border-radius: 12px;
+  background: none;
+  cursor: pointer;
+}
+
+.lobby-code:hover {
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.lobby-copied {
+  min-height: 1.2em;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.lobby-copied-visible {
+  opacity: 1;
+}
+
+.lobby-share-btn {
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  /* Matches .btn-primary's own vertical rhythm — an <a> doesn't pick up the button padding. */
+  padding: 12px 28px;
+  border-radius: 10px;
 }
 
 .lobby-team {

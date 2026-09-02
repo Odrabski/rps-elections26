@@ -36,16 +36,6 @@
   position: relative;
 }
 
-/* Normally cells rely purely on DOM order for stacking (a lower/nearer row's figure naturally
-   overflows on top of the row behind it — see .board-piece-wrap's own comment). A taunt bubble
-   breaks that assumption by overflowing *sideways* into a neighboring cell's horizontal space,
-   which would otherwise render underneath that neighbor's own (later-in-DOM) piece. Giving just
-   this one cell an explicit stacking context lifts its whole subtree (piece + bubble) above every
-   other "auto" cell regardless of row/column DOM order. */
-.board-cell-tease-active {
-  z-index: 10;
-}
-
 .board-tile {
   position: absolute;
   inset: 0;
@@ -179,7 +169,7 @@
   top: 50%;
   left: 50%;
   width: 182%; /* 260% * 0.7 */
-  z-index: 3;
+  z-index: 20;
   transform: translate(-50%, -50%) rotate(-12deg);
   pointer-events: none;
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.55));
@@ -224,7 +214,7 @@
   top: 6%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 5;
+  z-index: 25;
   background: rgba(225, 29, 69, 0.92);
   color: #fff;
   font-weight: 800;
@@ -255,17 +245,16 @@
 /* Sized to exactly one cell, sitting between .board-cell and .board-piece-wrap purely so
    "100%" means "one tile" for the jump animation below — .board-piece-wrap's own centering/
    anchoring inside it is completely unchanged. */
-/* z-index:2 (a plain, non-conditional value shared by every cell) guarantees every piece figure
-   renders above any tile-level decoration (legal-move highlight, arrow, hole) in any cell it
-   visually overlaps, regardless of row/DOM order — previously this relied purely on DOM order,
-   which only reliably favored the *front* row and left the relationship inconsistent depending
-   on which row a legal-target tile happened to be in. Since every piece shares this same value,
-   relative piece-vs-piece stacking (closer row on top of the row behind it) still resolves by DOM
-   order exactly as before — only the piece-vs-tile-decoration relationship changes. */
+/* Every piece figure sits above any tile-level decoration (legal-move highlight, arrow, hole) in
+   any cell it overlaps, and rows stack front-to-back: --piece-row (set inline from the display
+   row) makes the nearer row's figure paint over the row behind it explicitly, rather than leaving
+   it to DOM order — which silently inverts the moment anything gives a single cell its own
+   z-index. Row 0 (farthest) lands on PIECE_Z_BASE, the nearest row on PIECE_Z_BASE + 5; keep
+   .board-clash-cloud and friends above that ceiling. */
 .board-piece-anim {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: calc(2 + var(--piece-row, 0));
   pointer-events: none;
 }
 
@@ -497,7 +486,7 @@
   padding: 5px 8px;
   border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-  z-index: 10;
+  z-index: 30;
   pointer-events: none;
   animation: teaseBubblePop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
