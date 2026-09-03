@@ -347,21 +347,43 @@
 /* The how-to-play copy outgrew three paragraphs, so it's capped and scrolls inside the modal
    rather than pushing it past the bottom of a short screen. */
 .home-modal-body {
-  max-height: min(58svh, 460px);
+  /* Take whatever the viewport actually has, rather than a fixed cap: the subtraction is the
+     modal's own chrome, measured at ~106px (title, padding, close button), plus a little margin so
+     the card never sits flush against the viewport edge. Everything fits without scrolling on a
+     phone ~660px tall and up, which covers current handsets; anything shorter still scrolls, since
+     shrinking the text far enough for a 640px screen would make it unpleasant to read. */
+  max-height: calc(100svh - 124px);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-inline-start: 4px; /* room for the scrollbar without the text shifting under it */
 }
 
-/* Without this the copy just stops mid-sentence at the cap, which reads as clipped rather than
-   scrollable. Scoped to the how-to modal via :has — the About modal is short enough never to
-   overflow, and would only get a fade over its final line for no reason. */
+/* Tightened just for this modal — it's the only one long enough to care, and this buys back around
+   110px, which is the difference between fitting and not on a mid-size phone. */
 .home-modal-body:has(.howto-list) {
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent 100%);
+  gap: 6px;
+  font-size: 0.9rem;
+  line-height: 1.38;
 }
 
+/* Small, old handsets (360x640 and the like) are the one case the size above still can't fit — a
+   narrower viewport wraps more lines as well as having fewer of them. One more step down gets the
+   whole thing on screen there too, and it only applies where it's needed. */
+@media (max-height: 680px) {
+  .home-modal-body:has(.howto-list) {
+    font-size: 0.85rem;
+    line-height: 1.33;
+    gap: 5px;
+  }
+}
+
+/* No bottom fade here any more. It was signalling scrollability back when the copy was capped at a
+   fixed 460px, but the sizing above fits the whole thing on screen — so all the fade did was wash
+   out the last line for no reason. The max-height stays as a backstop (a phone in landscape, say),
+   and in that case the scrollbar is signal enough. */
+
 .howto-heading {
-  margin: 6px 0 0;
+  margin: 3px 0 0;
   color: var(--gold);
   font-size: 1rem;
   font-weight: 800;
@@ -377,7 +399,7 @@
   list-style: none; /* the marker is drawn below, so it sits on the right in RTL */
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
 }
 
 .howto-list li {
