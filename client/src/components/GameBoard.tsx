@@ -56,9 +56,13 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
   // the board stays clickable for the whole length of the fight cinematic.
   // `activeEvent`/`cinematicPending` cover the same window locally, so the board locks on the
   // very frame the fight starts rather than waiting for the next broadcast to arrive.
+  // `clashEvent` outlives `activeEvent` by the cloud's dissolve beat. Without it there's a window
+  // where the cinematic is gone but the cloud is still on the board and a click would be accepted
+  // — which then reuses the stale clash and dissolves the old tile to the wrong piece.
   const resolving =
     (view.resolvingUntil !== null && Date.now() < view.resolvingUntil) ||
     activeEvent !== null ||
+    clashEvent !== null ||
     cinematicPending;
   const canMove = myTurn && !resolving;
   const alivePieces = useMemo(() => view.pieces.filter((p) => p.alive), [view.pieces]);

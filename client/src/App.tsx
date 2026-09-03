@@ -22,9 +22,6 @@ export default function App() {
   // fresh launch, so the splash is skipped entirely in that case.
   const [showSplash, setShowSplash] = useState(() => !loadSession());
 
-  useEffect(() => {
-    preloadPieceAssets();
-  }, []);
   const {
     roomCode,
     team,
@@ -42,6 +39,12 @@ export default function App() {
     rematch,
     leave,
   } = useGameSocket();
+
+  // Deferred until a seat is assigned rather than firing on app start: this pulls the sprite pool,
+  // which has no business competing with the splash and fonts for a visitor who may never play.
+  useEffect(() => {
+    if (team) preloadPieceAssets(team);
+  }, [team]);
 
   let content: ReactNode;
 

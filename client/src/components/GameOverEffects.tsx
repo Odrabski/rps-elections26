@@ -2,12 +2,17 @@ import { useEffect, useMemo, useRef } from 'react';
 import type { Team } from 'shared';
 import { HIDDEN_HEAD_POOL } from 'shared';
 import { TEAM_THEME } from '../data/theme';
-import './WinCelebration.css';
+import './GameOverEffects.css';
 
 const HEAD_COUNT = 10;
 const CONFETTI_COUNT = 46;
 const FIREWORK_BURSTS = 5;
 const FIREWORK_PARTICLES = 16;
+const EMBER_COUNT = 28;
+/** Two overlapping rows — a taller dim one behind a shorter bright one — so the fire reads with
+ * some depth instead of as a flat orange fringe along the bottom edge. */
+const FLAMES_PER_ROW = 18;
+const EMBER_COLORS = ['#ff8a2b', '#ffc247', '#ff5722', '#ffdf7e'];
 
 /** One DVD-screensaver-style head: drifts in a straight line, spins, and reverses off each edge. */
 interface Floater {
@@ -48,12 +53,12 @@ function makeFloaters(team: Team): Floater[] {
 }
 
 /**
- * Full-screen victory party for the winning side: their politicians' heads bounce around the
- * viewport like a DVD screensaver while confetti rains and fireworks burst behind everything.
- * Purely decorative — `pointer-events: none` throughout, so the rematch buttons underneath stay
- * clickable.
+ * The full-screen scene behind the game-over panel. The winning side's politicians bounce around
+ * the viewport like a DVD screensaver either way; what changes is everything else — a win throws
+ * confetti and fireworks, a loss sets the place on fire. Purely decorative: `pointer-events: none`
+ * throughout, so the rematch buttons underneath stay clickable.
  */
-export function WinCelebration({ winner }: { winner: Team }) {
+export function GameOverEffects({ winner, won }: { winner: Team; won: boolean }) {
   const floaters = useMemo(() => makeFloaters(winner), [winner]);
   const nodesRef = useRef<(HTMLImageElement | null)[]>([]);
   const theme = TEAM_THEME[winner];
@@ -108,8 +113,9 @@ export function WinCelebration({ winner }: { winner: Team }) {
   const confettiColors = [theme.solid, theme.border, '#d4af37', '#ffffff', '#f59e0b'];
 
   return (
-    <div className="celebration" aria-hidden="true">
-      {Array.from({ length: FIREWORK_BURSTS }, (_, burst) => (
+    <div className={`celebration${won ? '' : ' celebration-lose'}`} aria-hidden="true">
+      {won &&
+        Array.from({ length: FIREWORK_BURSTS }, (_, burst) => (
         <div
           key={`burst-${burst}`}
           className="celebration-firework"
@@ -140,20 +146,67 @@ export function WinCelebration({ winner }: { winner: Team }) {
         </div>
       ))}
 
-      {Array.from({ length: CONFETTI_COUNT }, (_, i) => (
-        <span
-          key={`confetti-${i}`}
-          className="celebration-confetti"
-          style={{
-            left: `${randomBetween(0, 100)}%`,
-            background: confettiColors[i % confettiColors.length],
-            animationDelay: `${randomBetween(0, 3.5)}s`,
-            animationDuration: `${randomBetween(2.6, 5.2)}s`,
-            width: `${randomBetween(5, 11)}px`,
-            height: `${randomBetween(9, 18)}px`,
-          }}
-        />
-      ))}
+      {won &&
+        Array.from({ length: CONFETTI_COUNT }, (_, i) => (
+          <span
+            key={`confetti-${i}`}
+            className="celebration-confetti"
+            style={{
+              left: `${randomBetween(0, 100)}%`,
+              background: confettiColors[i % confettiColors.length],
+              animationDelay: `${randomBetween(0, 3.5)}s`,
+              animationDuration: `${randomBetween(2.6, 5.2)}s`,
+              width: `${randomBetween(5, 11)}px`,
+              height: `${randomBetween(9, 18)}px`,
+            }}
+          />
+        ))}
+
+      {!won &&
+        Array.from({ length: EMBER_COUNT }, (_, i) => {
+          const size = randomBetween(4, 9);
+          return (
+            <span
+              key={`ember-${i}`}
+              className="celebration-ember"
+              style={
+                {
+                  left: `${randomBetween(0, 100)}%`,
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  // Drives both the dot and its glow (box-shadow: currentColor), same trick the
+                  // firework sparks use.
+                  color: EMBER_COLORS[i % EMBER_COLORS.length],
+                  background: 'currentColor',
+                  // Without a sideways term they rise in dead-straight columns.
+                  '--ember-drift': `${randomBetween(-40, 40)}px`,
+                  animationDelay: `${randomBetween(0, 4)}s`,
+                  animationDuration: `${randomBetween(3.4, 6.5)}s`,
+                } as React.CSSProperties
+              }
+            />
+          );
+        })}
+
+      {!won &&
+        (['back', 'front'] as const).map((row) => (
+          <div key={row} className={`celebration-fire celebration-fire-${row}`}>
+            {Array.from({ length: FLAMES_PER_ROW }, (_, i) => (
+              <span
+                key={i}
+                className="celebration-flame"
+                style={{
+                  left: `${(100 / FLAMES_PER_ROW) * i + randomBetween(-3, 3)}%`,
+                  width: `${randomBetween(46, 92)}px`,
+                  height: `${randomBetween(55, 130)}%`,
+                  // Staggered so the row never pulses in unison.
+                  animationDelay: `${randomBetween(0, 1.2)}s`,
+                  animationDuration: `${randomBetween(0.7, 1.4)}s`,
+                }}
+              />
+            ))}
+          </div>
+        ))}
 
       {floaters.map((f, i) => (
         <img

@@ -42,7 +42,12 @@ export class Room {
   private setupTimer: ReturnType<typeof setTimeout> | null = null;
   private turnTimer: ReturnType<typeof setTimeout> | null = null;
   private tieBreakTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Bot moves and the post-battle/post-trap resolves used to be fire-and-forget. They're tracked
+   * so `destroy()` can stop every one of them — an evicted room must not keep waking up. */
+  private botTimer: ReturnType<typeof setTimeout> | null = null;
+  private resolveTimer: ReturnType<typeof setTimeout> | null = null;
   private bot: { team: Team; difficulty: BotDifficulty } | null = null;
+  private destroyed = false;
 
   constructor(code: string) {
     this.code = code;
@@ -88,13 +93,28 @@ export class Room {
     this.players[team].socket = socket;
   }
 
-  detach(team: Team): void {
+  /**
+   * `socket` is the connection whose 'close' fired. A player who reconnects fast enough can have
+   * the *new* socket already in the seat by the time the old one's close event lands — clearing
+   * the seat then would silently cut off the very connection that just replaced it, so a close
+   * from a socket that no longer holds the seat is ignored.
+   */
+  detach(team: Team, socket?: WebSocket): void {
+    if (socket && this.players[team].socket !== socket) return;
     this.players[team].socket = null;
     this.sendTo(OTHER_TEAM[team], { type: 'opponent-disconnected' });
   }
 
-  notifyOpponentConnected(justJoinedTeam: Team): void {
+  /**
+   * Both sides are told, not just the one already sitting there: the player who *just* joined
+   * needs to know their opponent is present too, or their client sits under a permanent
+   * "opponent disconnected" banner for the whole game.
+   */
+  notifyBothConnected(justJoinedTeam: Team): void {
     this.sendTo(OTHER_TEAM[justJoinedTeam], { type: 'opponent-connected' });
+    if (this.players[OTHER_TEAM[justJoinedTeam]].socket || this.players[OTHER_TEAM[justJoinedTeam]].isBot) {
+      this.sendTo(justJoinedTeam, { type: 'opponent-connected' });
+    }
   }
 
   /**
@@ -107,7 +127,7 @@ export class Room {
   setBot(team: Team, difficulty: BotDifficulty): void {
     this.players[team].isBot = true;
     this.bot = { team, difficulty };
-    this.notifyOpponentConnected(team);
+    this.notifyBothConnected(team);
     if (this.state.phase === 'lobby') this.startSetupPhase();
   }
 
@@ -149,9 +169,10 @@ export class Room {
   // ─── Bot ──────────────────────────────────────────────────────────────
 
   private scheduleBotTurnIfNeeded(): void {
+    if (this.destroyed) return;
     if (!this.bot || this.state.phase !== 'playing' || this.state.tieBreak) return;
     if (this.state.turn !== this.bot.team) return;
-    setTimeout(() => this.performBotMove(), botThinkingDelay());
+    this.botTimer = setTimeout(() => this.performBotMove(), botThinkingDelay());
   }
 
   private performBotMove(): void {
@@ -177,7 +198,7 @@ export class Room {
     const attacker = this.state.pieces[this.state.tieBreak.attackerId];
     const defender = this.state.pieces[this.state.tieBreak.defenderId];
     if (attacker.team !== this.bot.team && defender.team !== this.bot.team) return;
-    setTimeout(() => this.performBotTiePick(), botThinkingDelay());
+    this.botTimer = setTimeout(() => this.performBotTiePick(), botThinkingDelay());
   }
 
   private performBotTiePick(): void {
@@ -194,6 +215,7 @@ export class Room {
   // ─── Turn timer ───────────────────────────────────────────────────────
 
   private startTurnTimer(): void {
+    if (this.destroyed) return;
     this.clearTurnTimer();
     this.state.turnDeadline = Date.now() + TURN_SECONDS * 1000;
     this.turnTimer = setTimeout(() => this.handleTurnTimeout(), TURN_SECONDS * 1000);
@@ -273,7 +295,7 @@ export class Room {
       // the outcome is still animating in. `resolvingUntil` makes that same window authoritative:
       // no move is accepted from anyone until the fight has actually finished.
       this.state.resolvingUntil = Date.now() + BATTLE_SEQUENCE_MS;
-      setTimeout(() => {
+      this.resolveTimer = setTimeout(() => {
         if (this.state.phase !== 'playing') return;
         this.state.resolvingUntil = null;
         this.startTurnTimer();
@@ -289,7 +311,7 @@ export class Room {
       // trap sequence finishes, and the client's position-keyed animation override would then
       // keep painting the stale dead piece there instead of the real new occupant.
       this.state.resolvingUntil = Date.now() + TRAP_SEQUENCE_MS;
-      setTimeout(() => {
+      this.resolveTimer = setTimeout(() => {
         if (this.state.phase !== 'playing') return;
         this.state.resolvingUntil = null;
         this.startTurnTimer();
@@ -338,11 +360,36 @@ export class Room {
 
   // ─── Rematch ──────────────────────────────────────────────────────────
 
+  /** True once nobody is attached — a bot seat doesn't count as someone waiting for the game. */
+  get isAbandoned(): boolean {
+    return (['red', 'blue'] as Team[]).every((t) => this.players[t].socket === null);
+  }
+
+  /** Stops every timer and blocks further scheduling. After this the room holds nothing that can
+   * wake up on its own, so dropping the reference is enough to free it. */
+  destroy(): void {
+    this.destroyed = true;
+    if (this.setupTimer) clearTimeout(this.setupTimer);
+    this.setupTimer = null;
+    this.clearTurnTimer();
+    this.clearTieBreakTimer();
+    if (this.botTimer) clearTimeout(this.botTimer);
+    this.botTimer = null;
+    if (this.resolveTimer) clearTimeout(this.resolveTimer);
+    this.resolveTimer = null;
+  }
+
   private resetForRematch(): void {
     if (this.setupTimer) clearTimeout(this.setupTimer);
     this.setupTimer = null;
     this.clearTurnTimer();
     this.clearTieBreakTimer();
+    // The bot and resolve timers outlive the state they were scheduled against, so a rematch has
+    // to drop them too — otherwise one fires into the brand-new game.
+    if (this.botTimer) clearTimeout(this.botTimer);
+    this.botTimer = null;
+    if (this.resolveTimer) clearTimeout(this.resolveTimer);
+    this.resolveTimer = null;
     this.state = freshState(this.code);
     this.setupData = { red: createInitialSetupData(), blue: createInitialSetupData() };
     this.startSetupPhase();

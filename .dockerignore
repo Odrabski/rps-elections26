@@ -3,3 +3,7 @@ node_modules
 **/dist
 .git
 *.log
+
+# Source art. The build only needs the .webp conversions under client/public/assets — these
+# originals are ~113 MB that would otherwise be uploaded to the remote builder on every deploy.
+*.png

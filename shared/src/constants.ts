@@ -24,11 +24,28 @@ export const FIGHT_SEQUENCE_MS = FIGHT_BUILD_UP_MS + FIGHT_REVEAL_MS;
 /** Total lifetime of the cinematic for a tie (same build-up, shorter reveal). */
 export const TIE_SEQUENCE_MS = FIGHT_BUILD_UP_MS + TIE_REVEAL_MS;
 
-/** Total lifetime of a decisive battle's on-board resolution (BoardGrid: hold for the cinematic
- * above, then loser dissolves, then winner jumps into the captured tile). Must match BoardGrid's
- * own loser-dissolve/winner-jump beat constants (400ms + 500ms) — kept here too so the server can
- * hold the next turn's timer off until the "winning window" has actually finished playing. */
-export const BATTLE_SEQUENCE_MS = FIGHT_SEQUENCE_MS + 900;
+// The on-board clash beats that bracket the cinematic above: the attacker jumps onto the target
+// tile, the cloud sits there alone for a moment, then (once the cinematic is over) it dissolves
+// away to reveal the winner. These live here rather than in BoardGrid.tsx because the server has
+// to hold the board locked for exactly as long as the client is still animating.
+export const CLASH_JUMP_MS = 500;
+/** How long the cloud sits alone on the board — no cinematic yet — so it reads as its own beat. */
+export const CLASH_CLOUD_PREVIEW_MS = 1000;
+/** How long after a fresh clash starts before its cinematic appears. */
+export const CLASH_REVEAL_DELAY_MS = CLASH_JUMP_MS + CLASH_CLOUD_PREVIEW_MS;
+/** The cloud's dissolve-to-winner, after the cinematic has finished. */
+export const CLASH_DISSOLVE_MS = 400;
+
+/**
+ * Total lifetime of a decisive battle, from the move landing to the board being settled again:
+ * the jump + cloud preview, then the full cinematic, then the cloud dissolving to the winner.
+ * The server holds moves and the next turn's timer for exactly this long.
+ *
+ * Derived rather than hand-tuned: this was previously `FIGHT_SEQUENCE_MS + 900`, describing beats
+ * that no longer existed, which left the server unlocking the board a full second before the
+ * client had finished animating — long enough to click into the tail of someone else's fight.
+ */
+export const BATTLE_SEQUENCE_MS = CLASH_REVEAL_DELAY_MS + FIGHT_SEQUENCE_MS + CLASH_DISSOLVE_MS;
 
 // The client's trap sequence (BoardGrid: warning banner → trap dissolves → attacker jumps onto
 // the hole → attacker sinks and vanishes). Defined here (not just in BoardGrid.tsx) so the server

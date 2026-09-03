@@ -2,6 +2,9 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   BOARD_COLS,
   BOARD_ROWS,
+  CLASH_JUMP_MS,
+  CLASH_REVEAL_DELAY_MS,
+  CLASH_DISSOLVE_MS,
   TRAP_WARNING_MS,
   TRAP_DISSOLVE_MS,
   TRAP_ATTACKER_JUMP_MS,
@@ -75,17 +78,11 @@ export { TRAP_SEQUENCE_MS };
 
 type ClashPhase = 'jump' | 'in-cloud' | 'dissolving';
 
-/** Matches .piece-jumping's 0.5s / .piece-flinching's 0.5s — the attacker slides in and the
- * defender flinches in place, together, before either turns into the cloud. */
-export const CLASH_JUMP_MS = 500;
-/** How long the cloud sits alone on the board — no cinematic yet — once the jump above finishes,
- * so it actually reads as its own beat instead of appearing right as the screen cuts away. */
-const CLASH_CLOUD_PREVIEW_MS = 1000;
-/** GameBoard waits this long in total before showing a fresh clash's own cinematic. */
-export const CLASH_REVEAL_DELAY_MS = CLASH_JUMP_MS + CLASH_CLOUD_PREVIEW_MS;
-/** How long the cloud takes to dissolve into the winner once GameBoard sets `winner` — matches
- * .board-clash-cloud-dissolving's animation. GameBoard clears `clashEvent` after this. */
-export const CLASH_DISSOLVE_MS = 400;
+/** The clash beats now live in shared/constants.ts, since the server has to hold the board locked
+ * for exactly as long as these run. Re-exported so existing importers are unaffected.
+ * CLASH_JUMP_MS matches .piece-jumping / .piece-flinching (0.5s); CLASH_DISSOLVE_MS matches
+ * .board-clash-cloud-dissolving. */
+export { CLASH_JUMP_MS, CLASH_REVEAL_DELAY_MS, CLASH_DISSOLVE_MS };
 
 function samePos(a: Position, b: Position): boolean {
   return a.row === b.row && a.col === b.col;

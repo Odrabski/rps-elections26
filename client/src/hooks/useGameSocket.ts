@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BotDifficulty, ClientGameView, ClientMessage, Position, RPSHand, ServerMessage, Team } from 'shared';
 import { clearSession, loadSession, saveSession } from '../utils/rejoin';
+import { errorText } from '../data/errorMessages';
 
 export type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error';
 
@@ -61,7 +62,11 @@ export function useGameSocket() {
           setOpponentConnected(false);
           break;
         case 'error':
-          setErrorMessage(msg.message);
+          // Rooms only live in the server's memory, so every deploy invalidates them. Without
+          // dropping the saved session here, a returning player skips the splash (App.tsx reads
+          // it), fails to rejoin, and is stranded on the home screen with no way back.
+          if (msg.message === 'room-not-found' || msg.message === 'invalid-token') clearSession();
+          setErrorMessage(errorText(msg.message));
           break;
       }
     });

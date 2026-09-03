@@ -1,0 +1,217 @@
+/* Sits above the board/background but below the game-over panel itself (see .gameover-panel's
+   own z-index), and never intercepts a tap — the rematch buttons stay clickable through it. */
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Fireworks are invisible against a bright midday sky — this dusk scrim over the upper half is
+   what lets the bursts (and the pale confetti) actually read, without blacking out the scene.
+   The losing side keeps a scrim up top too, warmer, reading as smoke rather than dusk. */
+.celebration::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(2, 6, 23, 0.62) 0%, rgba(2, 6, 23, 0.28) 42%, rgba(2, 6, 23, 0) 68%);
+}
+
+.celebration-lose::before {
+  background: linear-gradient(to bottom, rgba(14, 8, 6, 0.72) 0%, rgba(30, 12, 6, 0.34) 40%, rgba(30, 12, 6, 0) 66%);
+}
+
+/* The light the fire below is casting up into the scene. */
+.celebration-lose::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255, 94, 0, 0.44) 0%, rgba(180, 40, 0, 0.2) 26%, rgba(255, 94, 0, 0) 58%);
+}
+
+/* Bouncing heads — positioned entirely from JS (see WinCelebration.tsx's rAF loop), which writes
+   translate3d + rotate straight to each node's style rather than re-rendering React per frame. */
+.celebration-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  will-change: transform;
+}
+
+.celebration-confetti {
+  position: absolute;
+  top: -24px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: confettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes confettiFall {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+  8% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    /* Comfortably past the bottom of any phone or desktop viewport. */
+    transform: translateY(105vh) rotate(760deg);
+  }
+}
+
+.celebration-firework {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Each spark is rotated to its own slice of the circle, then flung outward along that angle —
+   keeping the rotation in every keyframe so the direction never gets dropped mid-animation. */
+.celebration-spark {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  opacity: 0;
+  /* The glow is what actually reads as a firework at a glance — a bare 9px dot reads as dust. */
+  box-shadow:
+    0 0 8px 2px currentColor,
+    0 0 16px 4px rgba(255, 255, 255, 0.35);
+  animation: fireworkSpark 1.6s ease-out infinite;
+}
+
+@keyframes fireworkSpark {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--spark-angle)) translateX(0) scale(0.4);
+  }
+  10% {
+    opacity: 1;
+    transform: rotate(var(--spark-angle)) translateX(calc(var(--spark-distance) * 0.25)) scale(1.15);
+  }
+  70% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--spark-angle)) translateX(var(--spark-distance)) scale(0.55);
+  }
+}
+
+/* Embers drifting up off the fire. Same generator shape as the confetti above, pointed the other
+   way, with the firework spark's glow so a few px of dot still reads as light. */
+.celebration-ember {
+  position: absolute;
+  bottom: -12px;
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow:
+    0 0 8px 2px currentColor,
+    0 0 14px 4px rgba(255, 140, 0, 0.3);
+  animation-name: emberRise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* --ember-drift is carried in every keyframe: a bare translateY here would silently drop it, the
+   same trap already hit by setupOnboardPop and fightBalloonPop. */
+@keyframes emberRise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(1);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(calc(var(--ember-drift) * 0.15), -12vh) scale(1);
+  }
+  75% {
+    opacity: 0.85;
+    transform: translate(calc(var(--ember-drift) * 0.75), -75vh) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--ember-drift), -105vh) scale(0.5);
+  }
+}
+
+/* Two overlapping rows of tongues along the bottom edge. z-index lifts them above the
+   .celebration-lose::after glow, which is generated content and would otherwise paint last —
+   straight over the flames, washing them into a flat orange smear. */
+.celebration-fire {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  height: 150px;
+}
+
+.celebration-fire-back {
+  height: 190px;
+  opacity: 0.7;
+  filter: blur(7px);
+}
+
+.celebration-fire-front {
+  filter: blur(1.5px);
+}
+
+.celebration-flame {
+  position: absolute;
+  bottom: 0;
+  /* An ellipse anchored at the base fades out in every direction on its own, so the tongue
+     tapers into nothing instead of ending in the hard domed edge a border-radius blob gives. */
+  background: radial-gradient(
+    ellipse 50% 58% at 50% 100%,
+    rgba(255, 246, 200, 1) 0%,
+    rgba(255, 198, 60, 0.95) 22%,
+    rgba(255, 110, 0, 0.72) 46%,
+    rgba(222, 44, 0, 0.28) 70%,
+    rgba(190, 30, 0, 0) 100%
+  );
+  transform-origin: bottom center;
+  animation-name: flameFlicker;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes flameFlicker {
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1);
+    opacity: 0.9;
+  }
+  35% {
+    transform: scaleY(1.22) scaleX(0.9);
+    opacity: 1;
+  }
+  70% {
+    transform: scaleY(0.86) scaleX(1.08);
+    opacity: 0.8;
+  }
+}
+
+/* Anyone who's asked their OS to cut animation gets the heads and confetti held still rather
+   than a screen full of motion. The fire keeps its glow but stops moving. */
+@media (prefers-reduced-motion: reduce) {
+  .celebration-confetti,
+  .celebration-spark,
+  .celebration-ember {
+    animation: none;
+    opacity: 0;
+  }
+
+  .celebration-flame {
+    animation: none;
+  }
+}

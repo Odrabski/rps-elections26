@@ -1,6 +1,6 @@
 import type { GameEvent, Team } from 'shared';
 import { TEAM_THEME } from '../data/theme';
-import { WinCelebration } from './WinCelebration';
+import { GameOverEffects } from './GameOverEffects';
 import './GameOverScreen.css';
 
 interface GameOverScreenProps {
@@ -24,7 +24,7 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
 
   return (
     <div className="gameover-screen">
-      <WinCelebration winner={winner} />
+      <GameOverEffects winner={winner} won={won} />
       <div className="gameover-panel panel">
         <div className="gameover-emoji">{won ? '🏆' : '🏳️'}</div>
         <h1 className="gradient-heading">{won ? 'ניצחתם!' : 'הפסדתם'}</h1>
