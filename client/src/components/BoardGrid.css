@@ -396,10 +396,10 @@
 
 .board-piece-tilt .piece-mask {
   animation: headNod 0.5s ease-in-out;
-  /* Below the image's own bottom edge, roughly at the collar rather than the chin: pivoting right
-     at the base of the portrait read as the head swivelling on the spot. Pushed much further than
-     this and the arc gets wide enough to visibly lift the head off the neck. */
-  transform-origin: 50% 130%;
+  /* Deliberately no transform-origin. The resting .piece-mask doesn't set one either, so it sits at
+     the default centre — and because that transform carries scale(1.3225), overriding the origin
+     here re-anchored the scale and teleported the head upward the moment the nod began. The
+     keyframes move the rotation centre inside the transform instead (see headNod). */
 }
 
 @keyframes pieceTilt {
@@ -424,15 +424,19 @@
    Must start/end at the mask's own resting transform (translate(calc(-50% + var(--mask-shift-x)),
    var(--mask-shift-y)), both set on .piece-mask / its per-portrait overrides in PieceView.css)
    or it jumps to this transform's 0%/100% state the instant the animation starts/ends. */
+/* translateY(65%) rotate() translateY(-65%) pivots about a point 65% of the head's height below its
+   centre — around the collar rather than the chin — without touching transform-origin, so the 0%
+   and 100% frames are exactly the resting transform and the head never jumps into or out of the
+   animation. */
 @keyframes headNod {
   0% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate));
   }
   50% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(10deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) translateY(65%) rotate(10deg) translateY(-65%);
   }
   100% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate));
   }
 }
 
@@ -450,7 +454,6 @@
 
 .board-piece-tilt-reverse .piece-mask {
   animation: headNodReverse 0.5s ease-in-out;
-  transform-origin: 50% 130%; /* matches .board-piece-tilt .piece-mask */
 }
 
 @keyframes pieceTiltReverse {
@@ -473,13 +476,13 @@
 
 @keyframes headNodReverse {
   0% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate));
   }
   50% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(-10deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) translateY(65%) rotate(-10deg) translateY(-65%);
   }
   100% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate));
   }
 }
 
