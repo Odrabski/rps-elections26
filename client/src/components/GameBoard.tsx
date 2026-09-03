@@ -266,7 +266,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
   const turnTheme = TEAM_THEME[turnTeam];
 
   const handleExit = () => {
-    if (window.confirm('לצאת מהמשחק? זו תיחשב פרישה מהמשחק.')) onExit();
+    if (window.confirm('לפרוש מהחיים הפוליטיים?')) onExit();
   };
 
   return (

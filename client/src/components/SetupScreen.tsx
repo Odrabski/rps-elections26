@@ -100,7 +100,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
               להתחיל לשחק
             </button>
             <button type="button" className="btn-secondary setup-btn-onboard setup-btn-onboard-shuffle" onClick={onShuffle}>
-              ערבב כלי-נשק
+              ערבוב כלי נשק
             </button>
           </div>
         )}
@@ -113,12 +113,12 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
       <div className="setup-turn-pill-spacer" aria-hidden="true" />
 
       {isReady && (
-        <LockedInOverlay subtitle="עכשיו, מחכים ליריב.">
+        <LockedInOverlay subtitle="עכשיו, מחכים לצד השני...">
           {!view.readiness[opponent] && (
             <CountdownRing deadline={view.setupDeadline} totalSeconds={SETUP_SECONDS} color={theme.solid} size={56} />
           )}
           <p className="locked-in-hint">
-            {view.readiness[opponent] ? 'שני הצדדים מוכנים, המשחק מתחיל...' : 'המשחק יתחיל ברגע שהיריב יסיים'}
+            {view.readiness[opponent] ? 'שני הצדדים מוכנים, המשחק מתחיל...' : 'ברגע שהצד השני מסיים להתארגן נתחיל'}
           </p>
         </LockedInOverlay>
       )}

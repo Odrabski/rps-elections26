@@ -176,7 +176,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
               })}
             </div>
             <button type="button" className="btn-secondary team-pick-back" onClick={() => setStep('menu')}>
-              חזרה
+              חזרה למזנון הכנסת
             </button>
           </div>
         </div>
@@ -190,7 +190,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
         <img src="/assets/logo.webp" alt="אבניהו - מהדורת בחירות 2026" className="home-logo" />
         <div className="home-panel panel">
           <button type="button" className="btn-primary home-vs-bot-btn" onClick={() => startTeamPick(true)}>
-          משחק מול המחשב
+          משחק מול בוט
         </button>
 
         <button type="button" className="btn-primary home-create-btn" onClick={() => startTeamPick(false)}>
@@ -217,7 +217,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
             autoCapitalize="characters"
           />
           <button type="submit" className="btn-secondary" disabled={!code.trim()}>
-            הצטרף
+            הצטרפות
           </button>
         </form>
 
@@ -263,10 +263,9 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
           }
         >
           <p>
-            אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב
-            אבן-נייר-מספריים קלאסי עם טקטיקה על לוח.
+            נמאס מסבבי בחירות אינסופיים בלי הכרעה? אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב אבן-נייר-מספריים קלאסי עם טקטיקה על לוח, כדי שנוכל להכריע אחת ולתמיד מי ייקח את הבחירות – הקואליציה או האופוזיציה.
           </p>
-          <p>קואליציה מול אופוזיציה — מי ינצח בבחירות?</p>
+          <p>ביחד נכסח!</p>
         </Modal>
       )}
     </div>

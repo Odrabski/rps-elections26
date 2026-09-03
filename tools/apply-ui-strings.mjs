@@ -16,6 +16,10 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dryRun = process.argv.includes('--dry-run');
+/** --skip a,b,c leaves those ids alone this run — for a row that's still under discussion, so the
+ *  rest of the sheet can land without its proposed wording having to be deleted to get there. */
+const skipArg = process.argv.find((a) => a.startsWith('--skip='));
+const skip = new Set(skipArg ? skipArg.slice('--skip='.length).split(',').map((s) => s.trim()) : []);
 
 /** Minimal RFC-4180 reader: quoted fields, "" escapes, CR/LF inside quotes. */
 function parseCsv(text) {
@@ -50,6 +54,7 @@ for (const row of csv.slice(1)) {
   const id = (row[idCol] ?? '').trim();
   const next = (row[newCol] ?? '').trim();
   if (!id || !next) continue;
+  if (skip.has(id)) { problems.push(`${id}: held back by --skip`); continue; }
   const entry = byId.get(id);
   if (!entry) { problems.push(`unknown id "${id}" — re-run extract-ui-strings.mjs?`); continue; }
   if (next === entry.text) continue;
@@ -63,6 +68,18 @@ for (const e of edits) {
   perFile.get(e.entry.file).push(e);
 }
 
+/** Blanks out comments while preserving every offset, so a match found in the masked copy can be
+ *  spliced straight into the real source. Without this, a string that also appears in
+ *  commented-out code (the parked difficulty picker has its own "חזרה" button) looks like an
+ *  ambiguous double match and gets skipped. */
+function maskComments(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + ' '.repeat(m.length - p1.length));
+}
+
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 let applied = 0;
 for (const [file, list] of perFile) {
   const path = join(ROOT, file);
@@ -72,10 +89,17 @@ for (const [file, list] of perFile) {
     const restore = (s) => (entry.placeholders ?? []).reduce((acc, expr, i) => acc.split(`{${i}}`).join(expr), s);
     const from = restore(entry.text);
     const to = restore(next);
-    const count = src.split(from).length - 1;
-    if (count === 0) { problems.push(`${entry.id}: original text no longer present in ${file}`); continue; }
-    if (count > 1) { problems.push(`${entry.id}: appears ${count}x in ${file} — skipped, needs a manual edit`); continue; }
-    src = src.replace(from, to);
+
+    // JSX text was collapsed to one line when extracted, but in the source it may be wrapped and
+    // indented across several — so match runs of whitespace against any whitespace, not literally.
+    const pattern = new RegExp(escapeRe(from).replace(/\s+/g, '\\s+'), 'g');
+    const hits = [...maskComments(src).matchAll(pattern)];
+
+    if (hits.length === 0) { problems.push(`${entry.id}: original text no longer present in ${file}`); continue; }
+    if (hits.length > 1) { problems.push(`${entry.id}: appears ${hits.length}x in ${file} — skipped, needs a manual edit`); continue; }
+
+    const { index } = hits[0];
+    src = src.slice(0, index) + to + src.slice(index + hits[0][0].length);
     applied++;
     console.log(`  ${entry.id}\n    - ${entry.text}\n    + ${next}`);
   }

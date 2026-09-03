@@ -73,8 +73,8 @@ export default function App() {
       <div className="lobby-screen">
         <ExitButton onClick={leave} />
         <div className="lobby-panel panel">
-          <h1 className="gradient-heading">ממתין ליריב...</h1>
-          <p className="lobby-hint">שלחו את הקוד הזה ליריב שלכם:</p>
+          <h1 className="gradient-heading">ממתין לצד השני...</h1>
+          <p className="lobby-hint">שלחו את הקוד הזה לצד השני:</p>
           <button
             type="button"
             className="lobby-code"

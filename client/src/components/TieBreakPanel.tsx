@@ -89,7 +89,7 @@ export function TieBreakPanel({ tieBreak, pieces, team, seed, onPick }: TieBreak
             ? 'בחרו יד לקרב ההכרעה'
             : tieBreak.opponentPicked
               ? 'פותרים...'
-              : `נעלת ${pickedLabel}, ממתין ליריב`}
+              : `נעלת ${pickedLabel}, ממתין לצד השני`}
         </p>
       </div>
     </div>

@@ -18,13 +18,13 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
   const detail =
     reason?.type === 'resigned'
       ? won
-        ? 'היריב פרש מהמשחק'
-        : 'פרשתם מהמשחק'
+        ? 'היריב שלך פרש מהחיים הפוליטיים'
+        : 'פרשת מהחיים הפוליטיים'
       : reason?.type === 'no-moves-left'
         ? won
           ? 'ליריב שלך אין יותר אפשרויות לזוז'
-          : 'אין לך יותר אפשרויות לזוז'
-        : `${theme.label} כבשו את המלך היריב`;
+          : 'סונדלת, אין לך יותר אפשרויות לזוז'
+        : `${theme.label} מצאו את המלך ולקחו את הבחירות`;
 
   return (
     <div className="gameover-screen">
@@ -37,10 +37,10 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
         </p>
         <div className="gameover-actions">
           <button type="button" className="btn-secondary" onClick={onBackToLobby}>
-            חזרה ללובי
+            חזרה למזנון הכנסת
           </button>
           <button type="button" className="btn-primary" onClick={onRematch}>
-            🔁 משחק חוזר
+            🔁 סבב בחירות נוסף?
           </button>
         </div>
       </div>

@@ -4,7 +4,7 @@ interface ExitButtonProps {
 }
 
 /** The bottom-right way out, shared by the lobby, setup and game screens. */
-export function ExitButton({ onClick, label = 'יציאה' }: ExitButtonProps) {
+export function ExitButton({ onClick, label = 'פרישה' }: ExitButtonProps) {
   return (
     <button type="button" className="exit-btn" onClick={onClick} aria-label={label}>
       <span className="exit-btn-x" aria-hidden="true">

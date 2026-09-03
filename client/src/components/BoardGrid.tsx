@@ -444,7 +444,7 @@ export function BoardGrid({
       </div>
       {trapPhase === 'warning' && trapEvent && (
         <div className="trap-warning-banner">
-          {trapEvent.attacker.team === team ? 'נפלת במלכודת' : 'היריב נפל במלכודת'}
+          {trapEvent.attacker.team === team ? 'מלכודת! נפלת בתרגיל פוליטי' : 'הופה! הפלת את היריב שלך בפח'}
         </div>
       )}
     </div>
