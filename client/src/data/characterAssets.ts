@@ -80,9 +80,28 @@ function pieceSlotIndex(id: string): number {
  * through evenly instead of repeating unevenly the way a plain hash could.
  */
 function hiddenHeadAsset(team: Team, id: string, seed: string): { asset: string; id: string } {
-  const pool = seededShuffle(HIDDEN_HEAD_POOL[team], `${seed}:${team}`);
+  const pool = shuffledPool(team, seed);
   const file = pool[pieceSlotIndex(id) % pool.length];
   return { asset: `/assets/pieces/${file}`, id: file.replace(/\.\w+$/, '') };
+}
+
+/**
+ * The shuffle is deterministic in `(team, seed)` and both are fixed for an entire match — yet
+ * `hiddenHeadAsset` runs once per piece per render, so the board was paying for ~28 identical
+ * Fisher-Yates passes and 28 throwaway arrays every single time it redrew. Cached by that key
+ * instead. Growth is bounded by seeds seen this session (one per match), each holding one small
+ * array, so there's nothing here worth evicting.
+ */
+const shuffledPoolCache = new Map<string, readonly string[]>();
+
+function shuffledPool(team: Team, seed: string): readonly string[] {
+  const key = `${seed}:${team}`;
+  const cached = shuffledPoolCache.get(key);
+  if (cached) return cached;
+  // Seeded with the cache key itself, exactly as before — same key in, same permutation out.
+  const pool = seededShuffle(HIDDEN_HEAD_POOL[team], key);
+  shuffledPoolCache.set(key, pool);
+  return pool;
 }
 
 /** A piece's head portrait, regardless of ownership — used where a face is wanted even for

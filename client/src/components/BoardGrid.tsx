@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   BOARD_COLS,
   BOARD_ROWS,
@@ -147,12 +147,7 @@ export function BoardGrid({
     }
   }
 
-  // Occasionally makes one random occupied tile's figure play a little idle wobble — never
-  // more than one at a time. Reads the latest cells/getPieceAt via refs so the timer loop
-  // itself only starts once, instead of restarting on every parent re-render.
-  const [tiltKey, setTiltKey] = useState<string | null>(null);
-  const cellsRef = useRef(cells);
-  const getPieceAtRef = useRef(getPieceAt);
+  const gridRef = useRef<HTMLDivElement | null>(null);
   // Each live piece's actual position as of the *previous* render — comparing against this is
   // what detects an ordinary move (for the jump animation) a render later, once the new
   // position has already arrived from the server.
@@ -168,9 +163,6 @@ export function BoardGrid({
     };
   }, []);
   useEffect(() => {
-    cellsRef.current = cells;
-    getPieceAtRef.current = getPieceAt;
-
     const next = new Map<string, Position>();
     const started: Array<{ id: string; offset: { x: string; y: string } }> = [];
     for (const { actual } of cells) {
@@ -203,6 +195,31 @@ export function BoardGrid({
     jumpTimersRef.current.add(timer);
   });
 
+  /**
+   * Plays the idle wobble by toggling the class straight on the node.
+   *
+   * This used to be two pieces of React state, and each wobble's set-then-clear pair forced two
+   * full re-renders of the entire board — four every cycle across both timers — where every one
+   * re-walked all 42 cells and re-resolved every piece's artwork, purely to tilt a single figure
+   * on a board where nothing had actually changed. Nothing about a decorative wobble belongs in
+   * render state, so it doesn't live there any more.
+   *
+   * Only wraps whose className is exactly the base class are eligible, which is precisely the set
+   * of pieces React isn't already animating — no stealing a piece mid-dissolve, mid-fall,
+   * mid-flinch, or mid-pulse, and no fighting React over the same attribute.
+   */
+  const wobbleRandomPiece = useCallback((className: string) => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const idle = Array.from(grid.querySelectorAll<HTMLElement>('.board-piece-wrap')).filter(
+      (el) => el.className === 'board-piece-wrap',
+    );
+    if (idle.length === 0) return;
+    const chosen = idle[Math.floor(Math.random() * idle.length)];
+    chosen.classList.add(className);
+    setTimeout(() => chosen.classList.remove(className), TILT_DURATION_MS);
+  }, []);
+
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     let cancelled = false;
@@ -211,15 +228,7 @@ export function BoardGrid({
       const delay = TILT_MIN_DELAY_MS + Math.random() * (TILT_MAX_DELAY_MS - TILT_MIN_DELAY_MS);
       timer = setTimeout(() => {
         if (cancelled) return;
-        const occupied = cellsRef.current.filter((c) => getPieceAtRef.current(c.actual));
-        if (occupied.length > 0) {
-          const chosen = occupied[Math.floor(Math.random() * occupied.length)];
-          const key = `${chosen.display.row}-${chosen.display.col}`;
-          setTiltKey(key);
-          setTimeout(() => {
-            if (!cancelled) setTiltKey((current) => (current === key ? null : current));
-          }, TILT_DURATION_MS);
-        }
+        wobbleRandomPiece('board-piece-tilt');
         scheduleNext();
       }, delay);
     };
@@ -229,29 +238,14 @@ export function BoardGrid({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, []);
+  }, [wobbleRandomPiece]);
 
   // A second, independent idle wobble — fixed 8s cadence (not randomized like the one above) and
   // tilted the opposite direction, so the board never reads as just one recurring animation.
-  const [tiltKey2, setTiltKey2] = useState<string | null>(null);
   useEffect(() => {
-    let cancelled = false;
-    const interval = setInterval(() => {
-      const occupied = cellsRef.current.filter((c) => getPieceAtRef.current(c.actual));
-      if (occupied.length > 0) {
-        const chosen = occupied[Math.floor(Math.random() * occupied.length)];
-        const key = `${chosen.display.row}-${chosen.display.col}`;
-        setTiltKey2(key);
-        setTimeout(() => {
-          if (!cancelled) setTiltKey2((current) => (current === key ? null : current));
-        }, TILT_DURATION_MS);
-      }
-    }, TILT_FIXED_INTERVAL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
+    const interval = setInterval(() => wobbleRandomPiece('board-piece-tilt-reverse'), TILT_FIXED_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [wobbleRandomPiece]);
 
   // The trap sequence's own phase clock — restarts whenever a genuinely new trapEvent arrives
   // (GameBoard clears it to null between events, so two distinct triggers always toggle through
@@ -308,7 +302,7 @@ export function BoardGrid({
 
   return (
     <div className="board-frame">
-      <div className="board-grid">
+      <div className="board-grid" ref={gridRef}>
         {cells.map(({ display, actual }) => {
           const key = `${display.row}-${display.col}`;
 
@@ -415,8 +409,7 @@ export function BoardGrid({
                   <div
                     className={[
                       'board-piece-wrap',
-                      tiltKey === key || isPulsing ? 'board-piece-tilt' : '',
-                      tiltKey2 === key ? 'board-piece-tilt-reverse' : '',
+                      isPulsing ? 'board-piece-tilt' : '',
                       dissolving ? 'piece-dissolving' : '',
                       falling ? 'piece-falling' : '',
                     ]

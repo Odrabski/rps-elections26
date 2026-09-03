@@ -20,6 +20,11 @@ import {
 } from './BoardGrid';
 import './GameBoard.css';
 
+/** Map key for a board tile — positions are plain objects, so they can't be keyed on directly. */
+function tileKey(p: Position): string {
+  return `${p.row},${p.col}`;
+}
+
 interface GameBoardProps {
   view: ClientGameView;
   team: Team;
@@ -66,6 +71,16 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     cinematicPending;
   const canMove = myTurn && !resolving;
   const alivePieces = useMemo(() => view.pieces.filter((p) => p.alive), [view.pieces]);
+  /**
+   * Occupancy indexed by tile. `getPieceAt` below is called once per cell while the board renders,
+   * so doing it as a linear scan meant ~42 passes over every living piece per render — built once
+   * here instead, and rebuilt only when the pieces actually change.
+   */
+  const pieceByTile = useMemo(() => {
+    const map = new Map<string, ClientPieceView>();
+    for (const p of alivePieces) map.set(tileKey(p.position), p);
+    return map;
+  }, [alivePieces]);
   /**
    * The score badges must not give the fight away. The server marks the loser dead in the very
    * same broadcast that starts the cinematic, so a live count dropped the instant a clash began —
@@ -227,14 +242,14 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       if (p.row < 0 || p.row >= BOARD_ROWS || p.col < 0 || p.col >= BOARD_COLS) return false;
       // Matches the server's own validateMove: adjacent and in-bounds is legal onto an empty
       // tile or an enemy piece (that's an attack) — only your own piece blocks the move.
-      const occupant = alivePieces.find((piece) => piece.position.row === p.row && piece.position.col === p.col);
+      const occupant = pieceByTile.get(tileKey(p));
       return !occupant || occupant.team !== team;
     });
-  }, [selected, alivePieces, team]);
+  }, [selected, pieceByTile, team]);
 
   const handleTileClick = (actual: Position) => {
     if (!canMove) return;
-    const occupant = alivePieces.find((p) => p.position.row === actual.row && p.position.col === actual.col);
+    const occupant = pieceByTile.get(tileKey(actual));
 
     if (occupant && occupant.team === team && occupant.kind === 'soldier') {
       setSelectedId(occupant.id === selectedId ? null : occupant.id);
@@ -278,9 +293,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
           <BoardGrid
             team={team}
             seed={seed}
-            getPieceAt={(actual) =>
-              alivePieces.find((p) => p.position.row === actual.row && p.position.col === actual.col)
-            }
+            getPieceAt={(actual) => pieceByTile.get(tileKey(actual))}
             isClickable={() => canMove}
             isLegalTarget={(actual) => legalTargets.some((t) => t.row === actual.row && t.col === actual.col)}
             isSelected={(piece) => piece.id === selectedId}
