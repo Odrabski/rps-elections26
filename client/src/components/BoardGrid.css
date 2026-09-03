@@ -396,7 +396,10 @@
 
 .board-piece-tilt .piece-mask {
   animation: headNod 0.5s ease-in-out;
-  transform-origin: 50% 100%;
+  /* Below the image's own bottom edge, roughly at the collar rather than the chin: pivoting right
+     at the base of the portrait read as the head swivelling on the spot. Pushed much further than
+     this and the arc gets wide enough to visibly lift the head off the neck. */
+  transform-origin: 50% 130%;
 }
 
 @keyframes pieceTilt {
@@ -447,7 +450,7 @@
 
 .board-piece-tilt-reverse .piece-mask {
   animation: headNodReverse 0.5s ease-in-out;
-  transform-origin: 50% 100%;
+  transform-origin: 50% 130%; /* matches .board-piece-tilt .piece-mask */
 }
 
 @keyframes pieceTiltReverse {
