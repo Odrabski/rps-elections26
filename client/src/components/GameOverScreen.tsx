@@ -16,10 +16,11 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
   const theme = TEAM_THEME[winner];
   const won = winner === you;
   const detail =
+    // Only the opponent ever sees a resignation: exiting resigns and then leaves, which clears the
+    // room and puts the resigner on the home screen before this could render. If exit ever stops
+    // leaving, this needs its losing half back.
     reason?.type === 'resigned'
-      ? won
-        ? 'היריב שלך פרש מהחיים הפוליטיים'
-        : 'פרשת מהחיים הפוליטיים'
+      ? 'היריב שלך פרש מהחיים הפוליטיים'
       : reason?.type === 'no-moves-left'
         ? won
           ? 'ליריב שלך אין יותר אפשרויות לזוז'

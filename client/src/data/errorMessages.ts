@@ -3,23 +3,18 @@
  * fine as a protocol, but they were being rendered straight to the player in an otherwise
  * all-Hebrew UI. Anything unrecognised falls back to a generic message rather than leaking the
  * slug itself.
+ *
+ * Only slugs that can arrive while the player is on the home screen are listed. `errorMessage` is
+ * passed to HomeScreen alone, and App renders that only when there is no room — so an error raised
+ * mid-game is received, translated, and dropped. Ten in-game slugs were being translated here for
+ * nobody; if an error surface is ever added to the game screens, they want bringing back.
  */
 const MESSAGES: Record<string, string> = {
   'room-not-found': 'המשחק לא נמצא — ייתכן שהסתיים',
   'room-full': 'המשחק כבר מלא',
   'invalid-token': 'לא הצלחנו לחבר אתכם חזרה למשחק',
-  'not-in-room': 'אתם לא מחוברים למשחק',
-  'already-in-room': 'אתם כבר בתוך משחק',
   'invalid-room-code': 'קוד משחק לא תקין',
-  'invalid-json': 'שגיאת תקשורת עם השרת',
   'server-error': 'שגיאת שרת — נסו שוב',
-  'wrong-phase': 'אי אפשר לעשות את זה בשלב הזה',
-  'not-your-turn': 'זה לא התור שלכם',
-  'resolving': 'רגע, הקרב עוד מתרחש',
-  'tie-break-in-progress': 'יש קרב הכרעה פעיל',
-  'already-picked': 'כבר בחרתם',
-  'no-tie-break': 'אין כרגע קרב הכרעה',
-  'not-game-over': 'המשחק עוד לא הסתיים',
 };
 
 export function errorText(slug: string): string {

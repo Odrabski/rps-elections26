@@ -106,6 +106,15 @@ for (const [file, list] of perFile) {
   if (!dryRun) writeFileSync(path, src, 'utf8');
 }
 
+// Record what the source now says, so re-running is a no-op instead of applying on top of itself.
+// Without this the map still held the *old* text, and for an edit that merely extends the original
+// ("קואליציה" -> "הקואליציה") that old text is still a substring of the new one — so a second run
+// matched inside its own output and produced "ההקואליציה".
+if (!dryRun && applied > 0) {
+  for (const { entry, next } of edits) entry.text = next;
+  writeFileSync(join(ROOT, 'content/ui-strings.json'), JSON.stringify(map, null, 2) + '\n', 'utf8');
+}
+
 console.log(`\n${applied} string(s) ${dryRun ? 'would be' : ''} applied across ${perFile.size} file(s).`);
 if (problems.length) {
   console.log(`\n${problems.length} problem(s):`);

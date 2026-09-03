@@ -85,11 +85,10 @@ export function TieBreakPanel({ tieBreak, pieces, team, seed, onPick }: TieBreak
         </div>
 
         <p className="tiebreak-status">
-          {!picked
-            ? 'בחרו יד לקרב ההכרעה'
-            : tieBreak.opponentPicked
-              ? 'פותרים...'
-              : `נעלת ${pickedLabel}, ממתין לצד השני`}
+          {/* No third "both picked" state: every path that records a pick calls
+              resolveTieBreakIfReady() before it broadcasts, so a view carrying both picks never
+              reaches a client. */}
+          {!picked ? 'בחרו יד לקרב ההכרעה' : `נעלת ${pickedLabel}, ממתין לצד השני`}
         </p>
       </div>
     </div>

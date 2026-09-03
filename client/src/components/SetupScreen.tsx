@@ -41,7 +41,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
   }, [pulsePosition]);
 
   const handleExit = () => {
-    if (window.confirm('לצאת מהמשחק? המשחק יימשך בלעדיכם.')) onExit();
+    if (window.confirm('לפרוש מהחיים הפוליטיים?')) onExit();
   };
 
   /** A tile can take the next designation only if it's your own piece and still unassigned. */

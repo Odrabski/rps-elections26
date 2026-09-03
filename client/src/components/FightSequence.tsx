@@ -104,7 +104,7 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
           <div className="fight-result-text" style={{ color: winnerTheme.text }}>
             {winnerVisual.headName.toUpperCase()}
           </div>
-          <div className="fight-result-subtext">ניצחון ל{winnerTheme.label}</div>
+          <div className="fight-result-subtext">ניצחון של {winnerTheme.label}</div>
         </div>
       </div>
     );
