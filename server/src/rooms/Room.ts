@@ -13,7 +13,14 @@ import {
 } from '../game/setup.js';
 import { findRandomLegalMove, legalMovesFor, validateMove } from '../game/movement.js';
 import { applyMove } from '../game/combat.js';
-import { autoFillTiePicks, startTieBreak, submitTiePick, tryResolveTieBreak, TIE_BREAK_WINDOW_MS } from '../game/tiebreak.js';
+import {
+  autoFillTiePicks,
+  startTieBreak,
+  submitTiePick,
+  tryResolveTieBreak,
+  TIE_BREAK_FIRST_WINDOW_MS,
+  TIE_BREAK_REPEAT_WINDOW_MS,
+} from '../game/tiebreak.js';
 import { chooseBotMove, chooseBotTiePick } from '../game/bot.js';
 import { toClientView } from '../game/view.js';
 
@@ -270,7 +277,7 @@ export class Room {
     if (event?.type === 'tie-break-started') {
       startTieBreak(this.state, event.attackerId, event.defenderId);
       this.clearTurnTimer();
-      this.scheduleTieBreakTimeout();
+      this.scheduleTieBreakTimeout(true);
       this.scheduleBotTiePickIfNeeded();
       return;
     }
@@ -327,9 +334,12 @@ export class Room {
 
   // ─── Tie-break ────────────────────────────────────────────────────────
 
-  private scheduleTieBreakTimeout(): void {
+  /** `firstTie` gets the longer window — see TIE_BREAK_FIRST_WINDOW_MS. Kept in step with the
+   * deadline the client is counting down to, or the auto-fill fires at the wrong moment. */
+  private scheduleTieBreakTimeout(firstTie: boolean): void {
     this.clearTieBreakTimer();
-    this.tieBreakTimer = setTimeout(() => this.handleTieBreakTimeout(), TIE_BREAK_WINDOW_MS);
+    const window = firstTie ? TIE_BREAK_FIRST_WINDOW_MS : TIE_BREAK_REPEAT_WINDOW_MS;
+    this.tieBreakTimer = setTimeout(() => this.handleTieBreakTimeout(), window);
   }
 
   private clearTieBreakTimer(): void {
@@ -349,7 +359,8 @@ export class Room {
     if (!event) return; // still waiting on one side
     this.state.lastEvent = event;
     if (event.type === 'tie-break-repeat') {
-      this.scheduleTieBreakTimeout();
+      // A repeat has its cloud on the board already — no jump beat to wait through.
+      this.scheduleTieBreakTimeout(false);
       this.scheduleBotTiePickIfNeeded();
     } else {
       this.applyLastMoveOverride(event);
@@ -426,6 +437,26 @@ export class Room {
         const err = submitTiePick(this.state, team, msg.hand);
         if (err) return this.sendTo(team, { type: 'error', message: err });
         this.resolveTieBreakIfReady();
+        break;
+      }
+      case 'resign': {
+        // Leaving used to just drop the socket, which left the opponent in a game that never
+        // ended — the turn timer kept auto-playing random moves for the empty seat under a
+        // permanent disconnect banner. Quitting now actually concludes the game.
+        if (this.state.phase !== 'playing' && this.state.phase !== 'setup') return;
+        this.clearTurnTimer();
+        this.clearTieBreakTimer();
+        if (this.setupTimer) clearTimeout(this.setupTimer);
+        this.setupTimer = null;
+        if (this.botTimer) clearTimeout(this.botTimer);
+        this.botTimer = null;
+        if (this.resolveTimer) clearTimeout(this.resolveTimer);
+        this.resolveTimer = null;
+        this.state.resolvingUntil = null;
+        this.state.tieBreak = null;
+        this.state.phase = 'gameover';
+        this.state.winner = OTHER_TEAM[team];
+        this.state.lastEvent = { type: 'resigned', winner: OTHER_TEAM[team] };
         break;
       }
       case 'rematch': {

@@ -66,6 +66,25 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     cinematicPending;
   const canMove = myTurn && !resolving;
   const alivePieces = useMemo(() => view.pieces.filter((p) => p.alive), [view.pieces]);
+  /**
+   * The score badges must not give the fight away. The server marks the loser dead in the very
+   * same broadcast that starts the cinematic, so a live count dropped the instant a clash began —
+   * telling you who lost a full ten seconds before the reveal did. Anyone caught up in a sequence
+   * that's still playing out keeps counting until it finishes.
+   */
+  const scorePieces = useMemo(() => {
+    const inFlight = new Set<string>();
+    if (clashEvent) {
+      inFlight.add(clashEvent.attacker.id);
+      inFlight.add(clashEvent.defender.id);
+    }
+    if (trapEvent) {
+      inFlight.add(trapEvent.attacker.id);
+      inFlight.add(trapEvent.trap.id);
+    }
+    if (inFlight.size === 0) return view.pieces;
+    return view.pieces.map((p) => (inFlight.has(p.id) && !p.alive ? { ...p, alive: true } : p));
+  }, [view.pieces, clashEvent, trapEvent]);
   const selected = alivePieces.find((p) => p.id === selectedId) ?? null;
   const opponentTeam: Team = team === 'red' ? 'blue' : 'red';
   // Only ordinary soldiers get a tease bubble — a king or trap "talking" would look wrong. An
@@ -242,7 +261,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       <div className="game-board-content">
         <ScoreHeader
           team={team}
-          pieces={view.pieces}
+          pieces={scorePieces}
           center={
             <CountdownRing
               deadline={view.turnDeadline}

@@ -9,7 +9,8 @@ export type ClientMessage =
   | { type: 'ready' }
   | { type: 'move'; pieceId: string; to: Position }
   | { type: 'tie-pick'; hand: RPSHand }
-  | { type: 'rematch' };
+  | { type: 'rematch' }
+  | { type: 'resign' };
 
 export type ServerMessage =
   | { type: 'room-created'; roomCode: string; team: Team; token: string }

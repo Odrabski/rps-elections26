@@ -1,20 +1,25 @@
-import { TIE_SEQUENCE_MS, TIE_BREAK_SECONDS } from 'shared';
+import { CLASH_REVEAL_DELAY_MS, TIE_SEQUENCE_MS, TIE_BREAK_SECONDS } from 'shared';
 import type { GameEvent, GameState, RPSHand, Team } from 'shared';
 import { BEATS } from './combat.js';
 
 export type TieBreakError = 'no-tie-break' | 'already-picked';
 
-/** The weapon picker only appears on each client once its collision cinematic (the same one for
- * both the initial tie and every repeat) finishes playing, so the actual picking window — both
- * the deadline shown and the server's own auto-fill timeout — starts that much later too. */
-export const TIE_BREAK_WINDOW_MS = TIE_SEQUENCE_MS + TIE_BREAK_SECONDS * 1000;
+/** The weapon picker only appears on each client once its collision cinematic finishes playing,
+ * so the actual picking window — both the deadline shown and the server's own auto-fill timeout —
+ * has to start that much later, or the countdown is already running against a picker nobody can
+ * see yet. A *repeat* tie has its cloud on the board already and goes straight into the cinematic. */
+export const TIE_BREAK_REPEAT_WINDOW_MS = TIE_SEQUENCE_MS + TIE_BREAK_SECONDS * 1000;
+/** A *first* tie additionally plays the jump-into-the-cloud beat before the cinematic starts.
+ * Without accounting for it the opening tie handed the player ~8.5s while the ring claimed 10 —
+ * it appeared already ~15% drained, showing "9". */
+export const TIE_BREAK_FIRST_WINDOW_MS = CLASH_REVEAL_DELAY_MS + TIE_BREAK_REPEAT_WINDOW_MS;
 
 export function startTieBreak(state: GameState, attackerId: string, defenderId: string): void {
   state.tieBreak = {
     attackerId,
     defenderId,
     picks: { red: null, blue: null },
-    deadline: Date.now() + TIE_BREAK_WINDOW_MS,
+    deadline: Date.now() + TIE_BREAK_FIRST_WINDOW_MS,
     round: 1,
   };
 }
@@ -61,7 +66,7 @@ export function tryResolveTieBreak(state: GameState): GameEvent | null {
 
   if (attackerHand === defenderHand) {
     tb.picks = { red: null, blue: null };
-    tb.deadline = Date.now() + TIE_BREAK_WINDOW_MS;
+    tb.deadline = Date.now() + TIE_BREAK_REPEAT_WINDOW_MS;
     tb.round += 1;
     return { type: 'tie-break-repeat', attackerId: tb.attackerId, defenderId: tb.defenderId, round: tb.round };
   }

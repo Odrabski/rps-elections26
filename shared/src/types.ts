@@ -27,6 +27,7 @@ export type GameEvent =
   | { type: 'trap-triggered'; attackerId: string; trapId: string }
   | { type: 'king-captured'; winner: Team }
   | { type: 'no-moves-left'; winner: Team }
+  | { type: 'resigned'; winner: Team }
   | { type: 'tie-break-started'; attackerId: string; defenderId: string }
   | { type: 'tie-break-repeat'; attackerId: string; defenderId: string; round: number };
 

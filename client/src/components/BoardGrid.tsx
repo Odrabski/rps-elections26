@@ -157,16 +157,50 @@ export function BoardGrid({
   // what detects an ordinary move (for the jump animation) a render later, once the new
   // position has already arrived from the server.
   const prevActualRef = useRef<Map<string, Position>>(new Map());
+  /** Ordinary-move slides currently in flight, keyed by piece id (see the effect below). */
+  const [jumps, setJumps] = useState<Map<string, { x: string; y: string }>>(new Map());
+  const jumpTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  useEffect(() => {
+    const timers = jumpTimersRef.current;
+    return () => {
+      for (const t of timers) clearTimeout(t);
+      timers.clear();
+    };
+  }, []);
   useEffect(() => {
     cellsRef.current = cells;
     getPieceAtRef.current = getPieceAt;
 
     const next = new Map<string, Position>();
+    const started: Array<{ id: string; offset: { x: string; y: string } }> = [];
     for (const { actual } of cells) {
       const p = getPieceAt(actual);
-      if (p) next.set(p.id, actual);
+      if (!p) continue;
+      next.set(p.id, actual);
+      const prev = prevActualRef.current.get(p.id);
+      if (prev && !samePos(prev, actual)) started.push({ id: p.id, offset: jumpOffset(prev, actual, team) });
     }
     prevActualRef.current = next;
+    if (started.length === 0) return;
+
+    // The jump used to be derived straight from prevActualRef during render — but this effect
+    // overwrites that ref immediately, so the very next render (the idle-wobble timers alone
+    // force one every few seconds) found no difference, dropped the .piece-jumping class and cut
+    // the slide off mid-flight, leaving soldiers to teleport. Holding it in state for exactly the
+    // animation's length makes it survive whatever else re-renders in the meantime.
+    setJumps((current) => {
+      const merged = new Map(current);
+      for (const { id, offset } of started) merged.set(id, offset);
+      return merged;
+    });
+    const timer = setTimeout(() => {
+      setJumps((current) => {
+        const merged = new Map(current);
+        for (const { id } of started) merged.delete(id);
+        return merged;
+      });
+    }, CLASH_JUMP_MS);
+    jumpTimersRef.current.add(timer);
   });
 
   useEffect(() => {
@@ -336,10 +370,7 @@ export function BoardGrid({
             // Still standing at its own tile, untouched, while the trap plays out next to it.
             piece = trapEvent.attacker;
           } else if (piece) {
-            const prevActual = prevActualRef.current.get(piece.id);
-            if (prevActual && !samePos(prevActual, actual)) {
-              jump = jumpOffset(prevActual, actual, team);
-            }
+            jump = jumps.get(piece.id) ?? null;
           }
 
           const legal = isLegalTarget?.(actual) ?? false;

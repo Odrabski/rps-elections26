@@ -23,6 +23,7 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(() => !loadSession());
 
   const {
+    status,
     roomCode,
     team,
     view,
@@ -37,8 +38,16 @@ export default function App() {
     move,
     tiePick,
     rematch,
+    resign,
     leave,
   } = useGameSocket();
+
+  // Quitting mid-game concedes it first — otherwise the opponent is left on a board that never
+  // resolves, with the server auto-playing random moves for the empty seat.
+  const resignAndLeave = () => {
+    resign();
+    leave();
+  };
 
   // Deferred until a seat is assigned rather than firing on app start: this pulls the sprite pool,
   // which has no business competing with the splash and fonts for a visitor who may never play.
@@ -106,8 +115,13 @@ export default function App() {
   } else {
     content = (
       <>
-        {!opponentConnected && view.phase !== 'gameover' && (
-          <div className="disconnect-banner">היריב התנתק — ממתין לחיבור מחדש...</div>
+        {status === 'reconnecting' ? (
+          <div className="disconnect-banner">החיבור אבד — מתחברים מחדש...</div>
+        ) : (
+          !opponentConnected &&
+          view.phase !== 'gameover' && (
+            <div className="disconnect-banner">היריב התנתק — ממתין לחיבור מחדש...</div>
+          )
         )}
 
         {view.phase === 'setup' && (
@@ -117,12 +131,12 @@ export default function App() {
             onPlaceSpecial={placeSpecial}
             onShuffle={shuffleHands}
             onReady={ready}
-            onExit={leave}
+            onExit={resignAndLeave}
           />
         )}
 
         {view.phase === 'playing' && (
-          <GameBoard view={view} team={team} onMove={move} onTiePick={tiePick} onExit={leave} />
+          <GameBoard view={view} team={team} onMove={move} onTiePick={tiePick} onExit={resignAndLeave} />
         )}
 
         {view.phase === 'gameover' && view.winner && (

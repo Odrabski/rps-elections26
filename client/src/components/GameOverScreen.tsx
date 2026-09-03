@@ -16,11 +16,15 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
   const theme = TEAM_THEME[winner];
   const won = winner === you;
   const detail =
-    reason?.type === 'no-moves-left'
+    reason?.type === 'resigned'
       ? won
-        ? 'ליריב שלך אין יותר אפשרויות לזוז'
-        : 'אין לך יותר אפשרויות לזוז'
-      : `${theme.label} כבשו את המלך היריב`;
+        ? 'היריב פרש מהמשחק'
+        : 'פרשתם מהמשחק'
+      : reason?.type === 'no-moves-left'
+        ? won
+          ? 'ליריב שלך אין יותר אפשרויות לזוז'
+          : 'אין לך יותר אפשרויות לזוז'
+        : `${theme.label} כבשו את המלך היריב`;
 
   return (
     <div className="gameover-screen">

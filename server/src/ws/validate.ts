@@ -48,6 +48,7 @@ export function validateClientMessage(raw: unknown): { ok: true; msg: ClientMess
     case 'shuffle-hands':
     case 'ready':
     case 'rematch':
+    case 'resign':
       break;
 
     default:
