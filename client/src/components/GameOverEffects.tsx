@@ -14,6 +14,40 @@ const EMBER_COUNT = 28;
 const FLAMES_PER_ROW = 18;
 const EMBER_COLORS = ['#ff8a2b', '#ffc247', '#ff5722', '#ffdf7e'];
 
+interface FlameStyle {
+  left: string;
+  width: string;
+  height: string;
+  animationDelay: string;
+  animationDuration: string;
+}
+
+/**
+ * Four rows of tongues: a dim, taller row behind a brighter one, along the bottom edge and again
+ * mirrored down from the top (the top pair is flipped and dimmed in CSS, so it reads as the ceiling
+ * catching rather than a second floor).
+ */
+function makeFireRows(): Array<{ edge: 'bottom' | 'top'; row: 'back' | 'front'; flames: FlameStyle[] }> {
+  const rows: Array<{ edge: 'bottom' | 'top'; row: 'back' | 'front'; flames: FlameStyle[] }> = [];
+  for (const edge of ['bottom', 'top'] as const) {
+    for (const row of ['back', 'front'] as const) {
+      rows.push({
+        edge,
+        row,
+        flames: Array.from({ length: FLAMES_PER_ROW }, (_, i) => ({
+          left: `${(100 / FLAMES_PER_ROW) * i + randomBetween(-3, 3)}%`,
+          width: `${randomBetween(46, 92)}px`,
+          height: `${randomBetween(55, 130)}%`,
+          // Staggered so a row never pulses in unison.
+          animationDelay: `${randomBetween(0, 1.2)}s`,
+          animationDuration: `${randomBetween(0.7, 1.4)}s`,
+        })),
+      });
+    }
+  }
+  return rows;
+}
+
 /** One DVD-screensaver-style head: drifts in a straight line, spins, and reverses off each edge. */
 interface Floater {
   asset: string;
@@ -60,6 +94,9 @@ function makeFloaters(team: Team): Floater[] {
  */
 export function GameOverEffects({ winner, won }: { winner: Team; won: boolean }) {
   const floaters = useMemo(() => makeFloaters(winner), [winner]);
+  // Built once. These used to be rolled inline in the render, so every re-render reshuffled every
+  // tongue — twice as noticeable now that there are four rows rather than two.
+  const fireRows = useMemo(() => (won ? [] : makeFireRows()), [won]);
   const nodesRef = useRef<(HTMLImageElement | null)[]>([]);
   const theme = TEAM_THEME[winner];
 
@@ -189,21 +226,13 @@ export function GameOverEffects({ winner, won }: { winner: Team; won: boolean })
         })}
 
       {!won &&
-        (['back', 'front'] as const).map((row) => (
-          <div key={row} className={`celebration-fire celebration-fire-${row}`}>
-            {Array.from({ length: FLAMES_PER_ROW }, (_, i) => (
-              <span
-                key={i}
-                className="celebration-flame"
-                style={{
-                  left: `${(100 / FLAMES_PER_ROW) * i + randomBetween(-3, 3)}%`,
-                  width: `${randomBetween(46, 92)}px`,
-                  height: `${randomBetween(55, 130)}%`,
-                  // Staggered so the row never pulses in unison.
-                  animationDelay: `${randomBetween(0, 1.2)}s`,
-                  animationDuration: `${randomBetween(0.7, 1.4)}s`,
-                }}
-              />
+        fireRows.map(({ edge, row, flames }) => (
+          <div
+            key={`${edge}-${row}`}
+            className={`celebration-fire celebration-fire-${edge} celebration-fire-${row}`}
+          >
+            {flames.map((flame, i) => (
+              <span key={i} className="celebration-flame" style={flame} />
             ))}
           </div>
         ))}

@@ -19,15 +19,21 @@
 }
 
 .celebration-lose::before {
-  background: linear-gradient(to bottom, rgba(14, 8, 6, 0.72) 0%, rgba(30, 12, 6, 0.34) 40%, rgba(30, 12, 6, 0) 66%);
+  background: linear-gradient(to bottom, rgba(20, 7, 3, 0.7) 0%, rgba(48, 14, 4, 0.36) 42%, rgba(48, 14, 4, 0.08) 70%);
 }
 
-/* The light the fire below is casting up into the scene. */
+/* The light the fire is throwing into the scene — from below, from above now that the ceiling is
+   alight too, and a broad ember-colored wash over the middle so the whole frame sits in the fire's
+   color rather than just its two edges. */
 .celebration-lose::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(255, 94, 0, 0.44) 0%, rgba(180, 40, 0, 0.2) 26%, rgba(255, 94, 0, 0) 58%);
+  background:
+    linear-gradient(to top, rgba(255, 94, 0, 0.58) 0%, rgba(190, 38, 0, 0.3) 30%, rgba(255, 94, 0, 0) 64%),
+    linear-gradient(to bottom, rgba(255, 78, 0, 0.42) 0%, rgba(170, 32, 0, 0.22) 26%, rgba(255, 78, 0, 0) 56%),
+    radial-gradient(ellipse 90% 70% at 50% 100%, rgba(255, 130, 20, 0.26) 0%, rgba(255, 90, 0, 0) 68%),
+    linear-gradient(rgba(150, 34, 0, 0.16), rgba(150, 34, 0, 0.16));
 }
 
 /* Bouncing heads — positioned entirely from JS (see WinCelebration.tsx's rAF loop), which writes
@@ -151,9 +157,22 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
   z-index: 1;
   height: 150px;
+}
+
+.celebration-fire-bottom {
+  bottom: 0;
+}
+
+/* The same rows flipped over and hung from the top edge. scaleY(-1) on the row (not on each
+   tongue) keeps every flame's own transform-origin and flicker keyframes working unchanged —
+   they simply play upside down with it. Held shorter and dimmer than the floor fire so it reads
+   as the ceiling catching rather than a mirror line across the middle of the screen. */
+.celebration-fire-top {
+  top: 0;
+  transform: scaleY(-1);
+  height: 118px;
 }
 
 .celebration-fire-back {
@@ -164,6 +183,15 @@
 
 .celebration-fire-front {
   filter: blur(1.5px);
+}
+
+.celebration-fire-top.celebration-fire-back {
+  height: 150px;
+  opacity: 0.45;
+}
+
+.celebration-fire-top.celebration-fire-front {
+  opacity: 0.72;
 }
 
 .celebration-flame {
