@@ -8,39 +8,77 @@ const CONFETTI_COUNT = 46;
 const FIREWORK_BURSTS = 5;
 const FIREWORK_PARTICLES = 16;
 const EMBER_COUNT = 28;
-/** Two overlapping rows — a taller dim one behind a shorter bright one — so the fire reads with
- * some depth instead of as a flat orange fringe along the bottom edge. */
-const FLAMES_PER_ROW = 18;
+/** Two overlapping rows — a bigger, dimmer one behind a sharper one — so the rubble reads as a
+ * heap with depth rather than a flat row of pebbles along the edge. */
+const ROCKS_PER_ROW = 16;
 const EMBER_COLORS = ['#ff8a2b', '#ffc247', '#ff5722', '#ffdf7e'];
 
-interface FlameStyle {
+interface RockStyle extends React.CSSProperties {
   left: string;
   width: string;
   height: string;
-  animationDelay: string;
-  animationDuration: string;
+  clipPath: string;
+  transform: string;
+  background: string;
+}
+
+/** Warm greys, so the pile sits in the scene's light rather than reading as flat slate. */
+const ROCK_TONES: Array<[string, string, string]> = [
+  ['#a8998a', '#6f645a', '#332e29'],
+  ['#94867a', '#5e554d', '#2b2724'],
+  ['#b3a596', '#7d7166', '#3b3630'],
+  ['#877b70', '#564f48', '#242120'],
+];
+
+/**
+ * A rock silhouette: points walked around a circle at jittered radii and cut out with clip-path.
+ * Rounded corners were the obvious way to do this and made grey clouds — a boulder needs flat
+ * faces meeting at angles, and only a polygon gives that.
+ */
+function rockPolygon(): string {
+  const points = Math.floor(randomBetween(7, 10));
+  const coords: string[] = [];
+  for (let i = 0; i < points; i++) {
+    // Uneven angular steps as well as uneven radii, or the facets come out suspiciously regular.
+    const angle = (i / points) * Math.PI * 2 + randomBetween(-0.18, 0.18);
+    const radius = randomBetween(0.68, 1);
+    coords.push(
+      `${(50 + Math.cos(angle) * radius * 50).toFixed(1)}% ${(50 + Math.sin(angle) * radius * 50).toFixed(1)}%`,
+    );
+  }
+  return `polygon(${coords.join(', ')})`;
 }
 
 /**
- * Four rows of tongues: a dim, taller row behind a brighter one, along the bottom edge and again
- * mirrored down from the top (the top pair is flipped and dimmed in CSS, so it reads as the ceiling
- * catching rather than a second floor).
+ * Four heaps of boulders: a bigger, dimmer row behind a sharper one, piled along the bottom edge
+ * and again mirrored down from the top.
+ *
+ * Each stone is lit from the upper left and rotated a little, and they sit partly below the edge
+ * they're piled against and overlap each other heavily — that overlap is what makes a heap out of
+ * what would otherwise be a row of pebbles.
  */
-function makeFireRows(): Array<{ edge: 'bottom' | 'top'; row: 'back' | 'front'; flames: FlameStyle[] }> {
-  const rows: Array<{ edge: 'bottom' | 'top'; row: 'back' | 'front'; flames: FlameStyle[] }> = [];
+function makeRockRows(): Array<{ edge: 'bottom' | 'top'; row: 'back' | 'front'; rocks: RockStyle[] }> {
+  const rows: Array<{ edge: 'bottom' | 'top'; row: 'back' | 'front'; rocks: RockStyle[] }> = [];
   for (const edge of ['bottom', 'top'] as const) {
     for (const row of ['back', 'front'] as const) {
+      const big = row === 'back';
       rows.push({
         edge,
         row,
-        flames: Array.from({ length: FLAMES_PER_ROW }, (_, i) => ({
-          left: `${(100 / FLAMES_PER_ROW) * i + randomBetween(-3, 3)}%`,
-          width: `${randomBetween(46, 92)}px`,
-          height: `${randomBetween(55, 130)}%`,
-          // Staggered so a row never pulses in unison.
-          animationDelay: `${randomBetween(0, 1.2)}s`,
-          animationDuration: `${randomBetween(0.7, 1.4)}s`,
-        })),
+        rocks: Array.from({ length: ROCKS_PER_ROW }, (_, i) => {
+          const [light, mid, dark] = ROCK_TONES[Math.floor(Math.random() * ROCK_TONES.length)];
+          // A few boulders per row run much larger than the rest, so the heap has a silhouette
+          // instead of a uniform crust.
+          const scale = Math.random() < 0.28 ? randomBetween(1.35, 1.85) : randomBetween(0.72, 1.1);
+          return {
+            left: `${(100 / ROCKS_PER_ROW) * i + randomBetween(-6, 6)}%`,
+            width: `${(randomBetween(big ? 84 : 62, big ? 128 : 96) * scale).toFixed(0)}px`,
+            height: `${(randomBetween(big ? 62 : 46, big ? 96 : 74) * scale).toFixed(0)}px`,
+            clipPath: rockPolygon(),
+            transform: `translateY(${randomBetween(14, 46).toFixed(0)}%) rotate(${randomBetween(-28, 28).toFixed(1)}deg)`,
+            background: `radial-gradient(ellipse 74% 72% at 32% 24%, ${light} 0%, ${mid} 42%, ${dark} 100%)`,
+          };
+        }),
       });
     }
   }
@@ -98,9 +136,8 @@ function makeFloaters(team: Team): Floater[] {
  */
 export function GameOverEffects({ winner, won }: { winner: Team; won: boolean }) {
   const floaters = useMemo(() => makeFloaters(winner), [winner]);
-  // Built once. These used to be rolled inline in the render, so every re-render reshuffled every
-  // tongue — twice as noticeable now that there are four rows rather than two.
-  const fireRows = useMemo(() => (won ? [] : makeFireRows()), [won]);
+  // Built once — rolled inline in the render, every re-render would reshuffle the whole heap.
+  const rockRows = useMemo(() => (won ? [] : makeRockRows()), [won]);
   const nodesRef = useRef<(HTMLImageElement | null)[]>([]);
   const theme = TEAM_THEME[winner];
 
@@ -230,13 +267,13 @@ export function GameOverEffects({ winner, won }: { winner: Team; won: boolean })
         })}
 
       {!won &&
-        fireRows.map(({ edge, row, flames }) => (
+        rockRows.map(({ edge, row, rocks }) => (
           <div
             key={`${edge}-${row}`}
-            className={`celebration-fire celebration-fire-${edge} celebration-fire-${row}`}
+            className={`celebration-rubble celebration-rubble-${edge} celebration-rubble-${row}`}
           >
-            {flames.map((flame, i) => (
-              <span key={i} className="celebration-flame" style={flame} />
+            {rocks.map((rock, i) => (
+              <span key={i} className="celebration-rock" style={rock} />
             ))}
           </div>
         ))}
