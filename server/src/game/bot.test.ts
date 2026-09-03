@@ -216,6 +216,41 @@ describe('chooseBotMove: hard', () => {
     expect(move?.pieceId).toBe('s');
   });
 
+  it('captures an enemy that has already reached the king\'s doorstep', () => {
+    // Blue is standing on one of the king's four approach squares — next turn it simply steps on
+    // the king and wins. Nothing else on the board is worth a move while that is true.
+    const king: Piece = {
+      id: 'k', team: 'red', kind: 'king', hand: null, characterId: 'k',
+      position: { row: 1, col: 3 }, revealed: false, alive: true,
+    };
+    const guard = soldier('g', 'red', 'rock', 3, 3);
+    const intruder = soldier('i', 'blue', 'scissors', 2, 3, true); // rock beats scissors
+    // A free capture elsewhere, to make sure the king outranks ordinary material.
+    const bait = soldier('b', 'blue', 'scissors', 5, 1, true);
+    const greedy = soldier('x', 'red', 'rock', 5, 0);
+    const state = makeState([king, guard, intruder, bait, greedy]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move).toEqual({ pieceId: 'g', to: { row: 2, col: 3 } });
+  });
+
+  it('does not throw a soldier away on a known-losing attack next to its king', () => {
+    // Same shape as above, but the intruder's revealed hand beats the guard's. Attacking donates
+    // the guard and leaves the king in exactly the same danger, so it must not be chosen.
+    const king: Piece = {
+      id: 'k', team: 'red', kind: 'king', hand: null, characterId: 'k',
+      position: { row: 1, col: 3 }, revealed: false, alive: true,
+    };
+    const guard = soldier('g', 'red', 'rock', 3, 3);
+    const intruder = soldier('i', 'blue', 'paper', 2, 3, true); // paper beats the guard's rock
+    const state = makeState([king, guard, intruder]);
+
+    const move = chooseBotMove(state, 'red', 'hard');
+
+    expect(move).not.toEqual({ pieceId: 'g', to: { row: 2, col: 3 } });
+  });
+
   it('avoids stepping next to an already-revealed enemy soldier that would beat it', () => {
     const attacker = soldier('a', 'red', 'rock', 2, 6); // corner: only up/down/left are legal
     // Advancing straight down (row 3) would normally score highest of the three (see the plain

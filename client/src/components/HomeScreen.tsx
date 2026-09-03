@@ -146,35 +146,39 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
   if (step === 'team-pick') {
     return (
       <div className="home-screen">
-        <div className="home-panel panel">
-          <h1 className="gradient-heading home-title">באיזה גוש אתם?</h1>
-          <div className="team-pick-row">
-            {(['blue', 'red'] as Team[]).map((team) => {
-              const theme = TEAM_THEME[team];
-              return (
-                <button
-                  key={team}
-                  type="button"
-                  className="team-pick-btn"
-                  style={{ background: theme.bg, borderColor: theme.border }}
-                  onClick={() => chooseTeam(team)}
-                  disabled={chosenTeam !== null}
-                >
-                  <span className={`team-pick-fan ${chosenTeam === team ? '' : 'team-pick-head-gray'}`}>
-                    <img src={`/assets/pieces/${heads[team][1]}`} alt="" className="team-pick-head team-pick-head-side team-pick-head-left" />
-                    <img src={`/assets/pieces/${heads[team][2]}`} alt="" className="team-pick-head team-pick-head-side team-pick-head-right" />
-                    <img src={`/assets/pieces/${heads[team][0]}`} alt="" className="team-pick-head team-pick-head-center" />
-                  </span>
-                  <span className="team-pick-label" style={{ color: theme.text }}>
-                    {theme.label}
-                  </span>
-                </button>
-              );
-            })}
+        {/* Same wrapper the menu step uses. .home-panel is width:100%, so without it this panel
+            stretched to the whole viewport on desktop instead of matching the menu it opened from. */}
+        <div className="home-card-wrap">
+          <div className="home-panel panel">
+            <h1 className="gradient-heading home-title">באיזה גוש אתם?</h1>
+            <div className="team-pick-row">
+              {(['blue', 'red'] as Team[]).map((team) => {
+                const theme = TEAM_THEME[team];
+                return (
+                  <button
+                    key={team}
+                    type="button"
+                    className="team-pick-btn"
+                    style={{ background: theme.bg, borderColor: theme.border }}
+                    onClick={() => chooseTeam(team)}
+                    disabled={chosenTeam !== null}
+                  >
+                    <span className={`team-pick-fan ${chosenTeam === team ? '' : 'team-pick-head-gray'}`}>
+                      <img src={`/assets/pieces/${heads[team][1]}`} alt="" className="team-pick-head team-pick-head-side team-pick-head-left" />
+                      <img src={`/assets/pieces/${heads[team][2]}`} alt="" className="team-pick-head team-pick-head-side team-pick-head-right" />
+                      <img src={`/assets/pieces/${heads[team][0]}`} alt="" className="team-pick-head team-pick-head-center" />
+                    </span>
+                    <span className="team-pick-label" style={{ color: theme.text }}>
+                      {theme.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <button type="button" className="btn-secondary team-pick-back" onClick={() => setStep('menu')}>
+              חזרה
+            </button>
           </div>
-          <button type="button" className="btn-secondary team-pick-back" onClick={() => setStep('menu')}>
-            חזרה
-          </button>
         </div>
       </div>
     );

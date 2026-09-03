@@ -1,4 +1,4 @@
-import { balancedHandPool } from 'shared';
+import { balancedHandPool, BOARD_COLS, ZONE_ROWS } from 'shared';
 import type { GameState, Piece, Position, RPSHand, Team } from 'shared';
 import { isInOwnZone, samePosition, zoneTiles } from './board.js';
 import { shuffleInPlace, shuffled } from '../util/random.js';
@@ -147,14 +147,14 @@ export function autoFinalizeTeam(state: GameState, setupData: Record<Team, TeamS
   if (!hasKing || !hasTrap) {
     const candidates = shuffled(pieces.filter((p) => p.kind === 'unassigned'));
     if (!hasKing) {
-      const king = candidates.shift();
+      const king = takeWeighted(candidates, (p) => kingTileWeight(team, p.position));
       if (king) {
         king.kind = 'king';
         king.characterId = `${team}-king`;
       }
     }
     if (!hasTrap) {
-      const trap = candidates.shift();
+      const trap = takeWeighted(candidates, (p) => trapTileWeight(team, p.position));
       if (trap) {
         trap.kind = 'trap';
         trap.characterId = 'trap';
@@ -166,4 +166,53 @@ export function autoFinalizeTeam(state: GameState, setupData: Record<Team, TeamS
   finalizeSoldiersIfReady(state, setupData, team);
   data.ready = true;
   state.readiness[team] = true;
+}
+
+/** The rank of `team`'s zone furthest from its opponent, and the one nearest. */
+function backRow(team: Team): number {
+  const [start, end] = ZONE_ROWS[team];
+  return team === 'red' ? start : end;
+}
+
+function frontRow(team: Team): number {
+  const [start, end] = ZONE_ROWS[team];
+  return team === 'red' ? end : start;
+}
+
+/**
+ * How strongly an auto-placed king should prefer a given tile.
+ *
+ * Placement used to be uniform over the whole zone, which put the king on the exposed front rank
+ * half the time — and since a king is captured simply by an enemy stepping onto it, that decided
+ * a lot of games early. The back rank is strictly safer: an attacker has to cross the entire board
+ * to reach it, and it has one fewer square to be approached from (a back-rank corner has only two,
+ * against a front-rank tile's four).
+ *
+ * Weighted rather than deterministic on purpose. A king always tucked in the same corner is a king
+ * every opponent learns to go straight for, so this leans heavily without ever being predictable.
+ */
+function kingTileWeight(team: Team, position: Position): number {
+  let weight = 1;
+  if (position.row === backRow(team)) weight *= 8;
+  if (position.col === 0 || position.col === BOARD_COLS - 1) weight *= 2;
+  return weight;
+}
+
+/** A trap is bait: it kills whatever steps on it, so it wants to be where the enemy arrives first,
+ * which is the opposite end of the zone from the king. */
+function trapTileWeight(team: Team, position: Position): number {
+  return position.row === frontRow(team) ? 4 : 1;
+}
+
+/** Removes and returns one element, chosen at random in proportion to `weight`. */
+function takeWeighted<T>(items: T[], weight: (item: T) => number): T | undefined {
+  if (items.length === 0) return undefined;
+  const weights = items.map(weight);
+  const total = weights.reduce((sum, w) => sum + w, 0);
+  let roll = Math.random() * total;
+  for (let i = 0; i < items.length; i++) {
+    roll -= weights[i];
+    if (roll < 0) return items.splice(i, 1)[0];
+  }
+  return items.pop();
 }

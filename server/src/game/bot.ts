@@ -9,6 +9,10 @@ const LOSES_TO: Record<RPSHand, RPSHand> = { rock: 'paper', paper: 'scissors', s
 
 const HANDS: RPSHand[] = ['rock', 'paper', 'scissors'];
 
+/** An enemy standing next to a king is one move from ending the game outright, so answering that
+ * has to outbid any ordinary capture or positional gain the same move could be spent on. */
+const KING_DANGER = 30;
+
 /**
  * Chooses the bot's move for its turn. Never reads a piece's true `hand`, or an unrevealed
  * piece's `kind`, unless it belongs to the bot's own team — the bot only ever acts on
@@ -80,8 +84,9 @@ function scoreMove(
     // Line up next turn's capture: end adjacent to a revealed soldier this piece beats.
     threatBonus(state, team, hand, move.to, defender?.id) +
     // Keep the squares around your own king plugged — an enemy can only take it by standing on
-    // one of them, so an occupied neighbour is the only real protection there is.
-    kingShieldDelta(state, team, attacker.position, move.to)
+    // one of them, so an occupied neighbour is the only real protection there is — and answer an
+    // enemy that has already reached one.
+    kingDefenceDelta(state, team, attacker.position, move.to, defender, hand)
   );
 }
 
@@ -160,15 +165,55 @@ function threatBonus(
   return bonus;
 }
 
-/** How much this move changes the number of own pieces standing on squares adjacent to the bot's
- * own king. Those squares are the only way in — an enemy captures the king by moving onto it, so
- * occupying its neighbours is what actually denies the approach. */
-function kingShieldDelta(state: GameState, team: Team, from: Position, to: Position): number {
+/**
+ * How this move affects the safety of the bot's own king.
+ *
+ * Kings never move (see movement.ts), so the square being defended is fixed for the whole game and
+ * the entire problem is the four squares around it: an enemy captures the king by stepping onto one
+ * of them and then onto the king, so a friendly piece parked there is the only thing that denies
+ * the approach at all.
+ *
+ * The garrison weights are deliberately mild. Scaling them up with the number of enemies bearing
+ * down on the king was the obvious idea, and measured consistently *worse* across a thousand
+ * simulated games: almost every game is decided by one side finding the other's king first, so
+ * pulling pieces home to turtle mostly cedes that race. Where the king actually gets protected is
+ * at placement time — see `kingTileWeight` in setup.ts.
+ */
+function kingDefenceDelta(
+  state: GameState,
+  team: Team,
+  from: Position,
+  to: Position,
+  defender: Piece | undefined,
+  attackerHand: RPSHand,
+): number {
   const king = Object.values(state.pieces).find((p) => p.team === team && p.kind === 'king' && p.alive);
   if (!king) return 0;
+
   const left = isAdjacent(from, king.position) ? -5 : 0;
   const joined = isAdjacent(to, king.position) ? 3 : 0;
-  return left + joined;
+
+  // Once an enemy actually stands on an approach square, garrisoning is beside the point — the
+  // square is taken and the king falls next turn. Removing that piece is the only answer left,
+  // which makes it worth gambling on an unknown hand. A *known* losing matchup is not: that just
+  // donates a soldier and leaves the king in exactly the same danger.
+  const relief =
+    defender &&
+    defender.team !== team &&
+    isAdjacent(to, king.position) &&
+    !isKnownLoss(attackerHand, defender)
+      ? KING_DANGER
+      : 0;
+
+  return left + joined + relief;
+}
+
+/** Whether attacking `defender` is a matchup already known to lose, from public information only. */
+function isKnownLoss(attackerHand: RPSHand, defender: Piece): boolean {
+  if (!defender.revealed) return false; // unknown: a gamble, not a known loss
+  if (defender.kind === 'trap') return true;
+  if (defender.kind === 'king') return false; // taking the king wins outright, whatever the hands
+  return defender.hand === LOSES_TO[attackerHand];
 }
 
 /** Revealed enemy soldiers adjacent to `square` whose known hand beats `attackerHand`. */
