@@ -1,2 +1,2 @@
-/** X.YY.ZZ — YY jumps by 10 for a big build/feature milestone, ZZ advances by 1 every deploy. */
-export const APP_VERSION = '1.50.01';
+/** X.YY.ZZ — YY advances by 1 for a big build/feature milestone, ZZ by 1 every deploy. */
+export const APP_VERSION = '0.05.51';
