@@ -344,6 +344,56 @@
   margin: 0;
 }
 
+/* The how-to-play copy outgrew three paragraphs, so it's capped and scrolls inside the modal
+   rather than pushing it past the bottom of a short screen. */
+.home-modal-body {
+  max-height: min(58svh, 460px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-inline-start: 4px; /* room for the scrollbar without the text shifting under it */
+}
+
+/* Without this the copy just stops mid-sentence at the cap, which reads as clipped rather than
+   scrollable. Scoped to the how-to modal via :has — the About modal is short enough never to
+   overflow, and would only get a fade over its final line for no reason. */
+.home-modal-body:has(.howto-list) {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent 100%);
+}
+
+.howto-heading {
+  margin: 6px 0 0;
+  color: var(--gold);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.howto-heading:first-child {
+  margin-top: 0;
+}
+
+.howto-list {
+  margin: 0;
+  padding: 0;
+  list-style: none; /* the marker is drawn below, so it sits on the right in RTL */
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.howto-list li {
+  /* Hanging indent: the marker sits in the padding so wrapped lines align under the text, not
+     under the bullet. */
+  padding-inline-start: 16px;
+  position: relative;
+}
+
+.howto-list li::before {
+  content: '⚬';
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--gold);
+}
+
 /* A standalone piece composite (not reusing PieceView's board-tuned classes/variables) — the
    developer's own head on a coalition scissors-soldier body. */
 .about-figure {

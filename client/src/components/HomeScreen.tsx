@@ -239,12 +239,26 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
 
       {modal === 'how-to-play' && (
         <Modal title="איך משחקים?" onClose={() => setModal(null)}>
-          <p>
-            לכל שחקן 14 כלים: מלך אחד, מלכודת אחת, ו-12 חיילים חמושים באבן, נייר או מספריים — מוסתרים
-            מהיריב עד שהם נכנסים לקרב.
-          </p>
-          <p>הזיזו חייל למשבצת סמוכה כדי לתקוף. אבן-נייר-מספריים קלאסי מכריע מי שורד ומי יורד מהלוח.</p>
-          <p>נצחו על ידי תפיסת המלך של היריב, או השאירו אותו בלי אף מהלך חוקי.</p>
+          {/* Each bullet is deliberately one whole string rather than a bolded label plus a
+              sentence: split across two elements it would become two rows in content/ui-strings.csv
+              and have to be rewritten in halves. The emphasis is done in CSS instead. */}
+          <h3 className="howto-heading">המטרה</h3>
+          <p>להעיף את המלך של היריב מהכיסא ולנצח בבחירות.</p>
+
+          <h3 className="howto-heading">הארסנל שלך</h3>
+          <ul className="howto-list">
+            <li>המלך: ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.</li>
+            <li>מלכודת סמויה: ממוקמת מראש על הלוח. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.</li>
+            <li>פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.</li>
+          </ul>
+
+          <h3 className="howto-heading">חוקי המשחק</h3>
+          <ul className="howto-list">
+            <li>תנועה וקרב: צעד אחד לכל כיוון; דריכה על יריב יוזמת קרב.</li>
+            <li>ערפל קרב: כל הכלים מוסתרים מהצד האחר. אף אחד לא יודע מה מסתתר מולו עד שמתנגשים חזיתית בקרב.</li>
+            <li>תיקו בקרב: יש לכם רק 10 שניות לבחור נשק חדש ולשבור את השוויון.</li>
+            <li>סוף המשחק: המלך שלך נתפס? נתקעת בלי שום צעד חוקי לבצע? הפסדת את הבחירות.</li>
+          </ul>
         </Modal>
       )}
 

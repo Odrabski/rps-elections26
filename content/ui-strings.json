@@ -163,8 +163,18 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
-      "id": "HomeScreen.272b19",
-      "text": "הזיזו חייל למשבצת סמוכה כדי לתקוף. אבן-נייר-מספריים קלאסי מכריע מי שורד ומי יורד מהלוח.",
+      "id": "HomeScreen.deea33",
+      "text": "הארסנל שלך",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.3e65e0",
+      "text": "המטרה",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.8d518f",
+      "text": "המלך: ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.",
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
@@ -178,13 +188,23 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
+      "id": "HomeScreen.c8825e",
+      "text": "חוקי המשחק",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
       "id": "HomeScreen.4259cd",
       "text": "כל הזכויות שמורות לעמרי דרבסקי ©",
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
-      "id": "HomeScreen.3fc3a4",
-      "text": "לכל שחקן 14 כלים: מלך אחד, מלכודת אחת, ו-12 חיילים חמושים באבן, נייר או מספריים — מוסתרים מהיריב עד שהם נכנסים לקרב.",
+      "id": "HomeScreen.c45de6",
+      "text": "להעיף את המלך של היריב מהכיסא ולנצח בבחירות.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.92f532",
+      "text": "מלכודת סמויה: ממוקמת מראש על הלוח. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.",
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
@@ -203,18 +223,38 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
-      "id": "HomeScreen.8f9d1f",
-      "text": "נצחו על ידי תפיסת המלך של היריב, או השאירו אותו בלי אף מהלך חוקי.",
-      "file": "client/src/components/HomeScreen.tsx"
-    },
-    {
       "id": "HomeScreen.552471",
       "text": "סגור",
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
+      "id": "HomeScreen.971c64",
+      "text": "סוף המשחק: המלך שלך נתפס? נתקעת בלי שום צעד חוקי לבצע? הפסדת את הבחירות.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.0639af",
+      "text": "ערפל קרב: כל הכלים מוסתרים מהצד האחר. אף אחד לא יודע מה מסתתר מולו עד שמתנגשים חזיתית בקרב.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.f3fce2",
+      "text": "פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
       "id": "HomeScreen.f8f487",
       "text": "קוד משחק",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.30a54f",
+      "text": "תיקו בקרב: יש לכם רק 10 שניות לבחור נשק חדש ולשבור את השוויון.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.36ddac",
+      "text": "תנועה וקרב: צעד אחד לכל כיוון; דריכה על יריב יוזמת קרב.",
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
