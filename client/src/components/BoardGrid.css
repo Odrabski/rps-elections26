@@ -62,7 +62,8 @@
 }
 
 /* Each team's most recent move destination — a diagonal-line fill in that team's color (no
-   border), left in place until they move again. */
+   border), left in place until they move again. Inset slightly rather than run edge to edge
+   (see the shared rule below the two colors). */
 .board-tile-last-move-red {
   background: repeating-linear-gradient(
     45deg,
@@ -81,6 +82,19 @@
     transparent 6px,
     transparent 16px
   );
+}
+
+/* Paints the hatching into a centered box 90% of the tile instead of the full square, so it reads
+   as a marker sitting on the tile rather than a recolored tile. The stripe spacing is in px, so
+   shrinking the box leaves the pattern's density alone — only the area it covers changes.
+   `no-repeat` is what keeps the smaller box from simply tiling back over the whole square.
+   This has to come *after* both color rules: each of those uses the `background` shorthand, which
+   resets background-size/position/repeat, and would wipe these out if it were declared later. */
+.board-tile-last-move-red,
+.board-tile-last-move-blue {
+  background-size: 90% 90%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Points from the selected piece toward a legal target tile, pinned to the tile's far edge in
