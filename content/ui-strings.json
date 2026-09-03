@@ -1,0 +1,564 @@
+{
+  "generated": "2026-09-03",
+  "rows": [
+    {
+      "id": "App.f3a673",
+      "text": "אתם משחקים בתור {0}",
+      "file": "client/src/App.tsx",
+      "placeholders": [
+        "{TEAM_THEME[team].label}"
+      ]
+    },
+    {
+      "id": "App.90b6d9",
+      "text": "החיבור אבד — מתחברים מחדש...",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.eadb7e",
+      "text": "היריב התנתק — ממתין לחיבור מחדש...",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.ee7958",
+      "text": "העתקת הקוד",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.868aae",
+      "text": "הקוד הועתק ✅",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.ea5cb4",
+      "text": "מכינים את המשחק...",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.f69b6b",
+      "text": "ממתין ליריב...",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.271a7b",
+      "text": "שיתוף בוואטסאפ",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.de6bac",
+      "text": "שלחו את הקוד הזה ליריב שלכם:",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "BoardGrid.60af05",
+      "text": "היריב נפל במלכודת",
+      "file": "client/src/components/BoardGrid.tsx"
+    },
+    {
+      "id": "BoardGrid.2b63dd",
+      "text": "נפלת במלכודת",
+      "file": "client/src/components/BoardGrid.tsx"
+    },
+    {
+      "id": "ExitButton.b93906",
+      "text": "יציאה",
+      "file": "client/src/components/ExitButton.tsx"
+    },
+    {
+      "id": "FightSequence.a9aa1e",
+      "text": "ניצחון ל{0}",
+      "file": "client/src/components/FightSequence.tsx",
+      "placeholders": [
+        "{winnerTheme.label}"
+      ]
+    },
+    {
+      "id": "GameBoard.57d6b0",
+      "text": "התור שלך",
+      "file": "client/src/components/GameBoard.tsx"
+    },
+    {
+      "id": "GameBoard.ae3035",
+      "text": "לצאת מהמשחק? זו תיחשב פרישה מהמשחק.",
+      "file": "client/src/components/GameBoard.tsx"
+    },
+    {
+      "id": "GameBoard.350eff",
+      "text": "קרב הכרעה!",
+      "file": "client/src/components/GameBoard.tsx"
+    },
+    {
+      "id": "GameBoard.9f9c1c",
+      "text": "תור ${turnTheme.label}",
+      "file": "client/src/components/GameBoard.tsx"
+    },
+    {
+      "id": "GameOverScreen.f11cda",
+      "text": "🔁 משחק חוזר",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.f1c018",
+      "text": "${theme.label} כבשו את המלך היריב",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.e8ed48",
+      "text": "אין לך יותר אפשרויות לזוז",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.88ca79",
+      "text": "היריב פרש מהמשחק",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.46fe17",
+      "text": "הפסדתם",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.a6968e",
+      "text": "חזרה ללובי",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.5dc458",
+      "text": "ליריב שלך אין יותר אפשרויות לזוז",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.f43579",
+      "text": "ניצחתם!",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.01955d",
+      "text": "פרשתם מהמשחק",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.92d0d1",
+      "text": "אבניהו - מהדורת בחירות 2026",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.c8a558",
+      "text": "אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב אבן-נייר-מספריים קלאסי עם טקטיקה על לוח.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.fbff31",
+      "text": "או",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.4f50d9",
+      "text": "אודות",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.03c757",
+      "text": "איך משחקים?",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.f1ec45",
+      "text": "באיזה גוש אתם?",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.272b19",
+      "text": "הזיזו חייל למשבצת סמוכה כדי לתקוף. אבן-נייר-מספריים קלאסי מכריע מי שורד ומי יורד מהלוח.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.029be1",
+      "text": "המשחק נוצר על ידי עמרי דרבסקי",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.07a987",
+      "text": "הצטרף",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.10a235",
+      "text": "חזרה",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.4259cd",
+      "text": "כל הזכויות שמורות לעמרי דרבסקי ©",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.3fc3a4",
+      "text": "לכל שחקן 14 כלים: מלך אחד, מלכודת אחת, ו-12 חיילים חמושים באבן, נייר או מספריים — מוסתרים מהיריב עד שהם נכנסים לקרב.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.943e43",
+      "text": "משחק מול המחשב",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.14c1a0",
+      "text": "משחק מול חבר",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.8f9d1f",
+      "text": "נצחו על ידי תפיסת המלך של היריב, או השאירו אותו בלי אף מהלך חוקי.",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.552471",
+      "text": "סגור",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.e97646",
+      "text": "קואליציה מול אופוזיציה — מי ינצח בבחירות?",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "HomeScreen.f8f487",
+      "text": "קוד משחק",
+      "file": "client/src/components/HomeScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.53dea0",
+      "text": "👑 בחרו מלך",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.c2e1a5",
+      "text": "🪤 בחרו מלכודת",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.7e0b85",
+      "text": "המשחק יתחיל ברגע שהיריב יסיים",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.1d6882",
+      "text": "להתחיל לשחק",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.5755ef",
+      "text": "לצאת מהמשחק? המשחק יימשך בלעדיכם.",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.fbdb7d",
+      "text": "עכשיו, מחכים ליריב.",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.aa0a28",
+      "text": "ערבב כלי-נשק",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.7e7ab0",
+      "text": "שני הצדדים מוכנים, המשחק מתחיל...",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SplashScreen.32fb9b",
+      "text": "טוען...",
+      "file": "client/src/components/SplashScreen.tsx"
+    },
+    {
+      "id": "TieBreakPanel.07da84",
+      "text": "אבן",
+      "file": "client/src/components/TieBreakPanel.tsx"
+    },
+    {
+      "id": "TieBreakPanel.7d7f07",
+      "text": "בחרו יד לקרב ההכרעה",
+      "file": "client/src/components/TieBreakPanel.tsx"
+    },
+    {
+      "id": "TieBreakPanel.5e718e",
+      "text": "מספריים",
+      "file": "client/src/components/TieBreakPanel.tsx"
+    },
+    {
+      "id": "TieBreakPanel.3d86dd",
+      "text": "נייר",
+      "file": "client/src/components/TieBreakPanel.tsx"
+    },
+    {
+      "id": "TieBreakPanel.8e1bc3",
+      "text": "נעלת ${pickedLabel}, ממתין ליריב",
+      "file": "client/src/components/TieBreakPanel.tsx"
+    },
+    {
+      "id": "TieBreakPanel.3f67df",
+      "text": "פותרים...",
+      "file": "client/src/components/TieBreakPanel.tsx"
+    },
+    {
+      "id": "TieBreakPanel.0c897e",
+      "text": "קרב מספר {0}",
+      "file": "client/src/components/TieBreakPanel.tsx",
+      "placeholders": [
+        "{tieBreak.round + 1}"
+      ]
+    },
+    {
+      "id": "TieBreakPanel.d3cd14",
+      "text": "תיקו, בחרו נשק לקרב חוזר",
+      "file": "client/src/components/TieBreakPanel.tsx"
+    },
+    {
+      "id": "characterAssets.a49277",
+      "text": "חייל",
+      "file": "client/src/data/characterAssets.ts"
+    },
+    {
+      "id": "characterAssets.557e36",
+      "text": "מלכודת",
+      "file": "client/src/data/characterAssets.ts"
+    },
+    {
+      "id": "errorMessages.bdeea9",
+      "text": "אי אפשר לעשות את זה בשלב הזה",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.d20ef7",
+      "text": "אין כרגע קרב הכרעה",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.2e3d44",
+      "text": "אתם כבר בתוך משחק",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.79f0ee",
+      "text": "אתם לא מחוברים למשחק",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.0fcefe",
+      "text": "המשחק כבר מלא",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.739664",
+      "text": "המשחק לא נמצא — ייתכן שהסתיים",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.5c9f53",
+      "text": "המשחק עוד לא הסתיים",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.3d9b53",
+      "text": "זה לא התור שלכם",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.a7ea45",
+      "text": "יש קרב הכרעה פעיל",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.ae8ade",
+      "text": "כבר בחרתם",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.ac55c1",
+      "text": "לא הצלחנו לחבר אתכם חזרה למשחק",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.c882f3",
+      "text": "משהו השתבש — נסו שוב",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.e3bbe4",
+      "text": "קוד משחק לא תקין",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.096960",
+      "text": "רגע, הקרב עוד מתרחש",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.0b7d87",
+      "text": "שגיאת שרת — נסו שוב",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "errorMessages.b9aa84",
+      "text": "שגיאת תקשורת עם השרת",
+      "file": "client/src/data/errorMessages.ts"
+    },
+    {
+      "id": "teases.e875a5",
+      "text": "אבן זה כאן",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.544e1a",
+      "text": "אבן חזקה - ישראל חזקה",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.141bbc",
+      "text": "אבניהו - עושים שלום בטוח",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.c65b01",
+      "text": "אבנים נמאסתם!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.1461cb",
+      "text": "אבנים? מספריים? יהודים! אחים! לוחמים!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.aea3e4",
+      "text": "אין לי אבן אחרת!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.864d45",
+      "text": "אין מספריים, אין פיגועים",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.f429d2",
+      "text": "אל תתנו להם אבנים!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.75ed37",
+      "text": "אתה גזור, אתה אשם",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.d255b8",
+      "text": "ביחד נגזור!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.e3f4cd",
+      "text": "דור שלם דורש נייר",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.567c1a",
+      "text": "המספריים הם חלק מגוש השמאל",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.c9e788",
+      "text": "השמאל שכח מה זה להיות נייר",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.a61fb9",
+      "text": "חייבים ממשלה עם אבן",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.5696fb",
+      "text": "ימין חזק, אבן חזקה",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.bfce54",
+      "text": "ישראל חזקה עם מספריים",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.42bc05",
+      "text": "לא שמאל. לא ימין. נייר!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.9f62b8",
+      "text": "נ ני ניי נייר מאומן",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.3b23ca",
+      "text": "נייר, אתה חסר",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.9380a7",
+      "text": "נייר! חזק מול כל השמאל",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.17f85c",
+      "text": "עוטפים את המדינה בנייר",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.12ef6a",
+      "text": "פרס יחלק את מספריים",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.b88a8d",
+      "text": "צריך לגזור את חווארה",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.e26a85",
+      "text": "רק אבן!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.13036f",
+      "text": "רק לא אבן",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.ef2da6",
+      "text": "שמאל חלש? נייר חלש!",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.3fbf38",
+      "text": "תנו לאבן לכסח",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "teases.fa74d6",
+      "text": "תפסיקו לגזור עלינו קופונים",
+      "file": "client/src/data/teases.ts"
+    },
+    {
+      "id": "theme.934583",
+      "text": "אופוזיציה",
+      "file": "client/src/data/theme.ts"
+    },
+    {
+      "id": "theme.a8cfb6",
+      "text": "קואליציה",
+      "file": "client/src/data/theme.ts"
+    },
+    {
+      "id": "characters.c0e65a",
+      "text": "מלך",
+      "file": "shared/src/characters.ts"
+    }
+  ]
+}
