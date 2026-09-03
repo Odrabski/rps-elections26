@@ -4,7 +4,6 @@ import { HIDDEN_HEAD_POOL } from 'shared';
 import { TEAM_THEME } from '../data/theme';
 import './GameOverEffects.css';
 
-const HEAD_COUNT = 10;
 const CONFETTI_COUNT = 46;
 const FIREWORK_BURSTS = 5;
 const FIREWORK_PARTICLES = 16;
@@ -64,15 +63,20 @@ function randomBetween(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
 
+/**
+ * One floater per head in the winning team's pool — the whole bloc turns up, each face exactly
+ * once. This used to draw ten at random with replacement, which both left some of the winners out
+ * and doubled others up.
+ */
 function makeFloaters(team: Team): Floater[] {
   const pool = HIDDEN_HEAD_POOL[team];
   const width = window.innerWidth;
   const height = window.innerHeight;
 
-  return Array.from({ length: HEAD_COUNT }, () => {
+  return pool.map((head) => {
     const size = randomBetween(48, 124);
     return {
-      asset: `/assets/pieces/${pool[Math.floor(Math.random() * pool.length)]}`,
+      asset: `/assets/pieces/${head}`,
       size,
       x: randomBetween(0, Math.max(0, width - size)),
       y: randomBetween(0, Math.max(0, height - size)),
