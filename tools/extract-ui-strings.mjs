@@ -85,9 +85,15 @@ rows.sort((a, b) => a.file.localeCompare(b.file) || a.text.localeCompare(b.text,
 
 const esc = (v) => `"${String(v).replace(/"/g, '""')}"`;
 // BOM so Excel opens Hebrew as UTF-8 instead of mojibake; Sheets ignores it.
+// Hand-traced reachability notes (see ui-string-notes.json) ride along as a fourth column, so a
+// string that nothing can ever display isn't handed to a translator as though it were live copy.
+const notes = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'ui-string-notes.json'), 'utf8'));
 const csv =
   '﻿' +
-  ['id,hebrew,new_text', ...rows.map((r) => [esc(r.id), esc(r.text), '""'].join(','))].join('\r\n') +
+  [
+    'id,hebrew,new_text,note',
+    ...rows.map((r) => [esc(r.id), esc(r.text), '""', esc(notes[r.id] ?? '')].join(',')),
+  ].join('\r\n') +
   '\r\n';
 
 mkdirSync(OUT_DIR, { recursive: true });
