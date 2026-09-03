@@ -77,7 +77,12 @@
   width: 48.4%; /* base 44% + a global +10% bump applied to every portrait */
   --mask-shift-x: 0px;
   --mask-shift-y: -0.5px; /* 5px baseline - a global 1px-up bump applied to every portrait - 2.5px - 2px */
-  transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225);
+  /* Per-portrait tilt for art that sits crooked in its own frame. A variable for the same reason
+     as the shifts above: it composes with the nod keyframes' own rotate() instead of being wiped
+     by them. Positive is clockwise. */
+  --mask-rotate: 0deg;
+  transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225)
+    rotate(var(--mask-rotate));
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
   pointer-events: none;
 }
@@ -125,6 +130,8 @@
 
 .piece-mask-co_miriregev {
   width: 53.24%; /* (44% + 10%) * 1.1 */
+  --mask-shift-x: -4px; /* 0px base - 2px - 2px */
+  --mask-shift-y: -2.5px; /* -0.5px base - 2px */
 }
 
 .piece-mask-co_levin {
@@ -149,6 +156,7 @@
 .piece-mask-co_gafni {
   width: 53.24%; /* 48.4% * 1.1 */
   --mask-shift-x: -1px;
+  --mask-rotate: 10deg; /* clockwise — this portrait sits noticeably tilted in its own frame */
 }
 
 .piece-mask-co_bengvir {

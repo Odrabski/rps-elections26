@@ -162,13 +162,13 @@
 @keyframes fightHeadTiltFast {
   0%,
   100% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
   }
   25% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(-14deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(-14deg);
   }
   75% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(14deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(14deg);
   }
 }
 

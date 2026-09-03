@@ -423,13 +423,13 @@
    or it jumps to this transform's 0%/100% state the instant the animation starts/ends. */
 @keyframes headNod {
   0% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
   }
   50% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(10deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(10deg);
   }
   100% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
   }
 }
 
@@ -470,13 +470,13 @@
 
 @keyframes headNodReverse {
   0% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
   }
   50% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(-10deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(-10deg);
   }
   100% {
-    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(0deg);
+    transform: translate(calc(-50% + var(--mask-shift-x)), var(--mask-shift-y)) scale(1.3225) rotate(var(--mask-rotate)) rotate(0deg);
   }
 }
 
