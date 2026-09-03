@@ -269,7 +269,7 @@
     },
     {
       "id": "SetupScreen.5f478e",
-      "text": "ברגע שהצד השני מסיים להתארגן נתחיל",
+      "text": "ברגע שהצד השני יסיים להתארגן נתחיל",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {

@@ -99,7 +99,7 @@ describe('applyMove: trap and king', () => {
     expect(trap.revealed).toBe(true);
   });
 
-  it('moving onto the enemy king wins the game instantly', () => {
+  it('moving onto the enemy king decides the game, but leaves ending it to the room', () => {
     const attacker = soldier('a', 'red', 'rock', 3, 3);
     const king: Piece = {
       id: 'blue-king', team: 'blue', kind: 'king', hand: null,
@@ -110,9 +110,12 @@ describe('applyMove: trap and king', () => {
     const event = applyMove(state, attacker, { row: 3, col: 4 });
 
     expect(event).toEqual({ type: 'king-captured', winner: 'red' });
-    expect(state.phase).toBe('gameover');
     expect(state.winner).toBe('red');
+    expect(king.alive).toBe(false);
     expect(attacker.position).toEqual({ row: 3, col: 4 });
+    // Still 'playing': Room holds the phase for KING_CAPTURE_SEQUENCE_MS so the winning soldier's
+    // jump onto the tile plays before the result screen replaces the board.
+    expect(state.phase).toBe('playing');
   });
 
   it('a free move onto an empty tile does not reveal the mover — only a 1:1 fight does', () => {

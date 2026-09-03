@@ -1,5 +1,5 @@
 import type { WebSocket } from 'ws';
-import { BATTLE_SEQUENCE_MS, SETUP_SECONDS, TRAP_SEQUENCE_MS, TURN_SECONDS } from 'shared';
+import { BATTLE_SEQUENCE_MS, KING_CAPTURE_SEQUENCE_MS, SETUP_SECONDS, TRAP_SEQUENCE_MS, TURN_SECONDS } from 'shared';
 import type { BotDifficulty, ClientMessage, GameEvent, GameState, Position, ServerMessage, Team } from 'shared';
 import { generateToken } from '../util/idgen.js';
 import {
@@ -282,6 +282,23 @@ export class Room {
       return;
     }
     this.clearTurnTimer();
+
+    if (event?.type === 'king-captured') {
+      // The capture is already decided (combat.ts set the winner and took the king off the board),
+      // but the phase is held at 'playing' so the winning soldier's jump onto the tile plays out
+      // on both clients first. `resolvingUntil` locks the board for exactly that window, the same
+      // way it does for a battle.
+      this.state.resolvingUntil = Date.now() + KING_CAPTURE_SEQUENCE_MS;
+      if (this.resolveTimer) clearTimeout(this.resolveTimer);
+      this.resolveTimer = setTimeout(() => {
+        if (this.destroyed || this.state.phase !== 'playing') return;
+        this.state.resolvingUntil = null;
+        this.state.phase = 'gameover';
+        this.broadcast();
+      }, KING_CAPTURE_SEQUENCE_MS);
+      return;
+    }
+
     if (this.state.phase !== 'playing') return;
 
     this.state.turn = OTHER_TEAM[this.state.turn as Team];

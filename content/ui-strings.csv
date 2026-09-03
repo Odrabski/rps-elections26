@@ -1,105 +1,105 @@
 ﻿id,hebrew,new_text,note
-"App.f3a673","אתם משחקים בתור {0}","",""
-"App.90b6d9","החיבור אבד — מתחברים מחדש...","",""
-"App.eadb7e","היריב התנתק — ממתין לחיבור מחדש...","",""
-"App.ee7958","העתקת הקוד","","Screen reader only (aria-label on the room code)"
-"App.868aae","הקוד הועתק ✅","",""
-"App.ea5cb4","מכינים את המשחק...","","Barely seen — a bot room leaves the lobby almost immediately"
-"App.d2bdf3","ממתין לצד השני...","",""
-"App.271a7b","שיתוף בוואטסאפ","",""
-"App.ac8e71","שלחו את הקוד הזה לצד השני:","",""
-"BoardGrid.0bb4dc","הופה! הפלת את היריב שלך בפח","",""
-"BoardGrid.506912","מלכודת! נפלת בתרגיל פוליטי","",""
-"ExitButton.acecb2","פרישה","",""
-"FightSequence.b28706","ניצחון של {0}","",""
-"GameBoard.57d6b0","התור שלך","",""
-"GameBoard.3ee5a3","לפרוש מהחיים הפוליטיים?","",""
-"GameBoard.350eff","קרב הכרעה!","",""
-"GameBoard.9f9c1c","תור ${turnTheme.label}","",""
-"GameOverScreen.e0df0d","🔁 סבב נוסף?","",""
-"GameOverScreen.9ac6b0","${theme.label} מצאו את המלך ולקחו את הבחירות","",""
-"GameOverScreen.c842a8","היריב שלך פרש מהחיים הפוליטיים","",""
-"GameOverScreen.46fe17","הפסדתם","",""
-"GameOverScreen.fa3f2a","חזרה למזנון הכנסת","",""
-"GameOverScreen.5dc458","ליריב שלך אין יותר אפשרויות לזוז","",""
-"GameOverScreen.f43579","ניצחתם!","",""
-"GameOverScreen.bdf6ab","סונדלת, אין לך יותר אפשרויות לזוז","",""
-"HomeScreen.92d0d1","אבניהו - מהדורת בחירות 2026","","Screen reader only (logo alt text)"
-"HomeScreen.fbff31","או","",""
-"HomeScreen.4f50d9","אודות","",""
-"HomeScreen.03c757","איך משחקים?","",""
-"HomeScreen.f1ec45","באיזה גוש אתם?","",""
-"HomeScreen.671165","ביחד נכסח!","",""
-"HomeScreen.deea33","הארסנל שלך","",""
-"HomeScreen.3e65e0","המטרה","",""
-"HomeScreen.8d518f","המלך: ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.","",""
-"HomeScreen.029be1","המשחק נוצר על ידי עמרי דרבסקי","",""
-"HomeScreen.abc5ee","הצטרפות","",""
-"HomeScreen.c8825e","חוקי המשחק","",""
-"HomeScreen.4259cd","כל הזכויות שמורות לעמרי דרבסקי ©","",""
-"HomeScreen.c45de6","להעיף את המלך של היריב מהכיסא ולנצח בבחירות.","",""
-"HomeScreen.92f532","מלכודת סמויה: ממוקמת מראש על הלוח. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.","",""
-"HomeScreen.a2e97a","משחק מול בוט","",""
-"HomeScreen.14c1a0","משחק מול חבר","",""
-"HomeScreen.694790","נמאס מסבבי בחירות אינסופיים בלי הכרעה? אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב אבן-נייר-מספריים קלאסי עם טקטיקה על לוח, כדי שנוכל להכריע אחת ולתמיד מי ייקח את הבחירות – הקואליציה או האופוזיציה.","",""
-"HomeScreen.552471","סגור","","Screen reader only (aria-label on the modal's X)"
-"HomeScreen.971c64","סוף המשחק: המלך שלך נתפס? נתקעת בלי שום צעד חוקי לבצע? הפסדת את הבחירות.","",""
-"HomeScreen.0639af","ערפל קרב: כל הכלים מוסתרים מהצד האחר. אף אחד לא יודע מה מסתתר מולו עד שמתנגשים חזיתית בקרב.","",""
-"HomeScreen.f3fce2","פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.","",""
-"HomeScreen.f8f487","קוד משחק","",""
-"HomeScreen.30a54f","תיקו בקרב: יש לכם רק 10 שניות לבחור נשק חדש ולשבור את השוויון.","",""
-"HomeScreen.36ddac","תנועה וקרב: צעד אחד לכל כיוון; דריכה על יריב יוזמת קרב.","",""
-"SetupScreen.53dea0","👑 בחרו מלך","",""
-"SetupScreen.c2e1a5","🪤 בחרו מלכודת","",""
-"SetupScreen.5f478e","ברגע שהצד השני מסיים להתארגן נתחיל","",""
-"SetupScreen.1d6882","להתחיל לשחק","",""
-"SetupScreen.d9b2b8","עכשיו, מחכים לצד השני...","",""
-"SetupScreen.651c54","ערבוב כלי נשק","",""
-"SetupScreen.7e7ab0","שני הצדדים מוכנים, המשחק מתחיל...","",""
-"SplashScreen.32fb9b","טוען...","",""
-"TieBreakPanel.07da84","אבן","",""
-"TieBreakPanel.7d7f07","בחרו יד לקרב ההכרעה","",""
-"TieBreakPanel.5e718e","מספריים","",""
-"TieBreakPanel.3d86dd","נייר","",""
-"TieBreakPanel.ec8d6f","נעלת ${pickedLabel}, ממתין לצד השני","",""
-"TieBreakPanel.0c897e","קרב מספר {0}","",""
-"TieBreakPanel.d3cd14","תיקו, בחרו נשק לקרב חוזר","",""
-"characterAssets.a49277","חייל","","Tooltip / screen reader only (img title + alt), not visible text"
-"characterAssets.557e36","מלכודת","","Tooltip / screen reader only (img title + alt), not visible text"
-"errorMessages.0fcefe","המשחק כבר מלא","",""
-"errorMessages.739664","המשחק לא נמצא — ייתכן שהסתיים","",""
-"errorMessages.ac55c1","לא הצלחנו לחבר אתכם חזרה למשחק","",""
-"errorMessages.c882f3","משהו השתבש — נסו שוב","",""
-"errorMessages.e3bbe4","קוד משחק לא תקין","",""
-"errorMessages.0b7d87","שגיאת שרת — נסו שוב","",""
-"teases.59838e","אבן זה אח","",""
-"teases.544e1a","אבן חזקה - ישראל חזקה","",""
-"teases.754bf8","אבן! חזק מול כל השמאל","",""
-"teases.141bbc","אבניהו - עושים שלום בטוח","",""
-"teases.c65b01","אבנים נמאסתם!","",""
-"teases.1461cb","אבנים? מספריים? יהודים! אחים! לוחמים!","",""
-"teases.aea3e4","אין לי אבן אחרת!","",""
-"teases.864d45","אין מספריים, אין פיגועים","",""
-"teases.f429d2","אל תתנו להם אבנים!","",""
-"teases.75ed37","אתה גזור, אתה אשם","",""
-"teases.34ff9b","ביחד נקנח!","",""
-"teases.e3f4cd","דור שלם דורש נייר","",""
-"teases.c9e788","השמאל שכח מה זה להיות נייר","",""
-"teases.a2dd33","חייבים ממשלה עם מספריים","",""
-"teases.5696fb","ימין חזק, אבן חזקה","",""
-"teases.fb141f","ישראל חזקה עם נייר","",""
-"teases.42bc05","לא שמאל. לא ימין. נייר!","",""
-"teases.c30a2a","מה אתה גזור?","",""
-"teases.a0bd0d","מספריים הם חלק מגוש השמאל","",""
-"teases.9f62b8","נ ני ניי נייר מאומן","",""
-"teases.3b23ca","נייר, אתה חסר","",""
-"teases.17f85c","עוטפים את המדינה בנייר","",""
-"teases.12ef6a","פרס יחלק את מספריים","",""
-"teases.b88a8d","צריך לגזור את חווארה","",""
-"teases.e26a85","רק אבן!","",""
-"teases.83e8e4","רק לא אבן!","",""
-"teases.ef2da6","שמאל חלש? נייר חלש!","",""
-"teases.3fbf38","תנו לאבן לכסח","",""
-"theme.29f7e3","האופוזיציה","",""
-"theme.a412e4","הקואליציה","",""
-"characters.c0e65a","מלך","","Tooltip / screen reader only (img title + alt), not visible text"
+App.f3a673,אתם משחקים בתור {0},,
+App.90b6d9,החיבור אבד — מתחברים מחדש...,,
+App.eadb7e,היריב התנתק — ממתין לחיבור מחדש...,,
+App.ee7958,העתקת הקוד,,Screen reader only (aria-label on the room code)
+App.868aae,הקוד הועתק ✅,,
+App.ea5cb4,מכינים את המשחק...,,Barely seen — a bot room leaves the lobby almost immediately
+App.d2bdf3,ממתין לצד השני...,,
+App.271a7b,שיתוף בוואטסאפ,,
+App.ac8e71,שלחו את הקוד הזה לצד השני:,,
+BoardGrid.0bb4dc,הופה! הפלת את היריב שלך בפח,,
+BoardGrid.506912,מלכודת! נפלת בתרגיל פוליטי,,
+ExitButton.acecb2,פרישה,,
+FightSequence.b28706,ניצחון של {0},,
+GameBoard.57d6b0,התור שלך,,
+GameBoard.3ee5a3,לפרוש מהחיים הפוליטיים?,,
+GameBoard.350eff,קרב הכרעה!,,
+GameBoard.9f9c1c,תור ${turnTheme.label},,
+GameOverScreen.e0df0d,🔁 סבב נוסף?,,
+GameOverScreen.9ac6b0,${theme.label} מצאו את המלך ולקחו את הבחירות,,
+GameOverScreen.c842a8,היריב שלך פרש מהחיים הפוליטיים,,
+GameOverScreen.46fe17,הפסדתם,,
+GameOverScreen.fa3f2a,חזרה למזנון הכנסת,,
+GameOverScreen.5dc458,ליריב שלך אין יותר אפשרויות לזוז,,
+GameOverScreen.f43579,ניצחתם!,,
+GameOverScreen.bdf6ab,"סונדלת, אין לך יותר אפשרויות לזוז",,
+HomeScreen.92d0d1,אבניהו - מהדורת בחירות 2026,,Screen reader only (logo alt text)
+HomeScreen.fbff31,או,,
+HomeScreen.4f50d9,אודות,,
+HomeScreen.03c757,איך משחקים?,,
+HomeScreen.f1ec45,באיזה גוש אתם?,,
+HomeScreen.671165,ביחד נכסח!,,
+HomeScreen.deea33,הארסנל שלך,,
+HomeScreen.3e65e0,המטרה,,
+HomeScreen.8d518f,"המלך: ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.",,
+HomeScreen.029be1,המשחק נוצר על ידי עמרי דרבסקי,,
+HomeScreen.abc5ee,הצטרפות,,
+HomeScreen.c8825e,חוקי המשחק,,
+HomeScreen.4259cd,כל הזכויות שמורות לעמרי דרבסקי ©,,
+HomeScreen.c45de6,להעיף את המלך של היריב מהכיסא ולנצח בבחירות.,,
+HomeScreen.92f532,מלכודת סמויה: ממוקמת מראש על הלוח. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.,,
+HomeScreen.a2e97a,משחק מול בוט,,
+HomeScreen.14c1a0,משחק מול חבר,,
+HomeScreen.694790,"נמאס מסבבי בחירות אינסופיים בלי הכרעה? אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב אבן-נייר-מספריים קלאסי עם טקטיקה על לוח, כדי שנוכל להכריע אחת ולתמיד מי ייקח את הבחירות – הקואליציה או האופוזיציה.",,
+HomeScreen.552471,סגור,,Screen reader only (aria-label on the modal's X)
+HomeScreen.971c64,סוף המשחק: המלך שלך נתפס? נתקעת בלי שום צעד חוקי לבצע? הפסדת את הבחירות.,,
+HomeScreen.0639af,ערפל קרב: כל הכלים מוסתרים מהצד האחר. אף אחד לא יודע מה מסתתר מולו עד שמתנגשים חזיתית בקרב.,,
+HomeScreen.f3fce2,"פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.",,
+HomeScreen.f8f487,קוד משחק,,
+HomeScreen.30a54f,תיקו בקרב: יש לכם רק 10 שניות לבחור נשק חדש ולשבור את השוויון.,,
+HomeScreen.36ddac,תנועה וקרב: צעד אחד לכל כיוון; דריכה על יריב יוזמת קרב.,,
+SetupScreen.53dea0,👑 בחרו מלך,,
+SetupScreen.c2e1a5,🪤 בחרו מלכודת,,
+SetupScreen.5f478e,ברגע שהצד השני מסיים להתארגן נתחיל,ברגע שהצד השני יסיים להתארגן נתחיל,
+SetupScreen.1d6882,להתחיל לשחק,,
+SetupScreen.d9b2b8,"עכשיו, מחכים לצד השני...",,
+SetupScreen.651c54,ערבוב כלי נשק,,
+SetupScreen.7e7ab0,"שני הצדדים מוכנים, המשחק מתחיל...",,
+SplashScreen.32fb9b,טוען...,,
+TieBreakPanel.07da84,אבן,,
+TieBreakPanel.7d7f07,בחרו יד לקרב ההכרעה,,
+TieBreakPanel.5e718e,מספריים,,
+TieBreakPanel.3d86dd,נייר,,
+TieBreakPanel.ec8d6f,"נעלת ${pickedLabel}, ממתין לצד השני",,
+TieBreakPanel.0c897e,קרב מספר {0},,
+TieBreakPanel.d3cd14,"תיקו, בחרו נשק לקרב חוזר",,
+characterAssets.a49277,חייל,,"Tooltip / screen reader only (img title + alt), not visible text"
+characterAssets.557e36,מלכודת,,"Tooltip / screen reader only (img title + alt), not visible text"
+errorMessages.0fcefe,המשחק כבר מלא,,
+errorMessages.739664,המשחק לא נמצא — ייתכן שהסתיים,,
+errorMessages.ac55c1,לא הצלחנו לחבר אתכם חזרה למשחק,,
+errorMessages.c882f3,משהו השתבש — נסו שוב,,
+errorMessages.e3bbe4,קוד משחק לא תקין,,
+errorMessages.0b7d87,שגיאת שרת — נסו שוב,,
+teases.59838e,אבן זה אח,,
+teases.544e1a,אבן חזקה - ישראל חזקה,,
+teases.754bf8,אבן! חזק מול כל השמאל,,
+teases.141bbc,אבניהו - עושים שלום בטוח,,
+teases.c65b01,אבנים נמאסתם!,,
+teases.1461cb,אבנים? מספריים? יהודים! אחים! לוחמים!,,
+teases.aea3e4,אין לי אבן אחרת!,,
+teases.864d45,"אין מספריים, אין פיגועים",,
+teases.f429d2,אל תתנו להם אבנים!,,
+teases.75ed37,"אתה גזור, אתה אשם",,
+teases.34ff9b,ביחד נקנח!,,
+teases.e3f4cd,דור שלם דורש נייר,,
+teases.c9e788,השמאל שכח מה זה להיות נייר,,
+teases.a2dd33,חייבים ממשלה עם מספריים,,
+teases.5696fb,"ימין חזק, אבן חזקה",,
+teases.fb141f,ישראל חזקה עם נייר,,
+teases.42bc05,לא שמאל. לא ימין. נייר!,,
+teases.c30a2a,מה אתה גזור?,,
+teases.a0bd0d,מספריים הם חלק מגוש השמאל,,
+teases.9f62b8,נ ני ניי נייר מאומן,,
+teases.3b23ca,"נייר, אתה חסר",,
+teases.17f85c,עוטפים את המדינה בנייר,,
+teases.12ef6a,פרס יחלק את מספריים,,
+teases.b88a8d,צריך לגזור את חווארה,,
+teases.e26a85,רק אבן!,,
+teases.83e8e4,רק לא אבן!,,
+teases.ef2da6,שמאל חלש? נייר חלש!,,
+teases.3fbf38,תנו לאבן לכסח,,
+theme.29f7e3,האופוזיציה,,
+theme.a412e4,הקואליציה,,
+characters.c0e65a,מלך,,"Tooltip / screen reader only (img title + alt), not visible text"

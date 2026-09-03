@@ -118,7 +118,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
             <CountdownRing deadline={view.setupDeadline} totalSeconds={SETUP_SECONDS} color={theme.solid} size={56} />
           )}
           <p className="locked-in-hint">
-            {view.readiness[opponent] ? 'שני הצדדים מוכנים, המשחק מתחיל...' : 'ברגע שהצד השני מסיים להתארגן נתחיל'}
+            {view.readiness[opponent] ? 'שני הצדדים מוכנים, המשחק מתחיל...' : 'ברגע שהצד השני יסיים להתארגן נתחיל'}
           </p>
         </LockedInOverlay>
       )}

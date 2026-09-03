@@ -31,8 +31,13 @@ export function applyMove(state: GameState, attacker: Piece, to: Position): Game
   defender.revealed = true;
 
   if (defender.kind === 'king') {
+    // Deliberately does NOT end the phase here. The capture is decided — the winner is set, and
+    // the king is off the board — but the room holds 'playing' for KING_CAPTURE_SEQUENCE_MS so the
+    // soldier's jump onto the tile actually plays before the result screen takes over. Ending it
+    // here meant the move and the game-over arrived in one broadcast and the soldier never
+    // visibly moved.
+    defender.alive = false;
     attacker.position = to;
-    state.phase = 'gameover';
     state.winner = attacker.team;
     return { type: 'king-captured', winner: attacker.team };
   }
