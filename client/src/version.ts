@@ -1,2 +1,2 @@
 /** X.YY.ZZ — YY advances by 1 for a big build/feature milestone, ZZ by 1 every deploy. */
-export const APP_VERSION = '0.05.51';
+export const APP_VERSION = '1.05.51';
