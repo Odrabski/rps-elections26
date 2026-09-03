@@ -262,21 +262,23 @@
   inset: 0;
   z-index: 200;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* Wide enough for the figure's head to clear the card: the head is positioned above the
+     figure's own box (see .about-figure-head), so a gap the size of the visible space is ~28px
+     short and leaves it clipping the card's bottom edge. */
+  gap: 34px;
   padding: 24px;
   background: rgba(2, 6, 23, 0.72);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 
-/* Sits outside the modal card entirely, pinned to the bottom of the screen — not part of the
-   frame itself. Positioned independently of .home-modal-overlay's own centering flex layout. */
+/* Still outside the card — the figure reads better standing on its own than boxed in — but now a
+   sibling in the overlay's column rather than pinned to the bottom of the screen, where it sat
+   ~160px adrift of the modal and looked unrelated to it. */
 .home-modal-footer {
-  position: absolute;
-  bottom: max(20px, env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -294,8 +296,6 @@
 .home-modal {
   position: relative;
   width: min(92vw, 420px);
-  min-height: 260px;
-  padding-bottom: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -381,6 +381,20 @@
    fixed 460px, but the sizing above fits the whole thing on screen — so all the fade did was wash
    out the last line for no reason. The max-height stays as a backstop (a phone in landscape, say),
    and in that case the scrollbar is signal enough. */
+
+.about-body {
+  text-align: center;
+}
+
+/* The sign-off, set apart from the paragraph above it rather than trailing after it as another
+   line of body copy. */
+.about-tagline {
+  margin-top: 2px;
+  color: var(--gold);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
 
 .howto-heading {
   margin: 3px 0 0;

@@ -41,7 +41,7 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
             חזרה למזנון הכנסת
           </button>
           <button type="button" className="btn-primary" onClick={onRematch}>
-            🔁 סבב בחירות נוסף?
+            🔁 סבב נוסף?
           </button>
         </div>
       </div>

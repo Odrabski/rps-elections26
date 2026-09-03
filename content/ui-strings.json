@@ -93,8 +93,8 @@
       "file": "client/src/components/GameBoard.tsx"
     },
     {
-      "id": "GameOverScreen.3ddb87",
-      "text": "🔁 סבב בחירות נוסף?",
+      "id": "GameOverScreen.e0df0d",
+      "text": "🔁 סבב נוסף?",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
