@@ -30,14 +30,14 @@
   width: 100%;
 }
 
-/* Board moves down 40px more than the turn pill above it, and score-header below is allowed to
-   overlap it slightly. */
+/* The board's own offset, matched by .setup-board-area so the two screens line up. Was 70px; 50
+   sits it higher without moving the score-header or the turn pill, which carry their own. */
 .board-wrap {
   position: relative;
   display: flex;
   justify-content: center;
   width: 100%;
-  transform: translateY(70px);
+  transform: translateY(50px);
 }
 
 /* A small pill, at least 3 of its 7 columns wide — sits below the board, with ScoreHeader above

@@ -30,9 +30,9 @@ const CUES = {
   'clash.impact': 1,
   'fight.fanfare': 1,
   'fight.throw': 1,
-  // Eight, because they land three or four to a fight and a repeat inside one scuffle is
+  // Ten, because they land three or four to a fight and a repeat inside one scuffle is
   // instantly audible.
-  'fight.punch': 8,
+  'fight.punch': 10,
   'fight.start': 1,
   'fight.win-fanfare': 1,
   'fight.lose-fanfare': 1,

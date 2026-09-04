@@ -40,7 +40,7 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  transform: translateY(70px);
+  transform: translateY(50px);
 }
 
 /* Same transform as GameBoard's .game-board-content .score-header. */

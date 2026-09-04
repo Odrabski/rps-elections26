@@ -302,6 +302,14 @@
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
+      "id": "SetupScreen.a7c3e8",
+      "text": "{0} שלב סידור הלוח",
+      "file": "client/src/components/SetupScreen.tsx",
+      "placeholders": [
+        "{ }"
+      ]
+    },
+    {
       "id": "SetupScreen.0ca9a9",
       "text": "⚠️ הלו, צריך לבחור מתוך האנשים שלך כאן למטה ולא מהצד השני",
       "file": "client/src/components/SetupScreen.tsx"
@@ -314,16 +322,6 @@
     {
       "id": "SetupScreen.94d65f",
       "text": "🪤 ואיפה תהיה המלכודת?",
-      "file": "client/src/components/SetupScreen.tsx"
-    },
-    {
-      "id": "SetupScreen.4cbd20",
-      "text": "בחרו מקום למלך",
-      "file": "client/src/components/SetupScreen.tsx"
-    },
-    {
-      "id": "SetupScreen.9bd851",
-      "text": "בחרו מקום למלכודת",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
@@ -344,11 +342,6 @@
     {
       "id": "SetupScreen.651c54",
       "text": "ערבוב כלי נשק",
-      "file": "client/src/components/SetupScreen.tsx"
-    },
-    {
-      "id": "SetupScreen.4b7888",
-      "text": "שלב סידור הלוח",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
