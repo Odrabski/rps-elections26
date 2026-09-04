@@ -190,9 +190,10 @@
    holds it gone rather than snapping back at the end of the animation. */
 .fight-figure-loser {
   position: absolute;
-  /* Both figures' boxes bottom-align, and PieceView keeps the feet at a fixed fraction of the
-     box, so this alone puts them on the same ground line — measured at 1px apart. */
-  bottom: 0;
+  /* Boxes bottom-align, but the smaller figure still reads as standing slightly high — the feet
+     sit at a fixed fraction of the box, so the shadow and the shoes shrink with it and the eye
+     puts the ground line lower than the pixels do. Dropped 10px to match by eye. */
+  bottom: -10px;
   /* Right edge 30px inside the winner's box, measured physically rather than logically because
      this is a fixed side, not a reading-order one. Both sprites carry wide transparent margins, so
      boxes 5px apart leave the figures ~40px apart — the overlap eats that padding and lands the

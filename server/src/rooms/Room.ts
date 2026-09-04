@@ -303,50 +303,54 @@ export class Room {
 
     this.state.turn = OTHER_TEAM[this.state.turn as Team];
 
-    // King and Trap never move, so a side with zero living soldiers has no legal move ever
-    // again — end the game right here instead of letting the turn timer spin uselessly.
-    if (legalMovesFor(this.state, this.state.turn).length === 0) {
-      const winner = OTHER_TEAM[this.state.turn];
-      this.state.phase = 'gameover';
-      this.state.winner = winner;
-      this.state.lastEvent = { type: 'no-moves-left', winner };
+    // A battle or a trap has a cinematic to play out before anything else happens. Crucially the
+    // "no legal moves" check is deferred into that timer rather than run here: when the fight that
+    // just resolved was the one that emptied a side's board, running it now ends the game in the
+    // same broadcast as the move, and the result screen replaces the board before the fight the
+    // player is waiting on has played at all.
+    const cinematicMs =
+      event?.type === 'battle' ? BATTLE_SEQUENCE_MS : event?.type === 'trap-triggered' ? TRAP_SEQUENCE_MS : 0;
+
+    if (cinematicMs > 0) {
+      // The next turn's clock only starts once the cinematic + board resolve has finished playing
+      // on both clients — otherwise it'd be ticking down while the outcome is still animating in.
+      // `resolvingUntil` makes that same window authoritative: no move is accepted from anyone
+      // until it has actually finished. For a trap it additionally stops the opponent moving onto
+      // the vacated tile before the client's sequence ends, which would leave the client's
+      // position-keyed override painting the stale dead piece there.
+      this.state.resolvingUntil = Date.now() + cinematicMs;
+      if (this.resolveTimer) clearTimeout(this.resolveTimer);
+      this.resolveTimer = setTimeout(() => {
+        if (this.destroyed || this.state.phase !== 'playing') return;
+        this.state.resolvingUntil = null;
+        if (!this.endIfNoLegalMoves()) {
+          this.startTurnTimer();
+          this.scheduleBotTurnIfNeeded();
+        }
+        this.broadcast();
+      }, cinematicMs);
       return;
     }
 
-    if (event?.type === 'battle') {
-      // The next turn's clock only starts once the winning cinematic + board resolve has had
-      // time to finish playing on both clients — otherwise it'd already be ticking down while
-      // the outcome is still animating in. `resolvingUntil` makes that same window authoritative:
-      // no move is accepted from anyone until the fight has actually finished.
-      this.state.resolvingUntil = Date.now() + BATTLE_SEQUENCE_MS;
-      this.resolveTimer = setTimeout(() => {
-        if (this.state.phase !== 'playing') return;
-        this.state.resolvingUntil = null;
-        this.startTurnTimer();
-        this.scheduleBotTurnIfNeeded();
-        this.broadcast();
-      }, BATTLE_SEQUENCE_MS);
-      return;
-    }
-
-    if (event?.type === 'trap-triggered') {
-      // Same reasoning as the battle branch above: without this delay the opponent could move a
-      // piece onto the vacated trap tile (or the attacker's own origin tile) before the client's
-      // trap sequence finishes, and the client's position-keyed animation override would then
-      // keep painting the stale dead piece there instead of the real new occupant.
-      this.state.resolvingUntil = Date.now() + TRAP_SEQUENCE_MS;
-      this.resolveTimer = setTimeout(() => {
-        if (this.state.phase !== 'playing') return;
-        this.state.resolvingUntil = null;
-        this.startTurnTimer();
-        this.scheduleBotTurnIfNeeded();
-        this.broadcast();
-      }, TRAP_SEQUENCE_MS);
-      return;
-    }
+    if (this.endIfNoLegalMoves()) return;
 
     this.startTurnTimer();
     this.scheduleBotTurnIfNeeded();
+  }
+
+  /**
+   * Ends the game if the side to move has no legal move left. King and Trap never move, so a side
+   * with no living soldiers has no move ever again — there's nothing to wait for.
+   *
+   * Returns whether it ended the game, so callers can skip starting a turn that can't be taken.
+   */
+  private endIfNoLegalMoves(): boolean {
+    if (legalMovesFor(this.state, this.state.turn as Team).length > 0) return false;
+    const winner = OTHER_TEAM[this.state.turn as Team];
+    this.state.phase = 'gameover';
+    this.state.winner = winner;
+    this.state.lastEvent = { type: 'no-moves-left', winner };
+    return true;
   }
 
   // ─── Tie-break ────────────────────────────────────────────────────────
