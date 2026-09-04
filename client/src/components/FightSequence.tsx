@@ -35,12 +35,13 @@ const COUNT_LABELS = ['3', '2', '1', 'FIGHT'];
 /**
  * How long after the reveal the winner's name is called.
  *
- * The fanfare is 0.91s; starting the voice at 0.75s lets its tail ring under the first syllable
- * rather than stopping dead first. The longest name call is 2.19s, so the pair finishes around
- * 2.94s — inside the 3.6s the reveal holds (FIGHT_REVEAL_MS), with room to spare if a name is
- * ever re-recorded longer.
+ * The trumpet is 1.75s and starts decaying around 0.95s in, so the voice enters at 1.15s — over
+ * the ringing tail rather than after silence, which is how a herald actually sounds. The longest
+ * name call is 2.19s, putting the pair at about 3.34s: inside the 3.6s the reveal holds
+ * (FIGHT_REVEAL_MS), with ~260ms spare. Re-record a name much longer than that and this needs to
+ * come down, or FIGHT_REVEAL_MS up.
  */
-const WIN_CALL_DELAY_MS = 750;
+const WIN_CALL_DELAY_MS = 1150;
 
 export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }: FightSequenceProps) {
   const [phase, setPhase] = useState<Phase>('intro');
