@@ -259,12 +259,12 @@
     },
     {
       "id": "SetupScreen.53dea0",
-      "text": "👑 בחרו מלך",
+      "text": "👑 איפה נחביא את המלך?",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
       "id": "SetupScreen.c2e1a5",
-      "text": "🪤 בחרו מלכודת",
+      "text": "🪤 ואיפה תהיה המלכודת?",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {

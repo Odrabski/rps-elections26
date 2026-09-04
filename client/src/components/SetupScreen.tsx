@@ -89,8 +89,8 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
 
         {!isReady && step !== 'ready' && (
           <div className="setup-onboard-banner" style={{ borderColor: theme.border, color: theme.text }}>
-            {step === 'king' && '👑 בחרו מלך'}
-            {step === 'trap' && '🪤 בחרו מלכודת'}
+            {step === 'king' && '👑 איפה נחביא את המלך?'}
+            {step === 'trap' && '🪤 ואיפה תהיה המלכודת?'}
           </div>
         )}
 

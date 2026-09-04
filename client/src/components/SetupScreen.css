@@ -68,7 +68,25 @@
   font-weight: 700;
   font-size: clamp(0.96rem, 5.12vw, 1.36rem);
   pointer-events: none;
-  animation: setupOnboardPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Breathing starts only once the pop has finished — an animation hasn't taken effect during its
+     delay, so the two never drive `transform` at the same time and the pop keeps the first 0.3s
+     to itself. */
+  animation:
+    setupOnboardPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    setupOnboardBreathe 2.6s ease-in-out 0.3s infinite;
+}
+
+/* Both frames restate translate(-50%, -50%). A keyframe that sets `transform` replaces the base
+   rule's outright, so leaving it out here would drop the centering and fling the banner to the
+   board's centre-right on the first frame. */
+@keyframes setupOnboardBreathe {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, calc(-50% - 4px)) scale(1.06);
+  }
 }
 
 /* The start/shuffle actions, right on the board itself — same centered positioning as
