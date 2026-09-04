@@ -44,7 +44,7 @@
       "kenney_impact-sounds/Audio/impactPunch_heavy_001.ogg"
     ],
     "fight.fanfare": [
-      "__own__"
+      "kenney_impact-sounds/Audio/impactMining_000.ogg"
     ],
     "fight.throw": [
       "kenney_interface-sounds/Audio/scratch_001.ogg"
@@ -65,7 +65,7 @@
       "kenney_music-jingles/Audio/Sax jingles/jingles_SAX07.ogg"
     ],
     "king.captured": [
-      "kenney_impact-sounds/Audio/impactMining_000.ogg"
+      "__own__"
     ],
     "result.win": [
       "kenney_music-jingles/Audio/Sax jingles/jingles_SAX02.ogg"

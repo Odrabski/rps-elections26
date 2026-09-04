@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { GameEvent, Team } from 'shared';
 import { TEAM_THEME } from '../data/theme';
 import { GameOverEffects } from './GameOverEffects';
@@ -18,9 +18,14 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
   const theme = TEAM_THEME[winner];
   const won = winner === you;
 
-  // Once per mount. The screen isn't remounted mid-result, and a rematch unmounts it, so this
-  // needs no guard beyond the empty dependency list.
+  // Once per mount. StrictMode double-invokes effects in development, and while that is dev-only,
+  // a sting that can fire twice is worth making impossible rather than merely improbable — a
+  // remount for any other reason would do the same. A rematch unmounts this screen, so the next
+  // result starts from a fresh ref and sounds again.
+  const sounded = useRef(false);
   useEffect(() => {
+    if (sounded.current) return;
+    sounded.current = true;
     play(won ? 'result.win' : 'result.lose');
   }, [won]);
   const detail =

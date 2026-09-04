@@ -54,9 +54,11 @@ export const BATTLE_SEQUENCE_MS = CLASH_REVEAL_DELAY_MS + FIGHT_SEQUENCE_MS + CL
  *
  * A king capture has no fight to play out — no cloud, no reveal — but it still has a move, and the
  * game used to end in the same broadcast that made it, so the winning soldier never appeared to go
- * anywhere at all. This is its jump, plus a beat to see it standing where the king was.
+ * anywhere at all. This is its jump, plus a beat to see it standing where the king was — long
+ * enough now for the 1.32s fanfare on the capture to finish before the result screen replaces the
+ * board, rather than being played over by the victory sting.
  */
-export const KING_CAPTURE_SEQUENCE_MS = CLASH_JUMP_MS + 700;
+export const KING_CAPTURE_SEQUENCE_MS = CLASH_JUMP_MS + 900;
 
 // The client's trap sequence (BoardGrid: warning banner → trap dissolves → attacker jumps onto
 // the hole → attacker sinks and vanishes). Defined here (not just in BoardGrid.tsx) so the server
