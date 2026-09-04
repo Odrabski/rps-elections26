@@ -69,10 +69,14 @@ const loading = new Set<string>();
 
 function readMuted(): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === '1';
+    // Silent until asked otherwise: nothing stored means a first-time visitor, and the game opens
+    // muted with the toggle inviting them to turn it on (see SoundToggle). Sound arriving
+    // unannounced on a phone in public is the kind of thing that gets a tab closed.
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored === null ? true : stored === '1';
   } catch {
-    // Private mode, or storage blocked. Defaulting to unmuted matches a first-time visitor.
-    return false;
+    // Private mode, or storage blocked — same default as a first-time visitor.
+    return true;
   }
 }
 

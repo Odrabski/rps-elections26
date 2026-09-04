@@ -207,7 +207,9 @@ export default function App() {
   return (
     <>
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
-      {!showSplash && <SoundToggle />}
+      {/* Prominent everywhere except an actual match — on the board it goes back to being a
+          small icon so it isn't sitting over the pieces asking for something all game. */}
+      {!showSplash && <SoundToggle prominent={view?.phase !== 'setup' && view?.phase !== 'playing'} />}
       {content}
       <div className="app-version">v{APP_VERSION}</div>
     </>

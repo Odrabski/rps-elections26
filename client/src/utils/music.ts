@@ -35,10 +35,12 @@ let awaitingGesture = false;
 
 function muted(): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === '1';
+    // Matches sfx.ts: nothing stored means a first-time visitor, who starts muted.
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored === null ? true : stored === '1';
   } catch {
-    // Private mode, or storage blocked. Unmuted matches what a first-time visitor gets.
-    return false;
+    // Private mode, or storage blocked — same default as a first-time visitor.
+    return true;
   }
 }
 
