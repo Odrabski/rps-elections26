@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { isMuted, play, setMuted } from '../utils/sfx';
+import { setMusicMuted } from '../utils/music';
 import './SoundToggle.css';
 
 /**
@@ -18,6 +19,7 @@ export function SoundToggle() {
       onClick={() => {
         const next = !off;
         setMuted(next);
+        setMusicMuted(next);
         setOff(next);
         // Unmuting confirms itself; muting can't, and doesn't need to.
         if (!next) play('ui.tap');

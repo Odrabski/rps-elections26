@@ -6,6 +6,7 @@ import { GameBoard } from './components/GameBoard';
 import { GameOverScreen } from './components/GameOverScreen';
 import { SplashScreen } from './components/SplashScreen';
 import { SoundToggle } from './components/SoundToggle';
+import { startMusic, stopMusic } from './utils/music';
 import { preloadPieceAssets } from './utils/preloadAssets';
 import { copyText } from './utils/clipboard';
 import { loadSession } from './utils/rejoin';
@@ -54,6 +55,16 @@ export default function App() {
   useEffect(() => {
     if (team) preloadPieceAssets(team);
   }, [team]);
+
+  // The track runs across the whole match — placing your pieces is part of it — and stops at the
+  // result screen so the win and lose stings land in silence. 240KB, so it is only ever fetched
+  // once a match actually starts, never on the home screen.
+  const inMatch = view?.phase === 'setup' || view?.phase === 'playing';
+  useEffect(() => {
+    if (inMatch) startMusic();
+    else stopMusic();
+    return () => stopMusic();
+  }, [inMatch]);
 
   let content: ReactNode;
 

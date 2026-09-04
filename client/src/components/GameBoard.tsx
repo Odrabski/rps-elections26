@@ -117,13 +117,21 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     setSelectedId(null);
   }, [view.turn, view.tieBreak]);
 
-  // Sounded off the view rather than off an event, so a repeat tie gets its own cue too.
-  const hadTieBreak = useRef(false);
+  /**
+   * Whether the weapon picker is actually on screen — the same condition it renders under, hoisted
+   * so the sound can key off it.
+   *
+   * It used to sound the moment `view.tieBreak` arrived, which is the server's broadcast at the
+   * *start* of the clash: a whole fight sequence before the player sees any tie, and an audible
+   * spoiler of the outcome. Keyed to the panel appearing instead, and it still fires once per
+   * round, since a repeat tie hides the panel behind its own cinematic and brings it back.
+   */
+  const tiePanelVisible = view.tieBreak !== null && !activeEvent && !cinematicPending;
+  const hadTiePanel = useRef(false);
   useEffect(() => {
-    const has = view.tieBreak !== null;
-    if (has && !hadTieBreak.current) play('fight.tie');
-    hadTieBreak.current = has;
-  }, [view.tieBreak]);
+    if (tiePanelVisible && !hadTiePanel.current) play('fight.tie');
+    hadTiePanel.current = tiePanelVisible;
+  }, [tiePanelVisible]);
 
   // Detecting a new event and reacting to it *synchronously during render* (React's documented
   // "adjusting state when a prop changes" pattern), rather than in a useEffect, matters here: an
@@ -339,7 +347,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       {/* Wait for the whole collision sequence — the on-board jump/cloud beat AND the intro/
           standoff/clash/tie-reveal cinematic — to finish before letting either player pick their
           next weapon, or the picker would pop up mid-animation. */}
-      {view.tieBreak && !activeEvent && !cinematicPending && (
+      {tiePanelVisible && view.tieBreak && (
         <TieBreakPanel tieBreak={view.tieBreak} pieces={view.pieces} team={team} seed={seed} onPick={onTiePick} />
       )}
     </div>
