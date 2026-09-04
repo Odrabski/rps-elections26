@@ -107,6 +107,11 @@
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
+      "id": "GameOverScreen.6d8767",
+      "text": "העפת את המלך מכיסא השלטון וניצחת בבחירות",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
       "id": "GameOverScreen.46fe17",
       "text": "הפסדתם",
       "file": "client/src/components/GameOverScreen.tsx"
@@ -117,13 +122,13 @@
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
-      "id": "GameOverScreen.f43579",
-      "text": "ניצחתם!",
+      "id": "GameOverScreen.bdf6ab",
+      "text": "סונדלת, אין לך יותר אפשרויות לזוז",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
-      "id": "GameOverScreen.bdf6ab",
-      "text": "סונדלת, אין לך יותר אפשרויות לזוז",
+      "id": "GameOverScreen.e4d44b",
+      "text": "קולולו! ניצחת",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {

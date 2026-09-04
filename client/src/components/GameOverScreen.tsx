@@ -28,14 +28,16 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
         ? won
           ? 'ליריב שלך אין יותר אפשרויות לזוז'
           : 'סונדלת, אין לך יותר אפשרויות לזוז'
-        : `${theme.label} מצאו את המלך ולקחו את הבחירות`;
+        : won
+          ? 'העפת את המלך מכיסא השלטון וניצחת בבחירות'
+          : `${theme.label} מצאו את המלך ולקחו את הבחירות`;
 
   return (
     <div className="gameover-screen">
       <GameOverEffects winner={winner} won={won} />
       <div className="gameover-panel panel">
         <div className="gameover-emoji">{won ? '🏆' : '🏳️'}</div>
-        <h1 className="gradient-heading">{won ? 'ניצחתם!' : 'הפסדתם'}</h1>
+        <h1 className="gradient-heading">{won ? 'קולולו! ניצחת' : 'הפסדתם'}</h1>
         <p className="gameover-detail" style={{ color: theme.text }}>
           {detail}
         </p>
