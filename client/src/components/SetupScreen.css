@@ -111,7 +111,9 @@
    .setup-onboard-banner. */
 .setup-onboard-buttons {
   position: absolute;
-  top: 50%;
+  /* Nudged up in `top`, not in the transform — the pop keyframes below carry the transform and
+     would drop any offset baked into it. Same reason as .setup-onboard-banner above. */
+  top: calc(50% - 5px);
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 4;

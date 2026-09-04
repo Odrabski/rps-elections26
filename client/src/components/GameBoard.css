@@ -57,6 +57,36 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
+/* Only while it's actually your move — a double thump every 4.5s, so the pill reads as waiting on
+   you without ever becoming something you have to look away from.
+   Every frame restates translateY(30px): the pill's resting position lives in `transform`, and a
+   keyframe that sets `transform` replaces it outright, which would drop the pill 30px on the first
+   beat and snap it back at the end. */
+.turn-pill-beating {
+  animation: turnPillBeat 4.5s ease-in-out infinite;
+}
+
+@keyframes turnPillBeat {
+  0%,
+  8%,
+  17%,
+  100% {
+    transform: translateY(30px) scale(1);
+  }
+  4% {
+    transform: translateY(30px) scale(1.055);
+  }
+  12% {
+    transform: translateY(30px) scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turn-pill-beating {
+    animation: none;
+  }
+}
+
 /* ScoreHeader's own -15px (see ScoreHeader.css) plus 30px more down, scoped to the game board
    specifically so the setup screen's copy of ScoreHeader is unaffected. Allowed to overlap the
    board above it slightly. */

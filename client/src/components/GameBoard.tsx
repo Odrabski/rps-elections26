@@ -331,7 +331,10 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
           />
         </div>
 
-        <div className="turn-pill" style={{ background: turnTheme.solid }}>
+        <div
+          className={`turn-pill${myTurn && !view.tieBreak ? ' turn-pill-beating' : ''}`}
+          style={{ background: turnTheme.solid }}
+        >
           {view.tieBreak ? 'קרב הכרעה!' : myTurn ? 'התור שלך' : `תור ${turnTheme.label}`}
         </div>
       </div>
