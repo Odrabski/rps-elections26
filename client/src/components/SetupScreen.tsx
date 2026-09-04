@@ -8,7 +8,7 @@ import { ExitButton } from './ExitButton';
 import { ScoreHeader } from './ScoreHeader';
 import { LockedInOverlay } from './LockedInOverlay';
 import { BoardGrid } from './BoardGrid';
-import { HowToPlayModal } from './HowToPlayModal';
+import { HowToPlayButton } from './HowToPlayButton';
 import { play } from '../utils/sfx';
 import './SetupScreen.css';
 
@@ -29,7 +29,6 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
   const isReady = view.readiness[team];
   const [zoneStart, zoneEnd] = ZONE_ROWS[team];
   const [pulsePosition, setPulsePosition] = useState<Position | null>(null);
-  const [showHowTo, setShowHowTo] = useState(false);
   const seed = gameSeed(view);
 
   const ownPieces = view.pieces.filter((p) => p.team === team);
@@ -125,7 +124,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
             ) : (
               <>
                 {step === 'king' && '👑 בחרו את המלך'}
-                {step === 'trap' && '🪤 ואיפה תהיה המלכודת?'}
+                {step === 'trap' && '🪤 בחרו את המלכודת'}
               </>
             )}
           </div>
@@ -166,12 +165,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
         שלב סידור הלוח
       </div>
 
-      <button type="button" className="setup-howto-link" onClick={() => setShowHowTo(true)}>
-        <span className="setup-howto-mark" aria-hidden="true">?</span>
-        איך משחקים?
-      </button>
-
-      {showHowTo && <HowToPlayModal onClose={() => setShowHowTo(false)} />}
+      <HowToPlayButton />
 
       {isReady && (
         <LockedInOverlay subtitle="עכשיו, מחכים לצד השני...">

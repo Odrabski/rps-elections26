@@ -1,0 +1,53 @@
+/* Pinned to the bottom-left, mirroring .exit-btn on the opposite corner. Fixed rather than in flow
+   so it can't add to a screen's column height and throw off the board/score-header y-match between
+   setup and gameplay (the whole reason .setup-turn-pill-spacer exists). */
+.howto-link {
+  position: fixed;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: calc(12px + env(safe-area-inset-left));
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px 9px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  background: rgba(10, 14, 30, 0.82);
+  color: #e2e8f0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.howto-link:hover {
+  border-color: rgba(148, 163, 184, 0.7);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Mark only, during a live game. Padded evenly so the pill closes to a circle around the "?"
+   instead of keeping the room the words used to need on one side. */
+.howto-link-compact {
+  gap: 0;
+  padding: 9px;
+}
+
+/* The circled "?" — the bit that has to read at a glance as "help". */
+.howto-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1;
+}

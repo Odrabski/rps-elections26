@@ -7,6 +7,7 @@ import { play } from '../utils/sfx';
 import { useOpponentTease } from '../hooks/useOpponentTease';
 import { CountdownRing } from './CountdownRing';
 import { ExitButton } from './ExitButton';
+import { HowToPlayButton } from './HowToPlayButton';
 import { ScoreHeader } from './ScoreHeader';
 import { CombatOverlay } from './CombatOverlay';
 import { FIGHT_SEQUENCE_MS, TIE_SEQUENCE_MS } from './FightSequence';
@@ -322,6 +323,8 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
   return (
     <div className="game-board-screen">
       <ExitButton onClick={handleExit} />
+      {/* Mark only here — the words belong to setup, where there is room and a first-timer to tell. */}
+      <HowToPlayButton compact />
 
       <div className="game-board-content">
         <ScoreHeader
