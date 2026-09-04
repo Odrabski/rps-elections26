@@ -56,7 +56,7 @@ const GAIN: Partial<Record<Sfx, number>> = {
   'setup.shuffle': 0.7,
   'clash.impact': 0.8,
   'fight.fanfare': 0.7,
-  'fight.win-fanfare': 0.75,
+  'fight.win-fanfare': 0.3,
   // Half level, deliberately: the loser's flourish should register without competing with the
   // announcement of who beat them.
   'fight.lose-fanfare': 0.5,
