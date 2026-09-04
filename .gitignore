@@ -36,3 +36,7 @@ node_modules/
 # client/public/assets, so the originals don't belong in the repo — they were ~113 MB of it.
 /*.png
 .sfx-sources/
+
+# Loose source audio dropped at the root for picking clips out of. The ones actually used are
+# copied into sfx-src/, which is committed; the packs themselves are large and re-downloadable.
+/Audio/

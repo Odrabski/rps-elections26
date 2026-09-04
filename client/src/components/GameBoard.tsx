@@ -225,10 +225,6 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
             resolvingEvent.outcome === 'attacker-wins' ? resolvingEvent.attackerId : resolvingEvent.defenderId;
           const winner = prevPiecesRef.current.get(winnerId);
           if (winner) {
-            // Deliberately here and not where the 'battle' event first arrives: that is a whole
-            // fight sequence earlier, and a win/lose sting there would announce the result before
-            // the animation reached it — the same spoiler the score badges used to give away.
-            play(winner.team === team ? 'fight.win' : 'fight.lose');
             setClashEvent((current) => (current ? { ...current, winner } : current));
           } else {
             setClashEvent(null);

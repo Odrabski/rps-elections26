@@ -49,9 +49,20 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
     timers.push(setTimeout(() => setPhase('standoff'), BEAT_MS * 4));
     timers.push(setTimeout(() => setPhase('clash'), BEAT_MS * 4 + STANDOFF_MS));
     timers.push(setTimeout(() => setPhase('cloud'), BEAT_MS * 4 + STANDOFF_MS + CLASH_MS));
-    timers.push(setTimeout(() => setPhase('reveal'), BEAT_MS * 4 + STANDOFF_MS + CLASH_MS + CLOUD_MS));
+    timers.push(
+      setTimeout(() => {
+        setPhase('reveal');
+        // Sounded here, with the words appearing. GameBoard used to play it when the whole
+        // sequence ended instead — fine for an abstract sting, but a voice saying "you win"
+        // arriving 3.6s after YOU WIN is on screen reads as someone else's audio.
+        if (outcome !== 'tie') {
+          const winnerTeam = outcome === 'attacker-wins' ? attacker.team : defender.team;
+          play(winnerTeam === viewerTeam ? 'fight.win' : 'fight.lose');
+        }
+      }, BEAT_MS * 4 + STANDOFF_MS + CLASH_MS + CLOUD_MS),
+    );
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [attacker.team, defender.team, outcome, viewerTeam]);
 
   const attackerVisual = resolveFightVisual(attacker, seed);
   const defenderVisual = resolveFightVisual(defender, seed);
