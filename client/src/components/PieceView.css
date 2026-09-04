@@ -55,12 +55,10 @@
   transform: translateY(2px);
 }
 
-/* Setup screen: your own not-yet-designated pieces are grayed out — the same treatment as a
-   dead piece — until they're actually assigned a role (King, Trap, or a soldier's weapon). */
-.piece-unassigned-dim {
-  opacity: 0.6;
-}
-
+/* Setup screen: your own not-yet-designated pieces are drained of colour until they're actually
+   assigned a role (King, Trap, or a soldier's weapon).
+   Greyscale only, deliberately — the opacity that used to come with it let the board pattern show
+   through the figures, which read as "not really there" rather than "not decided yet". */
 .piece-unassigned-dim .piece-portrait {
   filter: grayscale(1) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
 }

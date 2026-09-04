@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-03",
+  "generated": "2026-09-04",
   "rows": [
     {
       "id": "App.f3a673",
@@ -27,6 +27,11 @@
     {
       "id": "App.868aae",
       "text": "הקוד הועתק ✅",
+      "file": "client/src/App.tsx"
+    },
+    {
+      "id": "App.fa3f2a",
+      "text": "חזרה למזנון הכנסת",
       "file": "client/src/App.tsx"
     },
     {
@@ -93,6 +98,15 @@
       "file": "client/src/components/GameBoard.tsx"
     },
     {
+      "id": "GameOverScreen.746561",
+      "text": "{0}, [won]); const detail = reason?.type === 'resigned' ? 'היריב שלך פרש מהחיים הפוליטיים' : reason?.type === 'no-moves-left' ? won ? 'ליריב שלך אין יותר אפשרויות לזוז' : 'סונדלת, אין לך יותר אפשרויות לזוז' : `${1} מצאו את המלך ולקחו את הבחירות`; return (",
+      "file": "client/src/components/GameOverScreen.tsx",
+      "placeholders": [
+        "{ play(won ? 'win' : 'lose'); }",
+        "{theme.label}"
+      ]
+    },
+    {
       "id": "GameOverScreen.e0df0d",
       "text": "🔁 סבב נוסף?",
       "file": "client/src/components/GameOverScreen.tsx"
@@ -110,11 +124,6 @@
     {
       "id": "GameOverScreen.46fe17",
       "text": "הפסדתם",
-      "file": "client/src/components/GameOverScreen.tsx"
-    },
-    {
-      "id": "GameOverScreen.fa3f2a",
-      "text": "חזרה למזנון הכנסת",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
@@ -258,17 +267,17 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
-      "id": "SetupScreen.53dea0",
+      "id": "SetupScreen.4dc735",
       "text": "👑 איפה נחביא את המלך?",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
-      "id": "SetupScreen.c2e1a5",
+      "id": "SetupScreen.94d65f",
       "text": "🪤 ואיפה תהיה המלכודת?",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
-      "id": "SetupScreen.5f478e",
+      "id": "SetupScreen.599191",
       "text": "ברגע שהצד השני יסיים להתארגן נתחיל",
       "file": "client/src/components/SetupScreen.tsx"
     },
@@ -291,6 +300,16 @@
       "id": "SetupScreen.7e7ab0",
       "text": "שני הצדדים מוכנים, המשחק מתחיל...",
       "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SoundToggle.d124ea",
+      "text": "הפעלת צלילים",
+      "file": "client/src/components/SoundToggle.tsx"
+    },
+    {
+      "id": "SoundToggle.2979e2",
+      "text": "השתקת צלילים",
+      "file": "client/src/components/SoundToggle.tsx"
     },
     {
       "id": "SplashScreen.32fb9b",

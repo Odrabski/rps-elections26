@@ -6,7 +6,6 @@ import { GameBoard } from './components/GameBoard';
 import { GameOverScreen } from './components/GameOverScreen';
 import { SplashScreen } from './components/SplashScreen';
 import { SoundToggle } from './components/SoundToggle';
-import { ExitButton } from './components/ExitButton';
 import { TEAM_THEME } from './data/theme';
 import { preloadPieceAssets } from './utils/preloadAssets';
 import { loadSession } from './utils/rejoin';
@@ -72,7 +71,9 @@ export default function App() {
       </div>
     ) : (
       <div className="lobby-screen">
-        <ExitButton onClick={leave} />
+        {/* No floating exit button here: the labelled way back sits in the panel below, and two
+            controls doing the same thing on one small screen is just clutter. The other screens
+            keep theirs — there you're leaving a game in progress, not a waiting room. */}
         <div className="lobby-panel panel">
           <h1 className="gradient-heading">ממתין לצד השני...</h1>
           <p className="lobby-hint">שלחו את הקוד הזה לצד השני:</p>
@@ -93,7 +94,13 @@ export default function App() {
               setTimeout(() => setCodeCopied(false), 1600);
             }}
           >
-            {roomCode}
+            <span className="lobby-code-text">{roomCode}</span>
+            {/* Stroke-only and inheriting currentColor, so it reads as an affordance beside the
+                code rather than a second thing competing with it for attention. */}
+            <svg className="lobby-code-copy" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="9" y="9" width="11" height="11" rx="2.5" />
+              <path d="M5.5 15.5V5.5a2 2 0 0 1 2-2h10" />
+            </svg>
           </button>
           {/* Always rendered so the panel doesn't jump a line taller when it appears. */}
           <span className={`lobby-copied${codeCopied ? ' lobby-copied-visible' : ''}`}>הקוד הועתק ✅</span>
@@ -110,6 +117,9 @@ export default function App() {
           <p className="lobby-team" style={{ color: TEAM_THEME[team].text }}>
             אתם משחקים בתור {TEAM_THEME[team].label}
           </p>
+          <button type="button" className="btn-secondary lobby-back" onClick={leave}>
+            חזרה למזנון הכנסת
+          </button>
         </div>
       </div>
     );

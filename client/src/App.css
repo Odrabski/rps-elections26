@@ -22,19 +22,46 @@
 
 /* The code itself is the copy button — tapping it puts it on the clipboard. */
 .lobby-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   font-family: inherit;
-  font-size: 2.4rem;
   font-weight: 800;
-  letter-spacing: 0.3em;
-  /* The tracking above adds a trailing gap after the last character, which would otherwise read
-     as the code sitting off-center inside its own frame. */
-  text-indent: 0.3em;
   color: var(--gold);
   padding: 8px 20px;
   border: 2px dashed var(--gold);
   border-radius: 12px;
   background: none;
   cursor: pointer;
+}
+
+.lobby-code-text {
+  font-size: 2.4rem;
+  letter-spacing: 0.3em;
+  /* The tracking adds a trailing gap after the last character, which would otherwise read as the
+     code sitting off-centre. Applied to the text alone, so it can't push the icon out of place. */
+  text-indent: 0.3em;
+}
+
+.lobby-code-copy {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+}
+
+.lobby-code:hover .lobby-code-copy {
+  opacity: 1;
+}
+
+.lobby-back {
+  width: 100%;
 }
 
 .lobby-code:hover {
