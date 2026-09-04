@@ -64,7 +64,13 @@ export const TRAP_WARNING_MS = 1000;
 export const TRAP_DISSOLVE_MS = 400;
 export const TRAP_ATTACKER_JUMP_MS = 500;
 export const TRAP_ATTACKER_FALL_MS = 600;
-export const TRAP_SEQUENCE_MS = TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS;
+/** How long the "you fell in a trap" banner stays up once the soldier has actually sunk into the
+ *  hole. The banner used to open the sequence, announcing the trap before anything had happened;
+ *  it now reports it afterwards, which needs its own beat at the end to be readable. */
+export const TRAP_BANNER_MS = 1200;
+
+export const TRAP_SEQUENCE_MS =
+  TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS + TRAP_BANNER_MS;
 
 /** Row indices (inclusive) that belong to each team's placement zone. */
 export const ZONE_ROWS: Record<'red' | 'blue', [number, number]> = {

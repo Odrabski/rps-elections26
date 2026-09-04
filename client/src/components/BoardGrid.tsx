@@ -8,6 +8,7 @@ import {
   TRAP_WARNING_MS,
   TRAP_DISSOLVE_MS,
   TRAP_ATTACKER_JUMP_MS,
+  TRAP_ATTACKER_FALL_MS,
   TRAP_SEQUENCE_MS,
 } from 'shared';
 import type { ClientPieceView, Position, Team } from 'shared';
@@ -70,7 +71,7 @@ const TILT_MIN_DELAY_MS = 2500;
 const TILT_MAX_DELAY_MS = 6000;
 const TILT_FIXED_INTERVAL_MS = 8000;
 
-type TrapPhase = 'warning' | 'trap-dissolve' | 'attacker-jump' | 'attacker-fall';
+type TrapPhase = 'warning' | 'trap-dissolve' | 'attacker-jump' | 'attacker-fall' | 'fallen';
 
 /** Total lifetime of the trap sequence — GameBoard clears its `trapEvent` after this. Also used
  * by the server (Room.ts) to hold the next turn's timer off until this has finished playing. */
@@ -273,6 +274,11 @@ export function BoardGrid({
         () => setTrapPhase('attacker-fall'),
         TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS,
       ),
+      // The tile is an empty hole from here on, and only now does the banner say what happened.
+      setTimeout(
+        () => setTrapPhase('fallen'),
+        TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS,
+      ),
     ];
     return () => timers.forEach(clearTimeout);
   }, [trapEvent]);
@@ -326,7 +332,9 @@ export function BoardGrid({
           // Once the trap is spent, the tile itself becomes a hole for the rest of the sequence —
           // the attacker jumps onto it, then sinks into it.
           const showHole =
-            trapEvent && atTrapTile && (trapPhase === 'attacker-jump' || trapPhase === 'attacker-fall');
+            trapEvent &&
+            atTrapTile &&
+            (trapPhase === 'attacker-jump' || trapPhase === 'attacker-fall' || trapPhase === 'fallen');
           const showClashCloud =
             clashEvent && atClashTarget && (clashPhase === 'in-cloud' || clashPhase === 'dissolving');
           // The defender reacts in place — a quick flinch, not a dissolve — for exactly as long
@@ -356,6 +364,9 @@ export function BoardGrid({
           } else if (trapEvent && atTrapTile && trapPhase === 'attacker-fall') {
             piece = trapEvent.attacker;
             falling = true;
+          } else if (trapEvent && atTrapTile && trapPhase === 'fallen') {
+            // Gone: the hole above is all that's left of either of them.
+            piece = undefined;
           } else if (
             trapEvent &&
             atAttackerOrigin &&
@@ -452,7 +463,7 @@ export function BoardGrid({
           );
         })}
       </div>
-      {trapPhase === 'warning' && trapEvent && (
+      {trapPhase === 'fallen' && trapEvent && (
         <div className="trap-warning-banner">
           {trapEvent.attacker.team === team ? 'מלכודת! נפלת בתרגיל פוליטי' : 'הופה! הפלת את היריב שלך בפח'}
         </div>

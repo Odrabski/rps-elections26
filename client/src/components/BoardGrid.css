@@ -222,7 +222,8 @@
   }
 }
 
-/* "!נפלת במלכודת" — a brief alert while the trap is still shown for real, before it dissolves. */
+/* Announces the trap once the soldier has actually gone into the hole. It used to run first, so
+   the board told you a trap had been sprung a beat before anything appeared to happen. */
 .trap-warning-banner {
   position: absolute;
   top: 6%;
