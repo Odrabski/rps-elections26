@@ -272,6 +272,12 @@
   pointer-events: none;
 }
 
+/* Above every row (2..7), the clash cloud (20) and the trap banner (25), so a taunt is never
+   half-covered by a figure standing in front of it. Only while the bubble is up. */
+.board-piece-anim-teasing {
+  z-index: 30;
+}
+
 /* A soldier moving to an adjacent tile slides in from that direction with a small hop, instead
    of teleporting. --jump-from-x/y (set inline per piece) is "one cell" in the direction it came
    from, e.g. 100% / 0% for "arrived from the right". Always exactly one axis, since a move is

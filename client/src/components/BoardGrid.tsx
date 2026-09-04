@@ -398,7 +398,17 @@ export function BoardGrid({
               )}
               {piece && (
                 <div
-                  className={`board-piece-anim${jump ? ' piece-jumping' : ''}`}
+                  className={[
+                    'board-piece-anim',
+                    jump ? 'piece-jumping' : '',
+                    // The bubble lives inside this element, which sets a z-index and so opens its
+                    // own stacking context — the bubble's own z-index can only rank it against its
+                    // siblings, never against a nearer row's figure. Lifting the whole piece for
+                    // the couple of seconds it's talking is what actually gets the bubble on top.
+                    tease?.pieceId === piece.id ? 'board-piece-anim-teasing' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                   style={
                     {
                       '--piece-row': display.row,
