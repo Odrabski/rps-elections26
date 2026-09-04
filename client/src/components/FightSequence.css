@@ -172,13 +172,14 @@
   animation: fightRevealPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* The two stand side by side, bottom-aligned so both are on the same ground line despite the
-   size difference. */
+/* The winner is the only thing in flow here, so it centres on the screen exactly as it did before
+   the loser existed. The loser is taken out of flow and hung off the winner's edge — otherwise the
+   pair centres as a group and pushes the winner off-centre by half the loser's width. */
 .fight-figure-pair {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 6px;
 }
 
 .fight-figure-winner {
@@ -188,7 +189,15 @@
 /* Beaten: about half the winner's size, colourless, and fading out across the reveal. `forwards`
    holds it gone rather than snapping back at the end of the animation. */
 .fight-figure-loser {
-  width: 78px;
+  position: absolute;
+  bottom: 0;
+  /* Right edge 30px inside the winner's box, measured physically rather than logically because
+     this is a fixed side, not a reading-order one. Both sprites carry wide transparent margins, so
+     boxes 5px apart leave the figures ~40px apart — the overlap eats that padding and lands the
+     visible gap at 5px. Tuned against the widest case, a soldier holding scissors; with rock or
+     paper it reads a touch wider, which is the safe direction to err in. */
+  right: calc(100% - 30px);
+  width: 94px; /* 78px + 20% */
   filter: grayscale(1);
   opacity: 0.7;
   /* Duration comes from the component, derived from FIGHT_REVEAL_MS. */
