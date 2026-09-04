@@ -335,7 +335,11 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
         </div>
 
         <div
-          className={`turn-pill${myTurn && !view.tieBreak ? ' turn-pill-beating' : ''}`}
+          // Keyed to canMove, not myTurn. `turn` flips the instant combat starts, so keying on it
+          // began the beat behind a ten-second fight overlay — by the time the board was usable
+          // the pill was deep in the quiet stretch and wouldn't beat again for up to 4.5s. This
+          // restarts it the moment the board is actually yours, so the first thump lands ~180ms in.
+          className={`turn-pill${canMove ? ' turn-pill-beating' : ''}`}
           style={{ background: turnTheme.solid }}
         >
           {view.tieBreak ? 'קרב הכרעה!' : myTurn ? 'התור שלך' : `תור ${turnTheme.label}`}
