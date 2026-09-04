@@ -6,8 +6,8 @@ import { GameBoard } from './components/GameBoard';
 import { GameOverScreen } from './components/GameOverScreen';
 import { SplashScreen } from './components/SplashScreen';
 import { SoundToggle } from './components/SoundToggle';
-import { TEAM_THEME } from './data/theme';
 import { preloadPieceAssets } from './utils/preloadAssets';
+import { copyText } from './utils/clipboard';
 import { loadSession } from './utils/rejoin';
 import { APP_VERSION } from './version';
 import './App.css';
@@ -82,14 +82,8 @@ export default function App() {
             className="lobby-code"
             aria-label="העתקת הקוד"
             onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(roomCode);
-              } catch {
-                // Clipboard access can be refused (an insecure context, or a browser that just
-                // says no) — the code is right there to read either way, so there's nothing to
-                // recover from and nothing worth interrupting the player about.
-                return;
-              }
+              // The icon is inside this button, so either half of it copies.
+              if (!(await copyText(roomCode))) return;
               setCodeCopied(true);
               setTimeout(() => setCodeCopied(false), 1600);
             }}
@@ -114,9 +108,6 @@ export default function App() {
           >
             שיתוף בוואטסאפ
           </a>
-          <p className="lobby-team" style={{ color: TEAM_THEME[team].text }}>
-            אתם משחקים בתור {TEAM_THEME[team].label}
-          </p>
           <button type="button" className="btn-secondary lobby-back" onClick={leave}>
             חזרה למזנון הכנסת
           </button>

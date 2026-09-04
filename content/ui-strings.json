@@ -2,14 +2,6 @@
   "generated": "2026-09-04",
   "rows": [
     {
-      "id": "App.f3a673",
-      "text": "אתם משחקים בתור {0}",
-      "file": "client/src/App.tsx",
-      "placeholders": [
-        "{TEAM_THEME[team].label}"
-      ]
-    },
-    {
       "id": "App.90b6d9",
       "text": "החיבור אבד — מתחברים מחדש...",
       "file": "client/src/App.tsx"
