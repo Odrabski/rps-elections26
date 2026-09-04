@@ -7,6 +7,13 @@
          own "force dark" from algorithmically re-coloring images (e.g. washing out the blue
          team's suits) — this meta tag is what that feature actually checks to opt a page out. -->
     <meta name="color-scheme" content="dark" />
+    <!-- .ico first for the browsers that only look for one, then the PNGs for everything modern.
+         apple-touch-icon is what iOS uses for "add to home screen", which is how a link shared in
+         WhatsApp usually ends up being kept. -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/favicon-180.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

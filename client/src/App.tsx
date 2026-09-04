@@ -5,6 +5,7 @@ import { SetupScreen } from './components/SetupScreen';
 import { GameBoard } from './components/GameBoard';
 import { GameOverScreen } from './components/GameOverScreen';
 import { SplashScreen } from './components/SplashScreen';
+import { SoundToggle } from './components/SoundToggle';
 import { ExitButton } from './components/ExitButton';
 import { TEAM_THEME } from './data/theme';
 import { preloadPieceAssets } from './utils/preloadAssets';
@@ -155,6 +156,7 @@ export default function App() {
   return (
     <>
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+      {!showSplash && <SoundToggle />}
       {content}
       <div className="app-version">v{APP_VERSION}</div>
     </>

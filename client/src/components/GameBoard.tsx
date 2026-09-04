@@ -3,6 +3,7 @@ import type { ClientGameView, ClientPieceView, GameEvent, Position, RPSHand, Tea
 import { BOARD_COLS, BOARD_ROWS, TURN_SECONDS } from 'shared';
 import { TEAM_THEME } from '../data/theme';
 import { gameSeed } from '../data/characterAssets';
+import { play } from '../utils/sfx';
 import { useOpponentTease } from '../hooks/useOpponentTease';
 import { CountdownRing } from './CountdownRing';
 import { ExitButton } from './ExitButton';
@@ -116,6 +117,14 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     setSelectedId(null);
   }, [view.turn, view.tieBreak]);
 
+  // Sounded off the view rather than off an event, so a repeat tie gets its own cue too.
+  const hadTieBreak = useRef(false);
+  useEffect(() => {
+    const has = view.tieBreak !== null;
+    if (has && !hadTieBreak.current) play('tie');
+    hadTieBreak.current = has;
+  }, [view.tieBreak]);
+
   // Detecting a new event and reacting to it *synchronously during render* (React's documented
   // "adjusting state when a prop changes" pattern), rather than in a useEffect, matters here: an
   // effect only runs after the render that already shows the new (already-mutated) piece data has
@@ -128,6 +137,10 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     setHandledEventKey(eventKey);
     const event = view.lastEvent;
 
+    if (event?.type === 'king-captured') {
+      play('king');
+    }
+
     if (event?.type === 'trap-triggered') {
       // Both are looked up from *last render's* snapshot instead of this one: the server reveals
       // the trap's true kind and marks the attacker `revealed` in this same broadcast, but the
@@ -137,6 +150,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       const attacker = prevPiecesRef.current.get(event.attackerId);
       const trap = prevPiecesRef.current.get(event.trapId);
       if (attacker && trap) setTrapEvent({ attacker, trap });
+      play('trap');
     } else if ((event?.type === 'battle' || event?.type === 'tie-break-started') && !clashEventRef.current) {
       // A fresh clash (no cloud on the board yet — a repeat, or the eventual decisive battle
       // after some ties, just falls through to the plain branch below instead) gets a jump onto
@@ -145,6 +159,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       // clashEvent effect further down).
       const attackerBefore = prevPiecesRef.current.get(event.attackerId);
       const defenderBefore = prevPiecesRef.current.get(event.defenderId);
+      play('clash');
       if (attackerBefore && defenderBefore) {
         setClashEvent({
           attacker: attackerBefore,
@@ -210,6 +225,10 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
             resolvingEvent.outcome === 'attacker-wins' ? resolvingEvent.attackerId : resolvingEvent.defenderId;
           const winner = prevPiecesRef.current.get(winnerId);
           if (winner) {
+            // Deliberately here and not where the 'battle' event first arrives: that is a whole
+            // fight sequence earlier, and a win/lose sting there would announce the result before
+            // the animation reached it — the same spoiler the score badges used to give away.
+            play(winner.team === team ? 'capture' : 'lost-piece');
             setClashEvent((current) => (current ? { ...current, winner } : current));
           } else {
             setClashEvent(null);
@@ -252,11 +271,17 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     const occupant = pieceByTile.get(tileKey(actual));
 
     if (occupant && occupant.team === team && occupant.kind === 'soldier') {
-      setSelectedId(occupant.id === selectedId ? null : occupant.id);
+      const next = occupant.id === selectedId ? null : occupant.id;
+      if (next) play('select');
+      setSelectedId(next);
       return;
     }
 
     if (selected && legalTargets.some((t) => t.row === actual.row && t.col === actual.col)) {
+      // Only a quiet move is sounded locally, for responsiveness — it produces no server event of
+      // its own. A clash is left to the event branch below, which fires on both clients, so an
+      // attacker doesn't hear it twice.
+      if (!pieceByTile.get(tileKey(actual))) play('move');
       onMove(selected.id, actual);
       setSelectedId(null);
     }

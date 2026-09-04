@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import type { GameEvent, Team } from 'shared';
 import { TEAM_THEME } from '../data/theme';
 import { GameOverEffects } from './GameOverEffects';
+import { play } from '../utils/sfx';
 import './GameOverScreen.css';
 
 interface GameOverScreenProps {
@@ -15,6 +17,12 @@ interface GameOverScreenProps {
 export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }: GameOverScreenProps) {
   const theme = TEAM_THEME[winner];
   const won = winner === you;
+
+  // Once per mount. The screen isn't remounted mid-result, and a rematch unmounts it, so this
+  // needs no guard beyond the empty dependency list.
+  useEffect(() => {
+    play(won ? 'win' : 'lose');
+  }, [won]);
   const detail =
     // Only the opponent ever sees a resignation: exiting resigns and then leaves, which clears the
     // room and puts the resigner on the home screen before this could render. If exit ever stops
