@@ -40,3 +40,6 @@ node_modules/
 # Loose source audio dropped at the root for picking clips out of. The ones actually used are
 # copied into sfx-src/, which is committed; the packs themselves are large and re-downloadable.
 /Audio/
+
+# Piper TTS: a 63MB model and its venv, both rebuildable via tools/setup-piper.sh
+.piper-venv/
