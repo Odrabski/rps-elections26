@@ -24,6 +24,7 @@ wearing out.
 | `piece.select.1` … `.4` | you pick up one of your soldiers | 40–80 |
 | `move.step.1` … `.4` | a soldier lands on an empty tile | 30–60 |
 | `clash.impact` | two soldiers meet and the cloud drops | 10–20 |
+| `fight.start` | the announcer on the FIGHT beat, after 3-2-1 | 10–20 |
 | `fight.throw` | rock/paper/scissors are revealed | 10–20 |
 | `fight.win` | you won that fight | 5–12 |
 | `fight.lose` | you lost that fight | 5–12 |
@@ -53,6 +54,11 @@ sound with life in it; a single take read sixty times reads as a machine.
 **Level them together.** Aim for about −16 LUFS. The build does not normalise, so a clip mastered
 loud will jump out. If one ends up too loud, `GAIN` near the top of `client/src/utils/sfx.ts` trims
 a single cue without re-cutting the file.
+
+Two cues have **no default** and only exist if you supply them: `fight.start` is currently
+`fight.start.ogg` in this folder, from Kenney's Voiceover Pack: Fighter. That pack also has
+`winner`, `you_lose`, `it's_a_tie`, `ready` and a spoken `3` / `2` / `1` — all CC0, all a good fit
+for the fight sequence if you want more of it announced.
 
 ## Where free clips come from
 

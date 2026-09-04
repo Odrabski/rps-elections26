@@ -11,6 +11,7 @@ import {
 } from 'shared';
 import { resolveFightVisual, type FightVisual } from '../data/characterAssets';
 import { TEAM_THEME } from '../data/theme';
+import { play } from '../utils/sfx';
 import './FightSequence.css';
 import './PieceView.css';
 
@@ -37,7 +38,14 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
-    for (let i = 1; i <= 3; i++) timers.push(setTimeout(() => setBeat(i), BEAT_MS * i));
+    for (let i = 1; i <= 3; i++)
+      timers.push(
+        setTimeout(() => {
+          setBeat(i);
+          // The last beat is COUNT_LABELS[3] — "FIGHT" — so the announcer lands with the word.
+          if (i === 3) play('fight.start');
+        }, BEAT_MS * i),
+      );
     timers.push(setTimeout(() => setPhase('standoff'), BEAT_MS * 4));
     timers.push(setTimeout(() => setPhase('clash'), BEAT_MS * 4 + STANDOFF_MS));
     timers.push(setTimeout(() => setPhase('cloud'), BEAT_MS * 4 + STANDOFF_MS + CLASH_MS));

@@ -27,6 +27,7 @@ const CUES = {
   'move.step': 4,
   'clash.impact': 1,
   'fight.throw': 1,
+  'fight.start': 1,
   'fight.win': 1,
   'fight.lose': 1,
   'fight.tie': 1,
@@ -41,6 +42,7 @@ export type Sfx = keyof typeof CUES;
 /** Per-cue gain. The clips come from different packs at different levels, and the loud ones are
  *  the ones you hear most — trimming here is easier than re-cutting the files. */
 const GAIN: Partial<Record<Sfx, number>> = {
+  'fight.start': 0.85,
   'piece.select': 0.5,
   'move.step': 0.45,
   'ui.tap': 0.5,

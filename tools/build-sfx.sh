@@ -40,6 +40,8 @@ PY
   own=$(find "$OWN" -maxdepth 1 -type f -name "$name.*" ! -name "*.md" 2>/dev/null | head -1)
   if [ -n "$own" ]; then
     encode "$own" "$name" "(yours: $(basename "$own"))"
+  elif [ "$rel" = "__own__" ]; then
+    echo "  ! missing $name — this cue has no default; put a file in sfx-src/$name.<ext>"
   elif [ -f "$SRC/$rel" ]; then
     encode "$SRC/$rel" "$name" ""
   else

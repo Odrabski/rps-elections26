@@ -1,6 +1,6 @@
 {
   "_source": "Kenney game assets (kenney.nl) — Creative Commons CC0 1.0, public domain. No attribution required, commercial use permitted. Packs used: impact-sounds, interface-sounds, ui-audio, music-jingles.",
-  "_note": "Cue ids match content/ui-strings style: they describe the EVENT, not the sound, so a clip can be swapped without touching game code. Several cues take numbered variants; the player picks among them at random so a sound heard 60 times a game doesn't wear out. Frequent cues are held under ~100ms on purpose: select_003..006 are the same sound with long tails, and at 40-80 plays a game a tail is what turns a cue into an irritation.",
+  "_note": "Cue ids match content/ui-strings style: they describe the EVENT, not the sound, so a clip can be swapped without touching game code. Several cues take numbered variants; the player picks among them at random so a sound heard 60 times a game doesn't wear out. Frequent cues are held under ~100ms on purpose: select_003..006 are the same sound with long tails, and at 40-80 plays a game a tail is what turns a cue into an irritation. A cue listed as __own__ has no default and is supplied from sfx-src/.",
   "cues": {
     "ui.tap": [
       "kenney_interface-sounds/Audio/click_001.ogg"
@@ -43,6 +43,9 @@
     ],
     "fight.throw": [
       "kenney_interface-sounds/Audio/scratch_001.ogg"
+    ],
+    "fight.start": [
+      "__own__"
     ],
     "fight.win": [
       "kenney_music-jingles/Audio/Hit jingles/jingles_HIT01.ogg"
