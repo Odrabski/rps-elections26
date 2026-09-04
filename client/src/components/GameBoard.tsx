@@ -173,6 +173,15 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       // clashEvent effect further down).
       const attackerBefore = prevPiecesRef.current.get(event.attackerId);
       const defenderBefore = prevPiecesRef.current.get(event.defenderId);
+      // The tile the fight happens on comes from *this* broadcast, not the snapshot.
+      //
+      // A defender never moves — combat.ts only ever assigns `attacker.position`, in every branch
+      // — so its current position is the clash tile whatever the outcome. The snapshot is only
+      // reliably one render old, and two broadcasts can land between commits (React batches; most
+      // likely on a slow device, and during the first fight of a match while the board is still
+      // mounting and preloading art). When that happened the cloud was drawn on the tile the
+      // defender occupied a turn earlier — one square off the actual fight.
+      const defenderNow = view.pieces.find((p) => p.id === event.defenderId);
       play('clash.impact');
       // Then the charge, in the gap the board already leaves before the cinematic: the jump and
       // cloud run for CLASH_REVEAL_DELAY_MS (1500ms) before "3" appears, so a 1.32s call started
@@ -184,7 +193,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
         setClashEvent({
           attacker: attackerBefore,
           defender: defenderBefore,
-          targetPosition: defenderBefore.position,
+          targetPosition: defenderNow?.position ?? defenderBefore.position,
           winner: null,
         });
         pendingCinematicRef.current = event;
