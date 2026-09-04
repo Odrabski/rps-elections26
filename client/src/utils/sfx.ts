@@ -154,6 +154,46 @@ export function preload(): void {
   for (const name of Object.keys(CUES) as Sfx[]) for (const stem of fileStems(name)) void loadClip(stem);
 }
 
+/**
+ * The winner announcements ("BIBI WINS"), one file per portrait.
+ *
+ * Deliberately outside CUES: there are 30 of them and any given match can only ever need a
+ * handful, so preloading them all would cost 252KB for two seconds of audio. Instead FightSequence
+ * prefetches just the two portraits actually in the ring, seconds before the reveal needs them.
+ */
+export function prefetchClip(stem: string): void {
+  if (muted) return;
+  void loadClip(stem);
+}
+
+/**
+ * Plays a clip by filename stem. Returns false if it isn't loaded yet, so the caller can fall back
+ * to an ordinary cue rather than have the moment pass in silence — the same "a late sound is worse
+ * than none" rule play() follows.
+ */
+export function playClip(stem: string, gain = 1): boolean {
+  if (muted) return false;
+  try {
+    const a = audio();
+    if (!a) return false;
+    const buf = buffers.get(stem);
+    if (!buf) {
+      void loadClip(stem);
+      return false;
+    }
+    const src = a.ctx.createBufferSource();
+    src.buffer = buf;
+    const g = a.ctx.createGain();
+    g.gain.value = gain;
+    src.connect(g);
+    g.connect(a.master);
+    src.start();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function play(name: Sfx): void {
   if (muted) return;
   try {

@@ -11,7 +11,7 @@ import {
 } from 'shared';
 import { resolveFightVisual, type FightVisual } from '../data/characterAssets';
 import { TEAM_THEME } from '../data/theme';
-import { play } from '../utils/sfx';
+import { play, playClip, prefetchClip } from '../utils/sfx';
 import './FightSequence.css';
 import './PieceView.css';
 
@@ -37,6 +37,10 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
   const [beat, setBeat] = useState(0);
 
   useEffect(() => {
+    // The reveal is ~6s away; fetching both now means the announcement is decoded and ready.
+    prefetchClip(`win.${resolveFightVisual(attacker, seed).headId}`);
+    prefetchClip(`win.${resolveFightVisual(defender, seed).headId}`);
+
     const timers: ReturnType<typeof setTimeout>[] = [];
     for (let i = 1; i <= 3; i++)
       timers.push(
@@ -56,13 +60,18 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
         // sequence ended instead — fine for an abstract sting, but a voice saying "you win"
         // arriving 3.6s after YOU WIN is on screen reads as someone else's audio.
         if (outcome !== 'tie') {
-          const winnerTeam = outcome === 'attacker-wins' ? attacker.team : defender.team;
-          play(winnerTeam === viewerTeam ? 'fight.win' : 'fight.lose');
+          const winner = outcome === 'attacker-wins' ? attacker : defender;
+          // Announce who won by name — both players hear the same call, since the face on screen
+          // is the same for both (the disguise head is seeded per piece, not per viewer). Falls
+          // back to the old win/lose sting only if the clip somehow hasn't loaded.
+          if (!playClip(`win.${resolveFightVisual(winner, seed).headId}`)) {
+            play(winner.team === viewerTeam ? 'fight.win' : 'fight.lose');
+          }
         }
       }, BEAT_MS * 4 + STANDOFF_MS + CLASH_MS + CLOUD_MS),
     );
     return () => timers.forEach(clearTimeout);
-  }, [attacker.team, defender.team, outcome, viewerTeam]);
+  }, [attacker, defender, outcome, seed, viewerTeam]);
 
   const attackerVisual = resolveFightVisual(attacker, seed);
   const defenderVisual = resolveFightVisual(defender, seed);

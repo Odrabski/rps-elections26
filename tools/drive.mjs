@@ -136,6 +136,37 @@ async function main() {
     mobile: width < 700,
   });
 
+  if (process.argv.includes('--hunt-fight')) {
+    // Tag every decoded AudioBuffer with the file it came from, so a clip that starts can be named
+    // rather than guessed at from its duration — several cues happen to share one (fight.fanfare
+    // and the winner calls are both 0.97s).
+    await send('Page.addScriptToEvaluateOnNewDocument', {
+      source: `
+        window.__played = [];
+        window.__bufStem = new WeakMap();
+        const sizeToStem = new Map();
+        const of = window.fetch;
+        window.fetch = async function (u, ...r) {
+          const res = await of.call(this, u, ...r);
+          if (String(u).includes('/sfx/')) {
+            res.clone().arrayBuffer().then((b) => sizeToStem.set(b.byteLength, String(u).split('/').pop().replace('.mp3','')));
+          }
+          return res;
+        };
+        const dad = AudioContext.prototype.decodeAudioData;
+        AudioContext.prototype.decodeAudioData = function (bytes, ok, err) {
+          const size = bytes.byteLength;
+          return dad.call(this, bytes, (buf) => { window.__bufStem.set(buf, sizeToStem.get(size)); if (ok) ok(buf); }, err);
+        };
+        const start = AudioBufferSourceNode.prototype.start;
+        AudioBufferSourceNode.prototype.start = function (...a) {
+          try { window.__played.push(window.__bufStem.get(this.buffer) || ('?' + this.buffer.duration.toFixed(2))); } catch {}
+          return start.apply(this, a);
+        };
+      `,
+    });
+  }
+
   await send('Page.navigate', { url: URL });
 
   await waitFor(`document.querySelector('.splash-enter-ready')`, { label: 'splash button to arm' });
@@ -187,6 +218,8 @@ async function main() {
   await sleep(1200);
   await shot('5-board');
 
+  if (process.argv.includes('--hunt-fight')) return huntFight();
+
   if (!process.argv.includes('--hunt-trap')) {
     // Default: just report where the turn pill ended up.
     const measured = await evaluate(`(() => {
@@ -209,6 +242,66 @@ async function main() {
  * and an invisible button grid sits on top, so the only reliable handle is "click a tile, see
  * whether legal targets lit up".
  */
+/**
+ * Plays until a soldier-vs-soldier fight reaches its reveal, and reports which audio clip was
+ * played there — the check that the "<NAME> WINS" announcement fires instead of the old sting.
+ */
+async function huntFight() {
+  // Record every clip that actually starts, by patching the one call all of sfx.ts funnels through.
+  await evaluate(`(() => {
+    window.__played = [];
+    const proto = AudioBufferSourceNode.prototype;
+    const start = proto.start;
+    proto.start = function (...a) { try { window.__played.push(this.buffer && this.buffer.duration.toFixed(2)); } catch {} return start.apply(this, a); };
+    const of = window.fetch;
+    window.__fetched = [];
+    window.fetch = function (u, ...r) { if (String(u).includes('/sfx/')) window.__fetched.push(String(u).split('/').pop()); return of.call(this, u, ...r); };
+    return true;
+  })()`);
+
+  const canMove = `document.querySelector('.turn-pill')?.textContent.includes('התור שלך') && !document.querySelector('.board-hole') && !document.querySelector('.board-clash-cloud')`;
+
+  for (let turn = 0; turn < 220; turn++) {
+    try {
+      await waitFor(canMove, { timeout: 25000, label: 'my turn' });
+    } catch {
+      break;
+    }
+    await sleep(250);
+    const mine = await evaluate(`[...document.querySelectorAll('.board-cell')].map((c,i)=>c.querySelector('.piece-view.piece-mine')?i:-1).filter(i=>i>=0)`);
+    let picked = null;
+    for (const index of mine.sort(() => Math.random() - 0.5)) {
+      await evaluate(`document.querySelectorAll('.board-cell')[${index}].querySelector('.board-tile').click()`);
+      await sleep(120);
+      if ((await evaluate(`document.querySelectorAll('.board-tile-legal').length`)) > 0) { picked = index; break; }
+    }
+    if (picked === null) { await pickTieBreakHandIfAsked(); await sleep(1500); continue; }
+    await evaluate(`(() => {
+      const l = [...document.querySelectorAll('.board-tile-legal')];
+      l.sort((a,b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      l[0].click(); return true;
+    })()`);
+
+    // A full-screen fight? Wait for its reveal and read back what played.
+    let sawFight = false;
+    for (let i = 0; i < 30; i++) {
+      await sleep(200);
+      if (await evaluate(`!!document.querySelector('.fight-overlay, [class*=fight-]')`)) { sawFight = true; break; }
+    }
+    if (!sawFight) continue;
+    await evaluate(`window.__played = [];`);
+    await waitFor(`!document.querySelector('.fight-overlay, [class*=fight-]')`, { timeout: 25000, label: 'fight to end' }).catch(() => {});
+    const played = await evaluate(`window.__played`);
+    console.error(`fight ${turn}: played ${JSON.stringify(played)}`);
+    // A tie never reaches the win/lose beat, so it proves nothing — play on until one is decisive.
+    if (!played.some((n) => n.startsWith('win.') || n === 'fight.win' || n === 'fight.lose')) continue;
+    await shot('fight');
+    process.stdout.write(JSON.stringify({ played }, null, 2) + '\n');
+    return;
+  }
+  process.stdout.write('{"error":"no fight found"}\n');
+}
+
 /** A tied clash blocks everything until both sides pick a hand; the panel is modal. */
 async function pickTieBreakHandIfAsked() {
   await evaluate(`(() => {
