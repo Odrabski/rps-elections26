@@ -118,7 +118,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
             style={misclick ? undefined : { borderColor: theme.border, color: theme.text }}
           >
             {misclick ? (
-              '❗הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני'
+              '⚠️ הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני'
             ) : (
               <>
                 {step === 'king' && '👑 איפה נחביא את המלך?'}

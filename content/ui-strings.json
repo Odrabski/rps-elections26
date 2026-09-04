@@ -62,12 +62,14 @@
       "file": "client/src/components/ExitButton.tsx"
     },
     {
-      "id": "FightSequence.b28706",
-      "text": "ניצחון של {0}",
-      "file": "client/src/components/FightSequence.tsx",
-      "placeholders": [
-        "{winnerTheme.label}"
-      ]
+      "id": "FightSequence.2b7882",
+      "text": "ניצחון לאופוזיציה",
+      "file": "client/src/components/FightSequence.tsx"
+    },
+    {
+      "id": "FightSequence.4b3a24",
+      "text": "ניצחון לקואליציה",
+      "file": "client/src/components/FightSequence.tsx"
     },
     {
       "id": "GameBoard.57d6b0",
@@ -259,8 +261,8 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
-      "id": "SetupScreen.66a9e5",
-      "text": "❗הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני",
+      "id": "SetupScreen.4c4188",
+      "text": "⚠️ הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {

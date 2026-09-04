@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import type { ClientPieceView, Team } from 'shared';
 import {
   FIGHT_BEAT_MS as BEAT_MS,
   FIGHT_STANDOFF_MS as STANDOFF_MS,
   FIGHT_CLASH_MS as CLASH_MS,
   FIGHT_CLOUD_MS as CLOUD_MS,
+  FIGHT_REVEAL_MS,
   FIGHT_SEQUENCE_MS,
   TIE_SEQUENCE_MS,
 } from 'shared';
@@ -29,43 +30,6 @@ interface FightSequenceProps {
 type Phase = 'intro' | 'standoff' | 'clash' | 'cloud' | 'reveal';
 
 const COUNT_LABELS = ['3', '2', '1', 'FIGHT'];
-
-function randomBetween(min: number, max: number): number {
-  return min + Math.random() * (max - min);
-}
-
-const CONFETTI_COUNT = 22;
-const CONFETTI_COLORS = ['#d4af37', '#f6e27a', '#ffffff', '#4aa3ff', '#ffd166'];
-
-/**
- * A gentle drift of confetti behind the "YOU WIN" reveal — deliberately far lighter than the
- * game-over celebration, which is the actual payoff. Winning one fight is a good moment, not the
- * end of the story, so this is 22 slow pieces rather than a screenful.
- */
-function FightConfetti() {
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: CONFETTI_COUNT }, (_, i) => ({
-        left: `${(100 / CONFETTI_COUNT) * i + randomBetween(-3, 3)}%`,
-        width: `${randomBetween(5, 9).toFixed(0)}px`,
-        height: `${randomBetween(8, 14).toFixed(0)}px`,
-        background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-        animationDelay: `${randomBetween(0, 1.4).toFixed(2)}s`,
-        animationDuration: `${randomBetween(2.6, 4.2).toFixed(2)}s`,
-        // Each piece tumbles a different way, so the fall never reads as one sheet coming down.
-        '--spin': `${randomBetween(-540, 540).toFixed(0)}deg`,
-        '--drift': `${randomBetween(-30, 30).toFixed(0)}px`,
-      })),
-    [],
-  );
-  return (
-    <div className="fight-confetti" aria-hidden="true">
-      {pieces.map((style, i) => (
-        <span key={i} className="fight-confetti-piece" style={style as CSSProperties} />
-      ))}
-    </div>
-  );
-}
 
 export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }: FightSequenceProps) {
   const [phase, setPhase] = useState<Phase>('intro');
@@ -128,21 +92,40 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
     const winner = attackerWon ? attacker : defender;
     const winnerTheme = TEAM_THEME[winner.team as Team];
     const winnerVisual = attackerWon ? attackerVisual : defenderVisual;
+    const loserVisual = attackerWon ? defenderVisual : attackerVisual;
     const youWon = winner.team === viewerTeam;
     return (
       <div className="fight-sequence">
-        {youWon && <FightConfetti />}
         <div className="fight-reveal">
           <div className={`fight-you-result ${youWon ? 'fight-you-win' : 'fight-you-lose'}`}>
             {youWon ? 'YOU WIN' : 'YOU LOST'}
           </div>
-          <div className="fight-figure-winner">
-            <FightFigure visual={winnerVisual} tiltHead />
+          <div className="fight-figure-pair">
+            <div className="fight-figure-winner">
+              <FightFigure visual={winnerVisual} tiltHead />
+            </div>
+            {/* The one who lost, small and drained of colour beside the winner, fading out over
+                the length of the reveal. Rendered second but placed to the winner's side in CSS,
+                so it reads as being left behind rather than as a second contender. */}
+            <div
+              className="fight-figure-loser"
+              aria-hidden="true"
+              // Sized to the reveal itself rather than a fixed number, so the two can't drift
+              // apart: gone just before the winner is, never lingering into the next screen.
+              style={{ animationDuration: `${Math.round(FIGHT_REVEAL_MS * 0.92)}ms` }}
+            >
+              <FightFigure visual={loserVisual} />
+            </div>
           </div>
           <div className="fight-result-text" style={{ color: winnerTheme.text }}>
             {winnerVisual.headName.toUpperCase()}
           </div>
-          <div className="fight-result-subtext">ניצחון של {winnerTheme.label}</div>
+          {/* Written out per bloc rather than composed from the team label: the labels carry a
+              definite article (הקואליציה), and Hebrew's ל absorbs it — "ניצחון להקואליציה" is
+              wrong where "ניצחון לקואליציה" is right. */}
+          <div className="fight-result-subtext">
+            {winner.team === 'blue' ? 'ניצחון לקואליציה' : 'ניצחון לאופוזיציה'}
+          </div>
         </div>
       </div>
     );
