@@ -92,15 +92,6 @@
       "file": "client/src/components/GameBoard.tsx"
     },
     {
-      "id": "GameOverScreen.746561",
-      "text": "{0}, [won]); const detail = reason?.type === 'resigned' ? 'היריב שלך פרש מהחיים הפוליטיים' : reason?.type === 'no-moves-left' ? won ? 'ליריב שלך אין יותר אפשרויות לזוז' : 'סונדלת, אין לך יותר אפשרויות לזוז' : `${1} מצאו את המלך ולקחו את הבחירות`; return (",
-      "file": "client/src/components/GameOverScreen.tsx",
-      "placeholders": [
-        "{ play(won ? 'win' : 'lose'); }",
-        "{theme.label}"
-      ]
-    },
-    {
       "id": "GameOverScreen.e0df0d",
       "text": "🔁 סבב נוסף?",
       "file": "client/src/components/GameOverScreen.tsx"
@@ -261,8 +252,8 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
-      "id": "SetupScreen.4c4188",
-      "text": "⚠️ הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני",
+      "id": "SetupScreen.0ca9a9",
+      "text": "⚠️ הלו, צריך לבחור מתוך האנשים שלך כאן למטה ולא מהצד השני",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
