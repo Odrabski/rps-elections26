@@ -59,7 +59,7 @@ flyctl secrets set STATS_PASSWORD='<something long>'
 
 Then open `https://rps-politika.fly.dev/stats` — the browser will ask for a username and password. The username defaults to `omri`; override it with `STATS_USER` if you like.
 
-**With `STATS_PASSWORD` unset the route does not exist at all** — it 404s like any unknown path. That is deliberate. A page that is only protected *if* an environment variable happens to be set is one forgotten secret away from being public, so the safe state is off, not open.
+**With `STATS_PASSWORD` unset the route does not exist at all** — the request falls through to the app's catch-all and you get the game, exactly as you would at any other unknown path. That is deliberate. A page that is only protected *if* an environment variable happens to be set is one forgotten secret away from being public, so the safe state is off, not open.
 
 The page shows:
 

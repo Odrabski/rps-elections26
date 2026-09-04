@@ -48,10 +48,10 @@ const serveStatic = sirv(clientDist, {
 /**
  * The operator's stats page (see stats/page.ts), behind HTTP basic auth.
  *
- * With STATS_PASSWORD unset the route does not exist at all — it 404s and falls through to the
- * static handler like any other unknown path. That is deliberate: a page that is only protected
- * *if* an environment variable happens to be set is one forgotten secret away from being public,
- * so the safe state is "off", not "open".
+ * With STATS_PASSWORD unset the route does not exist at all: the request falls through to the
+ * static handler, which serves the app's own index.html the way it does for any unknown path. That
+ * is deliberate — a page protected only *if* an environment variable happens to be set is one
+ * forgotten secret away from being public, so the safe state is "off", not "open".
  */
 const STATS_PASSWORD = process.env.STATS_PASSWORD;
 const STATS_USER = process.env.STATS_USER ?? 'omri';
