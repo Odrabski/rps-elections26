@@ -56,15 +56,16 @@ export default function App() {
     if (team) preloadPieceAssets(team);
   }, [team]);
 
-  // The track runs across the whole match — placing your pieces is part of it — and stops at the
-  // result screen so the win and lose stings land in silence. 240KB, so it is only ever fetched
-  // once a match actually starts, never on the home screen.
-  const inMatch = view?.phase === 'setup' || view?.phase === 'playing';
+  // Menu music: from the moment the splash clears until a match actually begins. That covers the
+  // home screen and the waiting room, and stops the instant pieces are being placed — the board
+  // has its own sounds and an announcer, and a bed underneath them would only muddy both.
+  // It is fetched on first play rather than upfront, so the splash never competes with it.
+  const inMenu = !showSplash && (!view || view.phase === 'lobby');
   useEffect(() => {
-    if (inMatch) startMusic();
+    if (inMenu) startMusic();
     else stopMusic();
     return () => stopMusic();
-  }, [inMatch]);
+  }, [inMenu]);
 
   let content: ReactNode;
 
