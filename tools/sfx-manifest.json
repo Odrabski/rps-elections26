@@ -33,10 +33,12 @@
       "kenney_interface-sounds/Audio/select_008.ogg"
     ],
     "move.step": [
-      "kenney_impact-sounds/Audio/footstep_wood_000.ogg",
-      "kenney_impact-sounds/Audio/footstep_wood_001.ogg",
-      "kenney_impact-sounds/Audio/footstep_wood_002.ogg",
-      "kenney_impact-sounds/Audio/footstep_wood_003.ogg"
+      "__own__",
+      "__own__"
+    ],
+    "move.opponent": [
+      "__own__",
+      "__own__"
     ],
     "clash.impact": [
       "kenney_impact-sounds/Audio/impactPunch_heavy_001.ogg"

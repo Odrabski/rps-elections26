@@ -172,7 +172,12 @@ export function BoardGrid({
       if (!p) continue;
       next.set(p.id, actual);
       const prev = prevActualRef.current.get(p.id);
-      if (prev && !samePos(prev, actual)) started.push({ id: p.id, offset: jumpOffset(prev, actual, team) });
+      if (prev && !samePos(prev, actual)) {
+        started.push({ id: p.id, offset: jumpOffset(prev, actual, team) });
+        // Only the other side's pieces. Your own move already sounded the moment you tapped it,
+        // which is more responsive than waiting for the server to echo the move back.
+        if (p.team !== team) play('move.opponent');
+      }
     }
     prevActualRef.current = next;
     if (started.length === 0) return;
