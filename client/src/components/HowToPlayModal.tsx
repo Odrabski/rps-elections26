@@ -99,7 +99,7 @@ export function HowToPlayModal({ onClose }: { onClose: () => void }) {
           sentence: split across two elements it would become two rows in content/ui-strings.csv
           and have to be rewritten in halves. The emphasis is done in CSS instead. */}
       <h3 className="howto-heading">המטרה</h3>
-      <p>למצוא ולהעיף מהכיסא את המלך של הצד השני ולנצח בבחירות.</p>
+      <p>למצוא את המלך של היריב, להעיף אותו מהשלטון ולנצח בבחירות.</p>
 
       <h3 className="howto-heading">הארסנל שלך</h3>
       <ul className="howto-list">
