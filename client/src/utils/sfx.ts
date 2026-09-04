@@ -31,6 +31,7 @@ const CUES = {
   'fight.fanfare': 1,
   'fight.throw': 1,
   'fight.start': 1,
+  'fight.win-fanfare': 1,
   'fight.win': 1,
   'fight.lose': 1,
   'fight.tie': 1,
@@ -54,6 +55,7 @@ const GAIN: Partial<Record<Sfx, number>> = {
   'setup.shuffle': 0.7,
   'clash.impact': 0.8,
   'fight.fanfare': 0.7,
+  'fight.win-fanfare': 0.75,
   'king.captured': 0.9,
 };
 

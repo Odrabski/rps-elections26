@@ -32,6 +32,16 @@ type Phase = 'intro' | 'standoff' | 'clash' | 'cloud' | 'reveal';
 
 const COUNT_LABELS = ['3', '2', '1', 'FIGHT'];
 
+/**
+ * How long after the reveal the winner's name is called.
+ *
+ * The fanfare is 0.91s; starting the voice at 0.75s lets its tail ring under the first syllable
+ * rather than stopping dead first. The longest name call is 2.19s, so the pair finishes around
+ * 2.94s — inside the 3.6s the reveal holds (FIGHT_REVEAL_MS), with room to spare if a name is
+ * ever re-recorded longer.
+ */
+const WIN_CALL_DELAY_MS = 750;
+
 export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }: FightSequenceProps) {
   const [phase, setPhase] = useState<Phase>('intro');
   const [beat, setBeat] = useState(0);
@@ -53,22 +63,30 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
     timers.push(setTimeout(() => setPhase('standoff'), BEAT_MS * 4));
     timers.push(setTimeout(() => setPhase('clash'), BEAT_MS * 4 + STANDOFF_MS));
     timers.push(setTimeout(() => setPhase('cloud'), BEAT_MS * 4 + STANDOFF_MS + CLASH_MS));
+    const revealAt = BEAT_MS * 4 + STANDOFF_MS + CLASH_MS + CLOUD_MS;
     timers.push(
       setTimeout(() => {
         setPhase('reveal');
         // Sounded here, with the words appearing. GameBoard used to play it when the whole
         // sequence ended instead — fine for an abstract sting, but a voice saying "you win"
         // arriving 3.6s after YOU WIN is on screen reads as someone else's audio.
-        if (outcome !== 'tie') {
-          const winner = outcome === 'attacker-wins' ? attacker : defender;
-          // Announce who won by name — both players hear the same call, since the face on screen
-          // is the same for both (the disguise head is seeded per piece, not per viewer). Falls
-          // back to the old win/lose sting only if the clip somehow hasn't loaded.
-          if (!playClip(`win.${resolveFightVisual(winner, seed).headId}`)) {
-            play(winner.team === viewerTeam ? 'fight.win' : 'fight.lose');
-          }
+        if (outcome !== 'tie') play('fight.win-fanfare');
+      }, revealAt),
+    );
+    // The name lands after the flourish rather than under it — a herald plays first, *then*
+    // announces. Scheduled from the top level, not nested inside the reveal's own callback, so it
+    // is in `timers` and gets cleared if the fight unmounts mid-sequence.
+    timers.push(
+      setTimeout(() => {
+        if (outcome === 'tie') return;
+        const winner = outcome === 'attacker-wins' ? attacker : defender;
+        // Announce who won by name — both players hear the same call, since the face on screen
+        // is the same for both (the disguise head is seeded per piece, not per viewer). Falls
+        // back to the old win/lose sting only if the clip somehow hasn't loaded.
+        if (!playClip(`win.${resolveFightVisual(winner, seed).headId}`)) {
+          play(winner.team === viewerTeam ? 'fight.win' : 'fight.lose');
         }
-      }, BEAT_MS * 4 + STANDOFF_MS + CLASH_MS + CLOUD_MS),
+      }, revealAt + WIN_CALL_DELAY_MS),
     );
     return () => timers.forEach(clearTimeout);
   }, [attacker, defender, outcome, seed, viewerTeam]);

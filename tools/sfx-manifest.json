@@ -75,6 +75,9 @@
     ],
     "setup.shuffle": [
       "__own__"
+    ],
+    "fight.win-fanfare": [
+      "kenney_music-jingles/Audio/Sax jingles/jingles_SAX02.ogg"
     ]
   }
 }

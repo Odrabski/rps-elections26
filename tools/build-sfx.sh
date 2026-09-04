@@ -23,7 +23,11 @@ SRC="${1:-$ROOT/.sfx-sources}"
 OWN="$ROOT/sfx-src"
 OUT="$ROOT/client/public/sfx"
 mkdir -p "$OUT" "$OWN"
-rm -f "$OUT"/*.mp3
+# Everything this script owns is rebuilt below, so the output is cleared first — but NOT the
+# winner calls. Those are win.<portrait>.mp3, they come from tools/build-winner-calls.mjs (a
+# different pipeline, a different voice), and they carry hand-tuned pronunciations. Wiping them
+# here would silently destroy work this script cannot regenerate.
+find "$OUT" -maxdepth 1 -name '*.mp3' ! -name 'win.*.mp3' -delete
 
 encode() { # <input> <cue-name>
   afconvert -f WAVE -d LEI16@44100 -c 1 "$1" /tmp/sfx-build.wav 2>/dev/null || { echo "  ! cannot read $1"; return; }

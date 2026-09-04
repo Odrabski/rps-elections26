@@ -142,27 +142,49 @@ async function main() {
     // and the winner calls are both 0.97s).
     await send('Page.addScriptToEvaluateOnNewDocument', {
       source: `
-        window.__played = [];
-        window.__bufStem = new WeakMap();
-        const sizeToStem = new Map();
-        const of = window.fetch;
-        window.fetch = async function (u, ...r) {
-          const res = await of.call(this, u, ...r);
-          if (String(u).includes('/sfx/')) {
-            res.clone().arrayBuffer().then((b) => sizeToStem.set(b.byteLength, String(u).split('/').pop().replace('.mp3','')));
-          }
-          return res;
-        };
-        const dad = AudioContext.prototype.decodeAudioData;
-        AudioContext.prototype.decodeAudioData = function (bytes, ok, err) {
-          const size = bytes.byteLength;
-          return dad.call(this, bytes, (buf) => { window.__bufStem.set(buf, sizeToStem.get(size)); if (ok) ok(buf); }, err);
-        };
-        const start = AudioBufferSourceNode.prototype.start;
-        AudioBufferSourceNode.prototype.start = function (...a) {
-          try { window.__played.push(window.__bufStem.get(this.buffer) || ('?' + this.buffer.duration.toFixed(2))); } catch {}
-          return start.apply(this, a);
-        };
+        if (!window.__audioProbe) {
+          window.__audioProbe = true;
+          // The game now opens muted (see SoundToggle), and play() returns before touching the
+          // audio graph when it is — without this every audio assertion silently passes on zero
+          // events. Set before any app code runs, since sfx.ts reads it once at import.
+          try { localStorage.setItem('rps-politika:muted', '0'); } catch {}
+
+          window.__played = [];
+          // Tag each decoded buffer with the file it came from, by remembering the *identity* of
+          // the ArrayBuffer each response produced. An earlier version keyed this on byteLength
+          // and quietly lied: fight.win-fanfare.mp3 and result.lose.mp3 are both exactly 5485
+          // bytes, so one was reported as the other.
+          const bufferStem = new WeakMap();
+          const decodedStem = new WeakMap();
+          const origFetch = window.fetch;
+          window.fetch = function (u, ...rest) {
+            const url = String(typeof u === 'string' ? u : u.url || '');
+            const p = origFetch.call(this, u, ...rest);
+            if (!url.includes('/sfx/')) return p;
+            const stem = url.split('/').pop().replace('.mp3', '');
+            return p.then((res) => {
+              const origAb = res.arrayBuffer.bind(res);
+              res.arrayBuffer = () => origAb().then((ab) => { bufferStem.set(ab, stem); return ab; });
+              return res;
+            });
+          };
+          const dad = AudioContext.prototype.decodeAudioData;
+          AudioContext.prototype.decodeAudioData = function (bytes, ok, err) {
+            const stem = bufferStem.get(bytes);
+            return dad.call(this, bytes, (buf) => { if (stem) decodedStem.set(buf, stem); if (ok) ok(buf); }, err);
+          };
+          const start = AudioBufferSourceNode.prototype.start;
+          AudioBufferSourceNode.prototype.start = function (...a) {
+            try {
+              window.__played.push({
+                clip: decodedStem.get(this.buffer) || ('?' + this.buffer.duration.toFixed(2)),
+                secs: +this.buffer.duration.toFixed(2),
+                at: Math.round(performance.now()),
+              });
+            } catch {}
+            return start.apply(this, a);
+          };
+        }
       `,
     });
   }
@@ -294,7 +316,7 @@ async function huntFight() {
     const played = await evaluate(`window.__played`);
     console.error(`fight ${turn}: played ${JSON.stringify(played)}`);
     // A tie never reaches the win/lose beat, so it proves nothing — play on until one is decisive.
-    if (!played.some((n) => n.startsWith('win.') || n === 'fight.win' || n === 'fight.lose')) continue;
+    if (!played.some((n) => n.clip?.startsWith('win.') || n.clip === 'fight.win' || n.clip === 'fight.lose')) continue;
     await shot('fight');
     process.stdout.write(JSON.stringify({ played }, null, 2) + '\n');
     return;

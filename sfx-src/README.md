@@ -38,6 +38,7 @@ wearing out.
 | `setup.king` | you place your king | 1 |
 | `setup.trap` | you place your trap | 1 |
 | `setup.shuffle` | you re-deal your soldiers' weapons | 1 |
+| `fight.win-fanfare` | the flourish before the winner is named | 1 |
 | `setup.begin` | both sides ready, the match starts | 1 |
 | `setup.wrong-side` | you tapped the other bloc's pieces | 0–4 |
 | `team.pick` | you choose coalition or opposition | 1 |
