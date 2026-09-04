@@ -99,7 +99,7 @@ export function HowToPlayModal({ onClose }: { onClose: () => void }) {
           sentence: split across two elements it would become two rows in content/ui-strings.csv
           and have to be rewritten in halves. The emphasis is done in CSS instead. */}
       <h3 className="howto-heading">המטרה</h3>
-      <p>למצוא את המלך של היריב, להעיף אותו מהשלטון ולנצח בבחירות.</p>
+      <p>למצוא את המלך של הצד השני, להעיף אותו מהשלטון ולנצח בבחירות.</p>
 
       <h3 className="howto-heading">הארסנל שלך</h3>
       <ul className="howto-list">
@@ -108,10 +108,6 @@ export function HowToPlayModal({ onClose }: { onClose: () => void }) {
         <li>פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.</li>
       </ul>
 
-      <h3 className="howto-heading">מי מנצח את מי</h3>
-      <BeatsCycle />
-      <p className="howto-cycle-caption">נייר מנצח אבן מנצח מספריים מנצח נייר.</p>
-
       <h3 className="howto-heading">חוקי המשחק</h3>
       <ul className="howto-list">
         <li>תנועה וקרב: צעד אחד לכל כיוון; דריכה על יריב יוזמת קרב. לא ניתן להזיז את המלך והמלכודת.</li>
@@ -119,6 +115,10 @@ export function HowToPlayModal({ onClose }: { onClose: () => void }) {
         <li>תיקו בקרב: יש לכם רק 10 שניות לבחור נשק חדש ולשבור את השוויון.</li>
         <li>סוף המשחק: המלך שלך נתפס? נתקעת בלי שום צעד חוקי לבצע? הפסדת את הבחירות.</li>
       </ul>
+
+      <h3 className="howto-heading">מי מנצח את מי</h3>
+      <BeatsCycle />
+      <p className="howto-cycle-caption">נייר מנצח אבן מנצח מספריים מנצח נייר.</p>
     </Modal>
   );
 }
