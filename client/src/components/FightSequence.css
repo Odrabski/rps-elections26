@@ -46,25 +46,27 @@
      0.3s outright and the float picks up from the identical neutral pose. */
   animation:
     fightRevealPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    fightHeadFloat 4.2s ease-in-out 0.3s infinite;
+    fightHeadFloat 3.2s ease-in-out 0.3s infinite;
 }
 
 /* A different period rather than a delay offset, so the two drift in and out of phase instead of
    bobbing in lockstep — a negative delay here would start the float during the pop and clobber it. */
 .fight-intro-head:last-child {
-  animation-duration: 0.3s, 5.4s;
+  animation-duration: 0.3s, 4.1s;
 }
 
-/* Deliberately lighter than the home logo's float (homeLogoFloat: 10px and 1deg over 3.6s) — half
-   the rise, half the tilt, and slower, since these two heads are already the loudest thing on the
-   screen and only hold it for a beat. Returns to the pop's exact end pose at 0%/100%. */
+/* A shade heavier than the home logo's float (homeLogoFloat: 10px and 1deg over 3.6s). It used to
+   be half of it — 5px and 0.6deg over 4.2s — on the reasoning that these heads are already the
+   loudest thing on screen. At 216px they are big enough that 5px read as almost nothing, so the
+   two just hung there. Returns to the pop's exact end pose at 0%/100%, which is what lets the pop
+   own the first 0.3s and hand over cleanly. */
 @keyframes fightHeadFloat {
   0%,
   100% {
     transform: translateY(0) rotate(0deg);
   }
   50% {
-    transform: translateY(-5px) rotate(0.6deg);
+    transform: translateY(-12px) rotate(1.4deg);
   }
 }
 

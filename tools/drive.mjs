@@ -312,6 +312,29 @@ async function huntFight() {
     }
     if (!sawFight) continue;
     await evaluate(`window.__played = [];`);
+
+    // Sample the vs-screen head's float amplitude.
+    //
+    // Reads the computed transform, not getBoundingClientRect: the intro only holds ~2s and then
+    // the arena re-lays-out for the standoff, so a rect sample straddling that boundary measures
+    // the element being *moved*, not animated — it reported 366px for a 12px float. The transform's
+    // m42 is the translateY the keyframes are driving, and nothing else touches it once the 0.3s
+    // pop has finished, which is why sampling starts after it.
+    const travel = await evaluate(`(async () => {
+      const el = document.querySelector('.fight-intro-head');
+      if (!el) return null;
+      await new Promise((r) => setTimeout(r, 400));
+      const ys = [];
+      for (let i = 0; i < 26; i++) {
+        if (!document.body.contains(el)) break;
+        const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+        ys.push(m.m42);
+        await new Promise((r) => setTimeout(r, 55));
+      }
+      if (ys.length < 6) return null;
+      return { samples: ys.length, travel: +(Math.max(...ys) - Math.min(...ys)).toFixed(2) };
+    })()`);
+    if (travel) console.error(`vs-screen float: ${travel.travel}px over ${travel.samples} samples`);
     await waitFor(`!document.querySelector('.fight-overlay, [class*=fight-]')`, { timeout: 25000, label: 'fight to end' }).catch(() => {});
     const played = await evaluate(`window.__played`);
     console.error(`fight ${turn}: played ${JSON.stringify(played)}`);
