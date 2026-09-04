@@ -1,6 +1,6 @@
 {
   "_source": "Kenney game assets (kenney.nl) — Creative Commons CC0 1.0, public domain. No attribution required, commercial use permitted. Packs used: impact-sounds, interface-sounds, ui-audio, music-jingles.",
-  "_note": "Cue ids match content/ui-strings style: they describe the EVENT, not the sound, so a clip can be swapped without touching game code. Several cues take numbered variants; the player picks among them at random so a sound heard 60 times a game doesn't wear out. Frequent cues are held under ~100ms on purpose: select_003..006 are the same sound with long tails, and at 40-80 plays a game a tail is what turns a cue into an irritation. A cue listed as __own__ has no default and is supplied from sfx-src/.",
+  "_note": "Cue ids describe the EVENT, not the sound, so a clip can be swapped without touching game code. Cues marked __own__ have no packaged default and are supplied from sfx-src/. Several cues take numbered variants; the player picks among them at random so a sound heard dozens of times a game doesn't wear out. Frequent cues are kept short on purpose — at 20+ plays a game a long tail is what turns a cue into an irritation.",
   "cues": {
     "ui.tap": [
       "kenney_interface-sounds/Audio/click_001.ogg"
@@ -50,19 +50,19 @@
       "__own__"
     ],
     "fight.win": [
-      "kenney_music-jingles/Audio/Hit jingles/jingles_HIT01.ogg"
+      "__own__"
     ],
     "fight.lose": [
-      "kenney_music-jingles/Audio/Sax jingles/jingles_SAX00.ogg"
+      "__own__"
     ],
     "fight.tie": [
-      "kenney_interface-sounds/Audio/question_002.ogg"
+      "__own__"
     ],
     "trap.spring": [
       "kenney_music-jingles/Audio/Sax jingles/jingles_SAX07.ogg"
     ],
     "king.captured": [
-      "kenney_impact-sounds/Audio/impactBell_heavy_000.ogg"
+      "kenney_impact-sounds/Audio/impactMining_000.ogg"
     ],
     "result.win": [
       "kenney_music-jingles/Audio/Sax jingles/jingles_SAX02.ogg"
