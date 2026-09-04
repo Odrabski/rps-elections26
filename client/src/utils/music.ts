@@ -1,29 +1,42 @@
 /**
- * The looping background track.
+ * The looping tracks: the menu bed, and the two that play under the result screen.
  *
- * Deliberately an <audio> element rather than the Web Audio graph the effects use. The track is
- * ~31 seconds, and decoding that into an AudioBuffer costs about 5.2MB of resident memory — this
- * game already fights phone browsers discarding the tab under memory pressure (see the splash
- * skip in App.tsx), and spending 5MB on background music is exactly how that gets worse. An
- * <audio> element streams it instead, and gets native looping for free.
+ * Deliberately one <audio> element rather than the Web Audio graph the effects use. Each track runs
+ * about 31 seconds, and decoding that into an AudioBuffer costs ~5.2MB of resident memory — this
+ * game already fights phone browsers discarding the tab under memory pressure (see the splash skip
+ * in App.tsx), and spending that on background audio is exactly how it gets worse. An <audio>
+ * element streams instead, and gets native looping for free.
  *
- * Mute is shared with the effects through the same localStorage key, but applied separately: the
- * effects are muted at their AudioContext's master gain, and this element isn't in that graph.
+ * One element, swapped between sources, because only one is ever wanted at a time: you are either
+ * in the menu or looking at a result, never both.
+ *
+ * Mute is shared with the effects through the same localStorage key but applied separately — this
+ * element isn't in the graph their master gain controls.
  */
 
-const SRC = '/sfx/music.loop.mp3';
+export type Track = 'menu' | 'win' | 'lose';
+
+const SOURCES: Record<Track, string> = {
+  menu: '/sfx/music.loop.mp3',
+  win: '/sfx/loop.win.mp3',
+  lose: '/sfx/loop.lose.mp3',
+};
+
+/** The result tracks sit higher than the menu bed: nothing competes with them, and they carry the
+ *  moment rather than sitting under it. */
+const VOLUME: Record<Track, number> = { menu: 0.34, win: 0.44, lose: 0.4 };
+
 const STORAGE_KEY = 'rps-politika:muted';
-/** Menu music, so it can sit a little higher than a bed under gameplay would — but still well
- *  under the interface sounds playing over it. */
-const VOLUME = 0.34;
 
 let el: HTMLAudioElement | null = null;
-let wanted = false; // whether the game currently wants music, independent of mute
+let current: Track | null = null;
+let awaitingGesture = false;
 
 function muted(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) === '1';
   } catch {
+    // Private mode, or storage blocked. Unmuted matches what a first-time visitor gets.
     return false;
   }
 }
@@ -31,64 +44,59 @@ function muted(): boolean {
 function element(): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null;
   if (!el) {
-    el = new Audio(SRC);
+    el = new Audio();
     el.loop = true;
-    el.volume = VOLUME;
-    // Nothing is fetched until play() is called, so this costs nothing on the home screen.
+    // Nothing is fetched until a track is chosen, so the home screen pays for none of this and the
+    // result tracks are only pulled once a game has actually ended.
     el.preload = 'none';
   }
   return el;
 }
 
-/** Set while we're waiting for a gesture to retry after a blocked autoplay, so the listeners are
- *  only ever attached once. */
-let awaitingGesture = false;
-
 function playWhenAllowed(a: HTMLAudioElement): void {
   void a.play().catch(() => {
     // Expected, not exceptional: the menu opens on its own when the splash times out, so the
     // browser has usually seen no gesture yet and refuses. Retry on the first one — without this
-    // the track simply never starts for anyone who lets the splash run out, which is everyone.
+    // the track never starts for anyone who lets the splash run out, which is everyone.
     if (awaitingGesture) return;
     awaitingGesture = true;
     const retry = () => {
       awaitingGesture = false;
       window.removeEventListener('pointerdown', retry);
       window.removeEventListener('keydown', retry);
-      if (wanted && !muted()) void a.play().catch(() => {});
+      if (current && !muted()) void a.play().catch(() => {});
     };
     window.addEventListener('pointerdown', retry, { once: true });
     window.addEventListener('keydown', retry, { once: true });
   });
 }
 
-function sync(): void {
+/**
+ * Switches to a track, or to silence with null. Asking for the one already playing does nothing,
+ * so this is safe to call straight from a render-driven effect.
+ */
+export function setTrack(next: Track | null): void {
   const a = element();
-  if (!a) return;
-  if (wanted && !muted()) playWhenAllowed(a);
-  else a.pause();
-}
+  if (!a || next === current) return;
+  current = next;
 
-/** Called once the splash clears. Safe to call repeatedly — an already-playing track is left
- *  alone, since sync() only calls play() on a paused element. */
-export function startMusic(): void {
-  wanted = true;
-  sync();
-}
+  if (!next) {
+    a.pause();
+    return;
+  }
 
-export function stopMusic(): void {
-  wanted = false;
-  const a = element();
-  if (!a) return;
-  a.pause();
-  // Rewound so returning to the menu opens on the track's start rather than wherever it was cut
-  // off mid-phrase.
+  a.src = SOURCES[next];
+  a.volume = VOLUME[next];
+  // Each one starts from its beginning rather than wherever the last was cut off.
   a.currentTime = 0;
+  if (!muted()) playWhenAllowed(a);
 }
 
-/** Mirrors the effects' mute toggle. Kept as a separate call rather than importing sfx.ts, which
- *  would make the two modules import each other. */
+/** Mirrors the effects' mute toggle. A separate call rather than importing sfx.ts, which would
+ *  make the two modules import each other. */
 export function setMusicMuted(next: boolean): void {
-  if (next) element()?.pause();
-  else sync();
+  const a = element();
+  if (!a) return;
+  if (next) a.pause();
+  else if (current) playWhenAllowed(a);
 }

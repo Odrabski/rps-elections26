@@ -50,16 +50,18 @@ PY
 done
 rm -f /tmp/sfx-build.wav
 
-# Music is built separately from the cue list: it's sustained rather than percussive, so it gets a
-# higher bitrate, and it is streamed by the client rather than decoded into memory (30s as an
-# AudioBuffer is 5.2MB of RAM, which this game cannot spend).
-MUSIC=$(find "$OWN" -maxdepth 1 -type f -name "music.loop.*" ! -name "*.md" 2>/dev/null | head -1)
-if [ -n "$MUSIC" ]; then
-  afconvert -f WAVE -d LEI16@44100 -c 1 "$MUSIC" /tmp/music-build.wav 2>/dev/null
-  lame --quiet -m m -b 64 --resample 44.1 /tmp/music-build.wav "$OUT/music.loop.mp3"
-  rm -f /tmp/music-build.wav
-  printf "  %-26s %6s bytes  (music, 64kbps)\n" "music.loop.mp3" "$(stat -f%z "$OUT/music.loop.mp3")"
-fi
+# Looping tracks are built separately from the cue list: they're sustained rather than percussive,
+# so they get a higher bitrate, and the client streams them rather than decoding them into memory
+# (30s as an AudioBuffer is 5.2MB of RAM, which this game cannot spend).
+for src in "$OWN"/music.loop.* "$OWN"/loop.*.*; do
+  [ -e "$src" ] || continue
+  case "$src" in *.md) continue;; esac
+  base=$(basename "$src"); name="${base%.*}"
+  afconvert -f WAVE -d LEI16@44100 -c 1 "$src" /tmp/loop-build.wav 2>/dev/null || { echo "  ! cannot read $base"; continue; }
+  lame --quiet -m m -b 64 --resample 44.1 /tmp/loop-build.wav "$OUT/$name.mp3"
+  rm -f /tmp/loop-build.wav
+  printf "  %-26s %6s bytes  (loop, 64kbps)\n" "$name.mp3" "$(stat -f%z "$OUT/$name.mp3")"
+done
 
 echo
 echo "total: $(du -sh "$OUT" | cut -f1) across $(ls "$OUT"/*.mp3 2>/dev/null | wc -l | tr -d ' ') files"

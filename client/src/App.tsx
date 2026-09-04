@@ -6,7 +6,7 @@ import { GameBoard } from './components/GameBoard';
 import { GameOverScreen } from './components/GameOverScreen';
 import { SplashScreen } from './components/SplashScreen';
 import { SoundToggle } from './components/SoundToggle';
-import { startMusic, stopMusic } from './utils/music';
+import { setTrack } from './utils/music';
 import { preloadPieceAssets } from './utils/preloadAssets';
 import { copyText } from './utils/clipboard';
 import { loadSession } from './utils/rejoin';
@@ -56,16 +56,23 @@ export default function App() {
     if (team) preloadPieceAssets(team);
   }, [team]);
 
-  // Menu music: from the moment the splash clears until a match actually begins. That covers the
-  // home screen and the waiting room, and stops the instant pieces are being placed — the board
-  // has its own sounds and an announcer, and a bed underneath them would only muddy both.
-  // It is fetched on first play rather than upfront, so the splash never competes with it.
-  const inMenu = !showSplash && (!view || view.phase === 'lobby');
+  /**
+   * Which looping track belongs to the screen you're on.
+   *
+   * The menu bed runs from the moment the splash clears until a match begins — home screen and
+   * waiting room — and stops the instant pieces are being placed, since the board has its own
+   * effects and an announcer over it. The result screen then gets its own, which is what plays
+   * under the spinning heads or the rubble. Nothing during setup or play.
+   */
+  const track =
+    showSplash ? null
+    : view?.phase === 'gameover' ? (view.winner === team ? 'win' : 'lose')
+    : !view || view.phase === 'lobby' ? 'menu'
+    : null;
   useEffect(() => {
-    if (inMenu) startMusic();
-    else stopMusic();
-    return () => stopMusic();
-  }, [inMenu]);
+    setTrack(track);
+    return () => setTrack(null);
+  }, [track]);
 
   let content: ReactNode;
 
