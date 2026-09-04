@@ -1,0 +1,68 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Sound cue preview</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 28px; background: #0e1219; color: #e9eef6;
+         font: 15px/1.5 -apple-system, system-ui, sans-serif; }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  p.sub { margin: 0 0 22px; color: #8d9aae; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .cue { background: #161c26; border: 1px solid #29323f; border-radius: 10px; padding: 12px 14px; }
+  .cue b { display: block; font-family: ui-monospace, Menlo, monospace; font-size: 0.82rem; }
+  .cue small { color: #8d9aae; }
+  .row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  button { flex: none; background: #d4af37; color: #1a1400; border: 0; border-radius: 6px;
+           padding: 5px 12px; font-weight: 700; cursor: pointer; }
+  button:hover { filter: brightness(1.1); }
+  .all { margin-bottom: 18px; }
+  .miss { color: #e5566f; font-size: 0.85rem; }
+</style>
+<h1>Sound cue preview</h1>
+<p class="sub">Every clip in <code>client/public/sfx/</code>. Open this file directly — no server needed.</p>
+<button class="all" onclick="playAll()">▶ Play all in order</button>
+<div class="grid" id="grid"></div>
+<script>
+  const CUES = [
+    ['piece.select', 4, 'picking up a soldier'], ['move.step', 4, 'landing on an empty tile'],
+    ['clash.impact', 1, 'two soldiers meet'], ['fight.throw', 1, 'hands revealed'],
+    ['fight.win', 1, 'you won the fight'], ['fight.lose', 1, 'you lost the fight'],
+    ['fight.tie', 1, 'same weapon'], ['trap.spring', 1, 'a trap goes off'],
+    ['king.captured', 1, 'a king falls'], ['result.win', 1, 'victory screen'],
+    ['result.lose', 1, 'defeat screen'], ['setup.king', 1, 'placing your king'],
+    ['setup.trap', 1, 'placing your trap'], ['setup.begin', 1, 'the match starts'],
+    ['setup.wrong-side', 1, 'tapped the wrong bloc'], ['team.pick', 1, 'choosing a bloc'],
+    ['lobby.opponent-joined', 1, 'your friend arrives'], ['ui.tap', 1, 'any button'],
+    ['ui.error', 1, 'a join failed'],
+  ];
+  const files = [];
+  const grid = document.getElementById('grid');
+  for (const [id, n, when] of CUES) {
+    const el = document.createElement('div');
+    el.className = 'cue';
+    const stems = n === 1 ? [id] : Array.from({ length: n }, (_, i) => `${id}.${i + 1}`);
+    el.innerHTML = `<b>${id}</b><small>${when}${n > 1 ? ` — ${n} variants` : ''}</small>`;
+    const row = document.createElement('div');
+    row.className = 'row';
+    for (const stem of stems) {
+      const src = `../client/public/sfx/${stem}.mp3`;
+      files.push(src);
+      const a = new Audio(src);
+      const b = document.createElement('button');
+      b.textContent = n === 1 ? '▶' : `▶ ${stem.split('.').pop()}`;
+      b.onclick = () => { a.currentTime = 0; a.play().catch(() => {
+        b.outerHTML = '<span class="miss">missing</span>'; }); };
+      row.appendChild(b);
+    }
+    el.appendChild(row);
+    grid.appendChild(el);
+  }
+  async function playAll() {
+    for (const src of files) {
+      const a = new Audio(src);
+      try { await a.play(); } catch { continue; }
+      await new Promise(r => { a.onended = r; setTimeout(r, 2600); });
+      await new Promise(r => setTimeout(r, 180));
+    }
+  }
+</script>

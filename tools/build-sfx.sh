@@ -1,35 +1,52 @@
 #!/usr/bin/env bash
-# Converts the Kenney source clips named in sfx-manifest.json into the mp3s the client ships.
+# Builds the sound effects the game ships, into client/public/sfx/.
 #
-#   tools/build-sfx.sh <path-to-extracted-kenney-packs>
+#   npm run sfx
 #
-# Sources are Ogg Vorbis; mp3 is what actually plays everywhere — Safari's Ogg support arrived late
-# and inconsistently, and this game is mostly played on phones. macOS has no ogg->mp3 in one step,
-# so it goes through CoreAudio (afconvert, which does read Vorbis) to 16-bit mono WAV, then lame.
+# Two sources, in this order:
 #
-# Mono at 48 kbps throughout: these are phone-speaker effects, stereo would be wasted bytes.
+#   1. sfx-src/  — your own clips. Any audio format. Name the file after the cue and it wins:
+#                    sfx-src/king.captured.wav      replaces that one cue
+#                    sfx-src/piece.select.1.mp3     replaces variant 1 of four
+#                  See sfx-src/README.md for the full list of cue names.
+#
+#   2. tools/sfx-manifest.json — the CC0 Kenney defaults, for every cue you haven't overridden.
+#                  Run tools/fetch-sfx-sources.sh once to download those.
+#
+# Output is mono mp3 at 48 kbps. mp3 rather than ogg because Safari's Ogg support arrived late and
+# inconsistently and this game is played on phones; mono because so are phone speakers. macOS has
+# no ogg->mp3 in one step, so it goes through CoreAudio (afconvert reads Vorbis) then lame.
 set -euo pipefail
 
-SRC="${1:?usage: build-sfx.sh <dir containing kenney_* folders>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SRC="${1:-$ROOT/.sfx-sources}"
+OWN="$ROOT/sfx-src"
 OUT="$ROOT/client/public/sfx"
-mkdir -p "$OUT"
+mkdir -p "$OUT" "$OWN"
 rm -f "$OUT"/*.mp3
 
-python3 - "$ROOT/tools/sfx-manifest.json" <<'PY' | while IFS=$'\t' read -r id idx rel; do
+encode() { # <input> <cue-name>
+  afconvert -f WAVE -d LEI16@44100 -c 1 "$1" /tmp/sfx-build.wav 2>/dev/null || { echo "  ! cannot read $1"; return; }
+  lame --quiet -m m -b 48 --resample 44.1 /tmp/sfx-build.wav "$OUT/$2.mp3"
+  printf "  %-26s %6s bytes  %s\n" "$2.mp3" "$(stat -f%z "$OUT/$2.mp3")" "$3"
+}
+
+python3 - "$ROOT/tools/sfx-manifest.json" <<'PY' | while IFS=$'\t' read -r name rel; do
 import json, sys
-cues = json.load(open(sys.argv[1]))["cues"]
-for cue, files in cues.items():
+for cue, files in json.load(open(sys.argv[1]))["cues"].items():
     for i, f in enumerate(files, 1):
-        print(f"{cue}\t{i if len(files) > 1 else 0}\t{f}")
+        print(f"{cue if len(files) == 1 else f'{cue}.{i}'}\t{f}")
 PY
-  name="$id"; [ "$idx" != "0" ] && name="$id.$idx"
-  in="$SRC/$rel"
-  [ -f "$in" ] || { echo "  MISSING: $rel"; continue; }
-  afconvert -f WAVE -d LEI16@44100 -c 1 "$in" "/tmp/sfx-build.wav" 2>/dev/null
-  lame --quiet -m m -b 48 --resample 44.1 "/tmp/sfx-build.wav" "$OUT/$name.mp3"
-  printf "  %-26s %6s bytes\n" "$name.mp3" "$(stat -f%z "$OUT/$name.mp3")"
+  own=$(find "$OWN" -maxdepth 1 -type f -name "$name.*" ! -name "*.md" 2>/dev/null | head -1)
+  if [ -n "$own" ]; then
+    encode "$own" "$name" "(yours: $(basename "$own"))"
+  elif [ -f "$SRC/$rel" ]; then
+    encode "$SRC/$rel" "$name" ""
+  else
+    echo "  ! missing $name — no sfx-src override and $rel not found (run tools/fetch-sfx-sources.sh)"
+  fi
 done
 rm -f /tmp/sfx-build.wav
+
 echo
-echo "total: $(du -sh "$OUT" | cut -f1) across $(ls "$OUT"/*.mp3 | wc -l | tr -d ' ') files"
+echo "total: $(du -sh "$OUT" | cut -f1) across $(ls "$OUT"/*.mp3 2>/dev/null | wc -l | tr -d ' ') files"

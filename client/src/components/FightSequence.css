@@ -190,16 +190,16 @@
    holds it gone rather than snapping back at the end of the animation. */
 .fight-figure-loser {
   position: absolute;
-  /* Boxes bottom-align, but the smaller figure still reads as standing slightly high — the feet
-     sit at a fixed fraction of the box, so the shadow and the shoes shrink with it and the eye
-     puts the ground line lower than the pixels do. Dropped 10px to match by eye. */
-  bottom: -10px;
+  /* Set by eye, not by the pixels: the two boxes bottom-align and the feet sit at a fixed
+     fraction of each, so measuring says they are already level — but the smaller figure's shoes
+     and shadow shrink with it, and the eye puts its ground line lower than the maths does. */
+  bottom: 15px;
   /* Right edge 30px inside the winner's box, measured physically rather than logically because
      this is a fixed side, not a reading-order one. Both sprites carry wide transparent margins, so
      boxes 5px apart leave the figures ~40px apart — the overlap eats that padding and lands the
      visible gap at 1px. Tuned against the widest case, a soldier holding scissors; with rock or
      paper it reads a touch wider, which is the safe direction to err in. */
-  right: calc(100% - 33px);
+  right: calc(100% - 37px);
   width: 94px; /* 78px + 20% */
   filter: grayscale(1);
   opacity: 0.7;

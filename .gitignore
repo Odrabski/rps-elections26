@@ -35,3 +35,4 @@ node_modules/
 # Source art kept locally for re-exporting. The game only ever serves the .webp conversions in
 # client/public/assets, so the originals don't belong in the repo — they were ~113 MB of it.
 /*.png
+.sfx-sources/
