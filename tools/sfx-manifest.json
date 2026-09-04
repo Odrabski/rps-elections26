@@ -57,13 +57,13 @@
       "kenney_interface-sounds/Audio/question_002.ogg"
     ],
     "trap.spring": [
-      "kenney_impact-sounds/Audio/impactWood_heavy_000.ogg"
+      "kenney_music-jingles/Audio/Sax jingles/jingles_SAX07.ogg"
     ],
     "king.captured": [
       "kenney_impact-sounds/Audio/impactBell_heavy_000.ogg"
     ],
     "result.win": [
-      "kenney_music-jingles/Audio/Sax jingles/jingles_SAX07.ogg"
+      "kenney_music-jingles/Audio/Sax jingles/jingles_SAX02.ogg"
     ],
     "result.lose": [
       "kenney_music-jingles/Audio/Sax jingles/jingles_SAX01.ogg"

@@ -158,7 +158,6 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       const attacker = prevPiecesRef.current.get(event.attackerId);
       const trap = prevPiecesRef.current.get(event.trapId);
       if (attacker && trap) setTrapEvent({ attacker, trap });
-      play('trap.spring');
     } else if ((event?.type === 'battle' || event?.type === 'tie-break-started') && !clashEventRef.current) {
       // A fresh clash (no cloud on the board yet — a repeat, or the eventual decisive battle
       // after some ties, just falls through to the plain branch below instead) gets a jump onto

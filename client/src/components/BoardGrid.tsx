@@ -14,6 +14,7 @@ import {
 import type { ClientPieceView, Position, Team } from 'shared';
 import { PieceView } from './PieceView';
 import { mirrorPosition } from '../utils/boardMirror';
+import { play } from '../utils/sfx';
 import './BoardGrid.css';
 
 /** Both pieces involved in a just-triggered trap, kept around purely for the dissolve sequence
@@ -270,10 +271,13 @@ export function BoardGrid({
     const timers = [
       setTimeout(() => setTrapPhase('trap-dissolve'), TRAP_WARNING_MS),
       setTimeout(() => setTrapPhase('attacker-jump'), TRAP_WARNING_MS + TRAP_DISSOLVE_MS),
-      setTimeout(
-        () => setTrapPhase('attacker-fall'),
-        TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS,
-      ),
+      setTimeout(() => {
+        setTrapPhase('attacker-fall');
+        // Sounded on the fall, not when the event arrives: the sequence opens with a full second
+        // of nothing happening, and a flourish there is over before the soldier has moved. From
+        // here it covers the drop and the banner that follows it.
+        play('trap.spring');
+      }, TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS),
       // The tile is an empty hole from here on, and only now does the banner say what happened.
       setTimeout(
         () => setTrapPhase('fallen'),
