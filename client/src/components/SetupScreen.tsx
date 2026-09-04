@@ -147,11 +147,14 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
         )}
       </div>
 
-      {/* Same height as GameBoard's .turn-pill — an invisible stand-in, in the same slot the pill
-          occupies there, so this screen's flex flow has the exact same total height and ordering.
-          That's what makes the board and score-header land at the exact same y on both screens
-          once each gets the same extra translateY (see SetupScreen.css). */}
-      <div className="setup-turn-pill-spacer" aria-hidden="true" />
+      {/* The setup screen's answer to GameBoard's "התור שלך" pill: same class, same slot, same
+          size, so the board and score-header still land at the exact same y on both screens — it
+          used to be an invisible spacer holding that space open, and now it holds something worth
+          reading. `.turn-pill` lives in GameBoard.css, which is always in the bundle (App imports
+          GameBoard statically), so it needs no import here. */}
+      <div className="turn-pill setup-turn-pill" style={{ background: theme.solid }}>
+        שלב סידור הלוח
+      </div>
 
       <button type="button" className="setup-howto-link" onClick={() => setShowHowTo(true)}>
         <span className="setup-howto-mark" aria-hidden="true">?</span>

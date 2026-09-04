@@ -337,6 +337,11 @@
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
+      "id": "SetupScreen.4b7888",
+      "text": "שלב סידור הלוח",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
       "id": "SetupScreen.7e7ab0",
       "text": "שני הצדדים מוכנים, המשחק מתחיל...",
       "file": "client/src/components/SetupScreen.tsx"

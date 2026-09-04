@@ -78,6 +78,9 @@
     ],
     "fight.win-fanfare": [
       "__own__"
+    ],
+    "fight.lose-fanfare": [
+      "__own__"
     ]
   }
 }

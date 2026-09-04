@@ -26,9 +26,12 @@
 /* Matches GameBoard's .turn-pill height exactly, so this screen's flex flow has the same total
    height as the game board's — needed for the matching transforms below to land the board and
    score-header at the exact same y on both screens, at any viewport size (not just one). */
-.setup-turn-pill-spacer {
-  height: 42px;
-  width: 100%;
+/* Replaces the invisible spacer that used to hold this slot open. It inherits everything from
+   .turn-pill (GameBoard.css) so the two screens cannot drift apart; the only thing it does not
+   inherit is the heartbeat, which belongs to "it is your move" and would compete with the setup
+   banner already asking for one. */
+.setup-turn-pill {
+  align-self: center;
 }
 
 /* Same transform as GameBoard's .board-wrap. */

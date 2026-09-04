@@ -32,6 +32,7 @@ const CUES = {
   'fight.throw': 1,
   'fight.start': 1,
   'fight.win-fanfare': 1,
+  'fight.lose-fanfare': 1,
   'fight.win': 1,
   'fight.lose': 1,
   'fight.tie': 1,
@@ -56,6 +57,9 @@ const GAIN: Partial<Record<Sfx, number>> = {
   'clash.impact': 0.8,
   'fight.fanfare': 0.7,
   'fight.win-fanfare': 0.75,
+  // Half level, deliberately: the loser's flourish should register without competing with the
+  // announcement of who beat them.
+  'fight.lose-fanfare': 0.5,
   'king.captured': 0.9,
 };
 

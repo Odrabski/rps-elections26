@@ -71,7 +71,12 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
         // Sounded here, with the words appearing. GameBoard used to play it when the whole
         // sequence ended instead — fine for an abstract sting, but a voice saying "you win"
         // arriving 3.6s after YOU WIN is on screen reads as someone else's audio.
-        if (outcome !== 'tie') play('fight.win-fanfare');
+        // Each side hears its own flourish, but both then hear the same name — the winner is the
+        // winner whichever end of it you are on.
+        if (outcome !== 'tie') {
+          const winner = outcome === 'attacker-wins' ? attacker : defender;
+          play(winner.team === viewerTeam ? 'fight.win-fanfare' : 'fight.lose-fanfare');
+        }
       }, revealAt),
     );
     // The name lands after the flourish rather than under it — a herald plays first, *then*
