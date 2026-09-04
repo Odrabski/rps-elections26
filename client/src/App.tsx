@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useGameSocket } from './hooks/useGameSocket';
 import { HomeScreen } from './components/HomeScreen';
 import { SetupScreen } from './components/SetupScreen';
@@ -10,6 +10,7 @@ import { setTrack } from './utils/music';
 import { preloadPieceAssets } from './utils/preloadAssets';
 import { copyText } from './utils/clipboard';
 import { loadSession } from './utils/rejoin';
+import { initAnalytics, trackGameEnded, trackGameStarted, trackTeamPicked, type GameMode } from './utils/analytics';
 import { APP_VERSION } from './version';
 import './App.css';
 
@@ -42,6 +43,36 @@ export default function App() {
     resign,
     leave,
   } = useGameSocket();
+
+  // ─── Analytics ────────────────────────────────────────────────────────
+  // Driven off phase transitions rather than sprinkled through the handlers that cause them: the
+  // same transitions happen on rejoin, on a rematch and on the bot path, and one place that watches
+  // what actually became true cannot drift out of step with them the way five call sites would.
+  useEffect(() => initAnalytics(), []);
+
+  const gameStartedAt = useRef<number | null>(null);
+  const lastPhase = useRef<string | null>(null);
+  useEffect(() => {
+    const phase = view?.phase ?? null;
+    if (phase === lastPhase.current) return;
+    const previous = lastPhase.current;
+    lastPhase.current = phase;
+
+    const mode: GameMode = vsBot ? 'bot' : 'human';
+    if (phase === 'setup' && team) trackTeamPicked(team, mode);
+    if (phase === 'playing' && previous !== 'playing') {
+      gameStartedAt.current = Date.now();
+      trackGameStarted(mode);
+    }
+    if (phase === 'gameover' && view?.winner && team) {
+      trackGameEnded({
+        won: view.winner === team,
+        reason: view.lastEvent?.type ?? 'unknown',
+        seconds: gameStartedAt.current ? (Date.now() - gameStartedAt.current) / 1000 : 0,
+      });
+      gameStartedAt.current = null;
+    }
+  }, [view?.phase, view?.winner, view?.lastEvent, team, vsBot]);
 
   // Quitting mid-game concedes it first — otherwise the opponent is left on a board that never
   // resolves, with the server auto-playing random moves for the empty seat.

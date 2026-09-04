@@ -1,9 +1,11 @@
 import { createServer } from 'node:http';
+import { timingSafeEqual } from 'node:crypto';
 import path from 'node:path';
 import { WebSocketServer } from 'ws';
 import sirv from 'sirv';
 import { RoomManager } from './rooms/RoomManager.js';
 import { handleConnection } from './ws/connection.js';
+import { renderStatsPage } from './stats/page.js';
 
 const PORT = Number(process.env.PORT) || 8787;
 
@@ -43,7 +45,39 @@ const serveStatic = sirv(clientDist, {
   },
 });
 
+/**
+ * The operator's stats page (see stats/page.ts), behind HTTP basic auth.
+ *
+ * With STATS_PASSWORD unset the route does not exist at all — it 404s and falls through to the
+ * static handler like any other unknown path. That is deliberate: a page that is only protected
+ * *if* an environment variable happens to be set is one forgotten secret away from being public,
+ * so the safe state is "off", not "open".
+ */
+const STATS_PASSWORD = process.env.STATS_PASSWORD;
+const STATS_USER = process.env.STATS_USER ?? 'omri';
+
+function authorized(header: string | undefined): boolean {
+  if (!STATS_PASSWORD || !header?.startsWith('Basic ')) return false;
+  const expected = Buffer.from(`${STATS_USER}:${STATS_PASSWORD}`);
+  const got = Buffer.from(Buffer.from(header.slice(6), 'base64').toString('utf8'));
+  // Compared in constant time, and only when the lengths already match — timingSafeEqual throws
+  // on a length mismatch, which would itself leak the length.
+  return got.length === expected.length && timingSafeEqual(got, expected);
+}
+
 const httpServer = createServer((req, res) => {
+  if (STATS_PASSWORD && req.url?.split('?')[0] === '/stats') {
+    if (!authorized(req.headers.authorization)) {
+      res.writeHead(401, {
+        'WWW-Authenticate': 'Basic realm="stats", charset="UTF-8"',
+        'content-type': 'text/plain; charset=utf-8',
+      });
+      return res.end('נדרשת סיסמה');
+    }
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
+    return res.end(renderStatsPage(rooms.liveSnapshot(wss.clients.size), process.env.VITE_CLARITY_ID));
+  }
+
   serveStatic(req, res, () => {
     res.statusCode = 404;
     res.end('Not found');

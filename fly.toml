@@ -2,6 +2,9 @@ app = "rps-politika"
 primary_region = "fra"
 
 [build]
+  [build.args]
+    # Paste the Clarity project id here to switch analytics on, then deploy. Public by design.
+    VITE_CLARITY_ID = ""
 
 [http_service]
   internal_port = 8080

@@ -1,5 +1,7 @@
 import { Room } from './Room.js';
 import { generateRoomCode } from '../util/idgen.js';
+import type { Team } from 'shared';
+import type { LiveSnapshot } from '../stats/counters.js';
 
 /** How long an empty room is kept alive so a refresh or a dropped connection can still rejoin it
  * with its token. Comfortably longer than a page reload, far shorter than a whole session. */
@@ -29,6 +31,20 @@ export class RoomManager {
     const room = new Room(code);
     this.rooms.set(code, room);
     return room;
+  }
+
+  /** Exact, live, and free — walked on request rather than kept up to date, since /stats is the
+   *  only caller and there are only ever a handful of rooms. */
+  liveSnapshot(sockets: number): LiveSnapshot {
+    const roomsByPhase: Record<string, number> = {};
+    const playersByTeam: Record<Team, number> = { red: 0, blue: 0 };
+    let botRooms = 0;
+    for (const room of this.rooms.values()) {
+      roomsByPhase[room.state.phase] = (roomsByPhase[room.state.phase] ?? 0) + 1;
+      if (room.isVsBot) botRooms++;
+      for (const team of room.connectedTeams) playersByTeam[team]++;
+    }
+    return { sockets, rooms: this.rooms.size, roomsByPhase, botRooms, playersByTeam };
   }
 
   getRoom(code: string): Room | undefined {

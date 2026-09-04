@@ -3,6 +3,7 @@ import type { ServerMessage, Team } from 'shared';
 import { RoomManager } from '../rooms/RoomManager.js';
 import type { Room } from '../rooms/Room.js';
 import { validateClientMessage } from './validate.js';
+import { recordRoomCreated } from '../stats/counters.js';
 
 const OTHER_TEAM: Record<Team, Team> = { red: 'blue', blue: 'red' };
 
@@ -33,6 +34,9 @@ export function handleConnection(socket: WebSocket, rooms: RoomManager): void {
         const created = rooms.createRoom();
         const slot = created.addPlayer(socket, msg.team);
         if (!slot) return send({ type: 'error', message: 'room-full' });
+        // The seat actually assigned, not the one requested — `team` is optional on the wire, and
+        // a preferred seat that is already taken falls back to whatever is free.
+        recordRoomCreated(slot.team);
         room = created;
         team = slot.team;
         send({ type: 'room-created', roomCode: created.code, team: slot.team, token: slot.token });

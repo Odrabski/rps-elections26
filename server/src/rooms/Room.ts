@@ -1,6 +1,15 @@
 import type { WebSocket } from 'ws';
 import { BATTLE_SEQUENCE_MS, KING_CAPTURE_SEQUENCE_MS, SETUP_SECONDS, TRAP_SEQUENCE_MS, TURN_SECONDS } from 'shared';
-import type { BotDifficulty, ClientMessage, GameEvent, GameState, Position, ServerMessage, Team } from 'shared';
+import type {
+  BotDifficulty,
+  ClientMessage,
+  GameEvent,
+  GamePhase,
+  GameState,
+  Position,
+  ServerMessage,
+  Team,
+} from 'shared';
 import { generateToken } from '../util/idgen.js';
 import {
   autoFinalizeTeam,
@@ -22,6 +31,7 @@ import {
   TIE_BREAK_REPEAT_WINDOW_MS,
 } from '../game/tiebreak.js';
 import { chooseBotMove, chooseBotTiePick } from '../game/bot.js';
+import { recordGameEnded, recordGameStarted } from '../stats/counters.js';
 import { toClientView } from '../game/view.js';
 
 interface PlayerSlot {
@@ -55,6 +65,9 @@ export class Room {
   private resolveTimer: ReturnType<typeof setTimeout> | null = null;
   private bot: { team: Team; difficulty: BotDifficulty } | null = null;
   private destroyed = false;
+  /** The last phase counted for stats, and when play began — see `countPhase` below. */
+  private countedPhase: GamePhase | null = null;
+  private playingSince: number | null = null;
 
   constructor(code: string) {
     this.code = code;
@@ -425,6 +438,10 @@ export class Room {
     this.resolveTimer = null;
     this.state = freshState(this.code);
     this.setupData = { red: createInitialSetupData(), blue: createInitialSetupData() };
+    // Otherwise the rematch's own 'playing' looks like the phase it is already on, and every game
+    // after the first goes uncounted.
+    this.countedPhase = null;
+    this.playingSince = null;
     this.startSetupPhase();
   }
 
@@ -492,7 +509,40 @@ export class Room {
     this.broadcast();
   }
 
+  get isVsBot(): boolean {
+    return this.bot !== null;
+  }
+
+  /** Seats currently held by a live human socket — the bot's seat never counts. */
+  get connectedTeams(): Team[] {
+    return (['red', 'blue'] as Team[]).filter((t) => this.players[t].socket !== null);
+  }
+
+  /**
+   * Counts the two transitions worth counting, exactly once each.
+   *
+   * Hooked into `broadcast` rather than into the places that set the phase: 'gameover' is reached
+   * from three of them (king capture, no legal moves, resignation) and 'playing' from two, whereas
+   * every one of those is followed by a broadcast. Watching what actually became true is one site
+   * that cannot fall out of step, instead of five that can.
+   */
+  private countPhase(): void {
+    const phase = this.state.phase;
+    if (phase === this.countedPhase) return;
+    this.countedPhase = phase;
+
+    if (phase === 'playing') {
+      this.playingSince = Date.now();
+      recordGameStarted(this.isVsBot);
+    } else if (phase === 'gameover') {
+      const seconds = this.playingSince ? (Date.now() - this.playingSince) / 1000 : 0;
+      recordGameEnded(this.state.winner, this.state.lastEvent?.type ?? 'unknown', seconds);
+      this.playingSince = null;
+    }
+  }
+
   broadcast(): void {
+    this.countPhase();
     for (const team of ['red', 'blue'] as Team[]) {
       this.sendTo(team, { type: 'state', view: toClientView(this.state, team) });
     }
