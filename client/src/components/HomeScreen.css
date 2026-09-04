@@ -555,3 +555,29 @@
   color: var(--text-dim);
   font-size: 0.85em;
 }
+
+/* The arsenal bullets carry their own icon instead of the shared ⚬ marker, so the three roles are
+   picked out at a glance. Flex rather than a ::before, because the icon has to hold its column
+   while the text wraps beside it. */
+.howto-list li.howto-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding-inline-start: 0;
+}
+
+.howto-list li.howto-item::before {
+  content: none;
+}
+
+.howto-item-icon {
+  flex: none;
+  width: 1.25em;
+  text-align: center;
+  font-size: 1.05em;
+}
+
+.howto-role {
+  color: var(--gold);
+  font-weight: 800;
+}

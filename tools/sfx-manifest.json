@@ -72,6 +72,9 @@
     ],
     "result.lose": [
       "kenney_music-jingles/Audio/Sax jingles/jingles_SAX01.ogg"
+    ],
+    "setup.shuffle": [
+      "__own__"
     ]
   }
 }

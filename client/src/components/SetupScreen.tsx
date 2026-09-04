@@ -136,7 +136,11 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
             <button type="button" className="btn-primary setup-btn-onboard setup-btn-onboard-start" onClick={onReady}>
               להתחיל לשחק
             </button>
-            <button type="button" className="btn-secondary setup-btn-onboard setup-btn-onboard-shuffle" onClick={onShuffle}>
+            <button type="button" className="btn-secondary setup-btn-onboard setup-btn-onboard-shuffle"
+              onClick={() => {
+                play('setup.shuffle');
+                onShuffle();
+              }}>
               ערבוב כלי נשק
             </button>
           </div>

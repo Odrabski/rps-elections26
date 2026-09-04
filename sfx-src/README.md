@@ -37,6 +37,7 @@ wearing out.
 | `result.lose` | the defeat screen | 0–1 |
 | `setup.king` | you place your king | 1 |
 | `setup.trap` | you place your trap | 1 |
+| `setup.shuffle` | you re-deal your soldiers' weapons | 1 |
 | `setup.begin` | both sides ready, the match starts | 1 |
 | `setup.wrong-side` | you tapped the other bloc's pieces | 0–4 |
 | `team.pick` | you choose coalition or opposition | 1 |

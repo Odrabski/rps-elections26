@@ -212,8 +212,13 @@
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
-      "id": "HowToPlayModal.8d518f",
-      "text": "המלך: ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.",
+      "id": "HowToPlayModal.45ad2d",
+      "text": "המלך:",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
+      "id": "HowToPlayModal.488a08",
+      "text": "הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.",
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
@@ -232,13 +237,23 @@
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
-      "id": "HowToPlayModal.601e69",
-      "text": "מלכודת: מקמו אותה על הלוח בתחילת המשחק. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.",
+      "id": "HowToPlayModal.7951be",
+      "text": "מלכודת:",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
+      "id": "HowToPlayModal.0612f7",
+      "text": "ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.",
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
       "id": "HowToPlayModal.5e718e",
       "text": "מספריים",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
+      "id": "HowToPlayModal.d7d62b",
+      "text": "מקמו אותה על הלוח בתחילת המשחק. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.",
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
@@ -272,8 +287,8 @@
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
-      "id": "HowToPlayModal.f3fce2",
-      "text": "פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.",
+      "id": "HowToPlayModal.0df419",
+      "text": "פוליטיקאים:",
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {

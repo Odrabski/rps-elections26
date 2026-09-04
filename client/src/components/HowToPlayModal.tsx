@@ -91,6 +91,30 @@ function BeatsCycle() {
   );
 }
 
+/**
+ * One line of the arsenal list: an icon, the role in gold, then what it does.
+ *
+ * The description stays a single unbroken string so it remains one row in content/ui-strings.csv
+ * and can be rewritten as a whole sentence. Only the role label is split out, and those are one
+ * word each — a fair trade for being able to emphasise them, which CSS cannot do to part of a
+ * text node.
+ *
+ * 👑 and 🪤 are the icons the setup screen already uses when it asks where to hide each one, so a
+ * player meets the same two symbols here as on the board.
+ */
+function ArsenalItem({ icon, role, children }: { icon: string; role: string; children: ReactNode }) {
+  return (
+    <li className="howto-item">
+      <span className="howto-item-icon" aria-hidden="true">
+        {icon}
+      </span>
+      <span>
+        <b className="howto-role">{role}</b> {children}
+      </span>
+    </li>
+  );
+}
+
 /** The "how to play" rules modal, shared by the home screen and the setup board. */
 export function HowToPlayModal({ onClose }: { onClose: () => void }) {
   return (
@@ -103,9 +127,15 @@ export function HowToPlayModal({ onClose }: { onClose: () => void }) {
 
       <h3 className="howto-heading">הארסנל שלך</h3>
       <ul className="howto-list">
-        <li>המלך: ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.</li>
-        <li>מלכודת: מקמו אותה על הלוח בתחילת המשחק. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.</li>
-        <li>פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.</li>
+        <ArsenalItem icon="👑" role="המלך:">
+          ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.
+        </ArsenalItem>
+        <ArsenalItem icon="🪤" role="מלכודת:">
+          מקמו אותה על הלוח בתחילת המשחק. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע.
+        </ArsenalItem>
+        <ArsenalItem icon="👔" role="פוליטיקאים:">
+          הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.
+        </ArsenalItem>
       </ul>
 
       <h3 className="howto-heading">חוקי המשחק</h3>
