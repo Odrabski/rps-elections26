@@ -58,3 +58,70 @@
     transform: rotate(360deg);
   }
 }
+
+/* Up in the sky above the artwork, where there is nothing to cover. */
+.splash-enter {
+  position: absolute;
+  top: max(14%, calc(env(safe-area-inset-top) + 48px));
+  left: 50%;
+  z-index: 2;
+  /* The sign art carries the label, the frame and the drop shadow, so the button is stripped back
+     to a bare hit target — anything else here would draw a second frame around the first. */
+  padding: 0;
+  border: 0;
+  background: none;
+  width: min(62vw, 300px);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* Hidden until the art has had its beat. Both states carry translateX(-50%), since a transform
+     set anywhere replaces it and the button would jump half its width to the right. */
+  opacity: 0;
+  transform: translateX(-50%) scale(0.9);
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.splash-enter-ready {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  pointer-events: auto;
+  animation: splashEnterPulse 2.4s ease-in-out 0.4s infinite;
+}
+
+.splash-enter-sign {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+}
+
+.splash-enter-ready:active {
+  filter: brightness(1.08);
+}
+
+@keyframes splashEnterPulse {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+/* The landscape artwork puts the Knesset roofline much higher in the frame, so the sign has to
+   climb above it or it reads as sitting on the roof. */
+@media (orientation: landscape) {
+  .splash-enter {
+    top: max(6%, calc(env(safe-area-inset-top) + 24px));
+    width: min(30vw, 250px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-enter-ready {
+    animation: none;
+  }
+}
