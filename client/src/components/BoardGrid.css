@@ -162,8 +162,9 @@
   }
 }
 
-/* The trap's tile once it's spent — sits above the checkerboard background, below whatever
-   piece is currently jumping onto or sinking into it. */
+/* The trap's tile while the trap is out of sight — sits above the checkerboard background, below
+   whatever piece is currently jumping onto, sinking into, or climbing back out of it. Only ever
+   visible during the sequence: the trap survives, so the hole closes again at the end. */
 .board-hole {
   position: absolute;
   inset: 0;
@@ -334,6 +335,44 @@
   }
   100% {
     transform: translateX(-50%) translateY(0) scale(0);
+  }
+}
+
+/* The trap climbing back out of its own hole. It is never spent — it survives whoever springs it
+   — so the sequence has to put it back rather than leave the tile empty. Deliberately the exact
+   inverse of pieceFall: what went down comes back up the same way, which is what sells it as the
+   same figure and not a new piece appearing. Same centering transform (translateX(-50%)) as every
+   other piece animation here, restated in every frame. */
+.piece-returning {
+  animation: trapReturn 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+}
+
+@keyframes trapReturn {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(0);
+  }
+  55% {
+    transform: translateX(-50%) translateY(-12%) scale(0.85);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* The hole filling back in behind it. Fades rather than cutting, and shrinks toward its own
+   centre so the ground reads as closing over rather than the image simply switching off. */
+.board-hole-closing {
+  animation: holeClose 0.7s ease-in forwards;
+}
+
+@keyframes holeClose {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.3);
   }
 }
 

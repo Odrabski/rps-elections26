@@ -16,6 +16,7 @@ function baseState(overrides: Partial<GameState> = {}): GameState {
     lastEvent: null,
     lastMove: null,
     resolvingUntil: null,
+    sprungTrapTiles: [],
     ...overrides,
   };
 }

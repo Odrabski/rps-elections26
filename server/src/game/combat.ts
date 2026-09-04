@@ -26,7 +26,26 @@ export function applyMove(state: GameState, attacker: Piece, to: Position): Game
     return null;
   }
 
-  // Combat always reveals both participants, regardless of outcome.
+  if (defender.kind === 'trap') {
+    // The trap is NOT spent. Only whoever triggered it dies; the trap stays on the board, at full
+    // strength, and can be sprung again any number of times.
+    //
+    // Deliberately placed above the blanket reveal below, because the trap must not be revealed:
+    // view.ts only sends a piece's `kind` to its owner or once `revealed` is set, so leaving that
+    // flag alone is the entire disguise. To the opponent the tile goes on holding the same
+    // anonymous body and head it held before, which is the point — a trap everyone can see is a
+    // tile everyone walks around, which is the same as not having one.
+    attacker.revealed = true;
+    attacker.alive = false;
+    // The bot's stand-in for having watched it happen (see bot.ts). Not secret — both players saw
+    // the soldier die here — but nothing else on the server remembers it.
+    if (!state.sprungTrapTiles.some((p) => samePosition(p, to))) {
+      state.sprungTrapTiles.push({ ...to });
+    }
+    return { type: 'trap-triggered', attackerId: attacker.id, trapId: defender.id };
+  }
+
+  // Every other kind of combat reveals both participants, regardless of outcome.
   attacker.revealed = true;
   defender.revealed = true;
 
@@ -40,13 +59,6 @@ export function applyMove(state: GameState, attacker: Piece, to: Position): Game
     attacker.position = to;
     state.winner = attacker.team;
     return { type: 'king-captured', winner: attacker.team };
-  }
-
-  if (defender.kind === 'trap') {
-    // One-time use: the trap is spent along with whoever triggered it, not just the attacker.
-    attacker.alive = false;
-    defender.alive = false;
-    return { type: 'trap-triggered', attackerId: attacker.id, trapId: defender.id };
   }
 
   // Soldier vs. soldier: Rock/Paper/Scissors.

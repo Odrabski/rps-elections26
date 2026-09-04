@@ -30,6 +30,7 @@ function makeState(attacker: Piece, defender: Piece): GameState {
     lastEvent: null,
     lastMove: null,
     resolvingUntil: null,
+    sprungTrapTiles: [],
   };
 }
 

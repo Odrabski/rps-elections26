@@ -18,6 +18,7 @@ function makeState(pieces: Piece[]): GameState {
     lastEvent: null,
     lastMove: null,
     resolvingUntil: null,
+    sprungTrapTiles: [],
   };
 }
 
@@ -82,21 +83,45 @@ describe('applyMove: RPS soldier combat', () => {
 });
 
 describe('applyMove: trap and king', () => {
-  it('attacking a trap is one-time use — it eliminates the attacker and is spent itself', () => {
+  const blueTrap = (): Piece => ({
+    id: 'blue-trap', team: 'blue', kind: 'trap', hand: null,
+    characterId: 'op_abbas', position: { row: 3, col: 4 }, revealed: false, alive: true,
+  });
+
+  it('attacking a trap kills only the attacker — the trap survives, still disguised', () => {
     const attacker = soldier('a', 'red', 'rock', 3, 3);
-    const trap: Piece = {
-      id: 'blue-trap', team: 'blue', kind: 'trap', hand: null,
-      characterId: 'op_abbas', position: { row: 3, col: 4 }, revealed: false, alive: true,
-    };
+    const trap = blueTrap();
     const state = makeState([attacker, trap]);
 
     const event = applyMove(state, attacker, { row: 3, col: 4 });
 
     expect(event).toEqual({ type: 'trap-triggered', attackerId: 'a', trapId: 'blue-trap' });
     expect(attacker.alive).toBe(false);
-    expect(trap.alive).toBe(false);
+    expect(attacker.revealed).toBe(true);
+    expect(trap.alive).toBe(true);
     expect(trap.position).toEqual({ row: 3, col: 4 });
-    expect(trap.revealed).toBe(true);
+    // The one fight that does not expose the defender: view.ts gates `kind` on this flag, so
+    // leaving it false is what keeps the trap looking like an ordinary disguised soldier.
+    expect(trap.revealed).toBe(false);
+    // ...but the tile is remembered, so the bot doesn't walk into it forever (see bot.ts).
+    expect(state.sprungTrapTiles).toEqual([{ row: 3, col: 4 }]);
+  });
+
+  it('the same trap can be sprung again by a second soldier', () => {
+    const first = soldier('a', 'red', 'rock', 3, 3);
+    const second = soldier('b', 'red', 'paper', 2, 4);
+    const trap = blueTrap();
+    const state = makeState([first, second, trap]);
+
+    applyMove(state, first, { row: 3, col: 4 });
+    const event = applyMove(state, second, { row: 3, col: 4 });
+
+    expect(event).toEqual({ type: 'trap-triggered', attackerId: 'b', trapId: 'blue-trap' });
+    expect(second.alive).toBe(false);
+    expect(trap.alive).toBe(true);
+    expect(trap.revealed).toBe(false);
+    // Recorded once, not once per victim.
+    expect(state.sprungTrapTiles).toEqual([{ row: 3, col: 4 }]);
   });
 
   it('moving onto the enemy king decides the game, but leaves ending it to the room', () => {

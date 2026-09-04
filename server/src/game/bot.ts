@@ -104,6 +104,12 @@ function scoreOutcome(
     return advancement * 0.5;
   }
 
+  // A trap already sprung on this tile. It survived and was never revealed, so nothing about the
+  // piece standing there gives it away — this is purely the bot remembering what it watched
+  // happen, the way the human across the board does. Checked ahead of the unrevealed branch below,
+  // which would otherwise treat the tile as an ordinary unknown and walk into it again.
+  if (isSprungTrap(state, to)) return -100;
+
   if (!defender.revealed) {
     // As long as the enemy's king is still alive it's always unrevealed too (the game ends the
     // instant it's captured) — so every unrevealed defender carries a real 1-in-N chance of
@@ -201,15 +207,23 @@ function kingDefenceDelta(
     defender &&
     defender.team !== team &&
     isAdjacent(to, king.position) &&
-    !isKnownLoss(attackerHand, defender)
+    !isKnownLoss(state, attackerHand, defender, to)
       ? KING_DANGER
       : 0;
 
   return left + joined + relief;
 }
 
-/** Whether attacking `defender` is a matchup already known to lose, from public information only. */
-function isKnownLoss(attackerHand: RPSHand, defender: Piece): boolean {
+/** Whether a trap has already been sprung on `to`. Traps survive being triggered and are never
+ *  revealed, so the tile — not the piece — is what carries the knowledge. */
+function isSprungTrap(state: GameState, to: Position): boolean {
+  return state.sprungTrapTiles.some((p) => p.row === to.row && p.col === to.col);
+}
+
+/** Whether attacking `defender` on `to` is a matchup already known to lose, from public
+ *  information only. */
+function isKnownLoss(state: GameState, attackerHand: RPSHand, defender: Piece, to: Position): boolean {
+  if (isSprungTrap(state, to)) return true;
   if (!defender.revealed) return false; // unknown: a gamble, not a known loss
   if (defender.kind === 'trap') return true;
   if (defender.kind === 'king') return false; // taking the king wins outright, whatever the hands
@@ -240,8 +254,8 @@ function hasAliveUnrevealedKing(state: GameState, team: Team): boolean {
 }
 
 /** How many of `team`'s pieces are still alive and unrevealed right now — its king always among
- * them (while the game continues), plus its trap if not yet sprung, plus whichever soldiers
- * haven't fought yet. */
+ * them (while the game continues), its trap always too (a trap survives being sprung and is never
+ * revealed), plus whichever soldiers haven't fought yet. */
 function countAliveUnrevealed(state: GameState, team: Team): number {
   let count = 0;
   for (const piece of Object.values(state.pieces)) {

@@ -315,9 +315,10 @@ export class Room {
       // The next turn's clock only starts once the cinematic + board resolve has finished playing
       // on both clients — otherwise it'd be ticking down while the outcome is still animating in.
       // `resolvingUntil` makes that same window authoritative: no move is accepted from anyone
-      // until it has actually finished. For a trap it additionally stops the opponent moving onto
-      // the vacated tile before the client's sequence ends, which would leave the client's
-      // position-keyed override painting the stale dead piece there.
+      // until it has actually finished. For a trap that matters even though the tile is never
+      // actually vacated — the trap survives being sprung — because the client draws a hole there
+      // for most of the sequence, and a move accepted into that window would leave the client's
+      // position-keyed override painting the wrong piece on the tile.
       this.state.resolvingUntil = Date.now() + cinematicMs;
       if (this.resolveTimer) clearTimeout(this.resolveTimer);
       this.resolveTimer = setTimeout(() => {
@@ -519,5 +520,6 @@ function freshState(code: string): GameState {
     lastEvent: null,
     lastMove: null,
     resolvingUntil: null,
+    sprungTrapTiles: [],
   };
 }

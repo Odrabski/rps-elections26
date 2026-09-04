@@ -61,9 +61,9 @@ export const BATTLE_SEQUENCE_MS = CLASH_REVEAL_DELAY_MS + FIGHT_SEQUENCE_MS + CL
 export const KING_CAPTURE_SEQUENCE_MS = CLASH_JUMP_MS + 900;
 
 // The client's trap sequence (BoardGrid: warning banner → trap dissolves → attacker jumps onto
-// the hole → attacker sinks and vanishes). Defined here (not just in BoardGrid.tsx) so the server
-// can hold the next turn's timer off until the whole sequence has actually finished playing —
-// mirroring BATTLE_SEQUENCE_MS's own reasoning for battles.
+// the hole → attacker sinks and vanishes → the trap climbs back out). Defined here (not just in
+// BoardGrid.tsx) so the server can hold the next turn's timer off until the whole sequence has
+// actually finished playing — mirroring BATTLE_SEQUENCE_MS's own reasoning for battles.
 export const TRAP_WARNING_MS = 1000;
 export const TRAP_DISSOLVE_MS = 400;
 export const TRAP_ATTACKER_JUMP_MS = 500;
@@ -72,6 +72,13 @@ export const TRAP_ATTACKER_FALL_MS = 600;
  *  hole. The banner used to open the sequence, announcing the trap before anything had happened;
  *  it now reports it afterwards, which needs its own beat at the end to be readable. */
 export const TRAP_BANNER_MS = 1200;
+/** The trap survives being sprung, so the hole has to close again: the figure rises back into its
+ *  tile, wearing the same disguise it wore before, ready to be triggered again.
+ *
+ *  Carved out of TRAP_BANNER_MS rather than added after it, which keeps TRAP_SEQUENCE_MS — and so
+ *  the server's board lock — exactly as long as it was. There is room: by the time the banner is
+ *  up the hole has already been on screen for 1100ms, so it has long since read as empty. */
+export const TRAP_RETURN_MS = 700;
 
 export const TRAP_SEQUENCE_MS =
   TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS + TRAP_BANNER_MS;

@@ -25,6 +25,7 @@ function freshState(): GameState {
     lastEvent: null,
     lastMove: null,
     resolvingUntil: null,
+    sprungTrapTiles: [],
   };
 }
 

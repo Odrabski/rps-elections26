@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { GameState, Piece } from 'shared';
+import { applyMove } from './combat.js';
 import { toClientView } from './view.js';
 
 function makeState(pieces: Piece[]): GameState {
@@ -18,6 +19,7 @@ function makeState(pieces: Piece[]): GameState {
     lastEvent: null,
     lastMove: null,
     resolvingUntil: null,
+    sprungTrapTiles: [],
   };
 }
 
@@ -63,6 +65,33 @@ describe('toClientView: fog of war', () => {
     expect('kind' in rawHidden).toBe(false);
     expect('hand' in rawHidden).toBe(false);
     expect('characterId' in rawHidden).toBe(false);
+  });
+
+  it('keeps a sprung trap disguised, and never ships the tiles it remembers', () => {
+    const attacker: Piece = {
+      id: 'red-soldier-0', team: 'red', kind: 'soldier', hand: 'rock',
+      characterId: 'op_bennet', position: { row: 3, col: 3 }, revealed: false, alive: true,
+    };
+    const trap: Piece = {
+      id: 'blue-trap', team: 'blue', kind: 'trap', hand: null,
+      characterId: 'co_aryederi', position: { row: 3, col: 4 }, revealed: false, alive: true,
+    };
+    const state = makeState([attacker, trap]);
+
+    applyMove(state, attacker, { row: 3, col: 4 });
+    const view = toClientView(state, 'red');
+
+    // The trap survived the spring and is still on the board, but red must not be able to tell it
+    // apart from any other piece it hasn't fought.
+    const seenTrap = view.pieces.find((p) => p.id === 'blue-trap')!;
+    expect(seenTrap.alive).toBe(true);
+    expect(seenTrap.revealed).toBe(false);
+    expect(seenTrap.kind).toBeUndefined();
+    expect(seenTrap.characterId).toBeUndefined();
+
+    // The server remembers the tile for the bot's sake; that memory is not the player's to have.
+    const raw = JSON.parse(JSON.stringify(view));
+    expect('sprungTrapTiles' in raw).toBe(false);
   });
 
   it('always reveals a dead piece regardless of who owned it', () => {

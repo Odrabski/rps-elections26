@@ -19,6 +19,7 @@ function makeState(pieces: Piece[], turn: Team = 'red'): GameState {
     lastEvent: null,
     lastMove: null,
     resolvingUntil: null,
+    sprungTrapTiles: [],
   };
 }
 
@@ -106,6 +107,28 @@ describe('chooseBotMove: medium', () => {
       alive: true,
     };
     const state = makeState([attacker, trap]);
+
+    const move = chooseBotMove(state, 'red', 'medium');
+
+    expect(move).not.toEqual({ pieceId: 'a', to: { row: 3, col: 3 } });
+  });
+
+  it('never walks into a trap it has already sprung, even though it stays disguised', () => {
+    const attacker = soldier('a', 'red', 'rock', 2, 3);
+    const trap: Piece = {
+      id: 't',
+      team: 'blue',
+      kind: 'trap',
+      hand: null,
+      characterId: 't',
+      position: { row: 3, col: 3 },
+      // Springing a trap never reveals it, so the piece itself gives nothing away — only the
+      // remembered tile does.
+      revealed: false,
+      alive: true,
+    };
+    const state = makeState([attacker, trap]);
+    state.sprungTrapTiles = [{ row: 3, col: 3 }];
 
     const move = chooseBotMove(state, 'red', 'medium');
 

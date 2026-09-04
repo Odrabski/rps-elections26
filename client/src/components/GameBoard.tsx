@@ -102,10 +102,9 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       inFlight.add(clashEvent.attacker.id);
       inFlight.add(clashEvent.defender.id);
     }
-    if (trapEvent) {
-      inFlight.add(trapEvent.attacker.id);
-      inFlight.add(trapEvent.trap.id);
-    }
+    // Only the attacker: the trap survives being sprung, so it never leaves the count in the
+    // first place and has nothing to hold back.
+    if (trapEvent) inFlight.add(trapEvent.attacker.id);
     if (inFlight.size === 0) return view.pieces;
     return view.pieces.map((p) => (inFlight.has(p.id) && !p.alive ? { ...p, alive: true } : p));
   }, [view.pieces, clashEvent, trapEvent]);

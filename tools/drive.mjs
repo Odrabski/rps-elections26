@@ -187,14 +187,129 @@ async function main() {
   await sleep(1200);
   await shot('5-board');
 
-  // What the caller actually came for: where the pill ends up relative to its own layout box.
-  const measured = await evaluate(`(() => {
-    const pill = document.querySelector('.turn-pill');
-    const r = pill.getBoundingClientRect();
-    const shift = getComputedStyle(pill).transform;
-    return { text: pill.textContent, top: r.top, bottom: r.bottom, height: r.height, transform: shift };
+  if (!process.argv.includes('--hunt-trap')) {
+    // Default: just report where the turn pill ended up.
+    const measured = await evaluate(`(() => {
+      const pill = document.querySelector('.turn-pill');
+      const r = pill.getBoundingClientRect();
+      return { text: pill.textContent, top: r.top, height: r.height, transform: getComputedStyle(pill).transform };
+    })()`);
+    process.stdout.write(JSON.stringify(measured, null, 2) + '\n');
+    return;
+  }
+
+  await huntTrap();
+}
+
+/**
+ * Marches soldiers forward until something walks onto the bot's trap, then again onto the *same*
+ * tile — the acceptance test for the trap surviving being sprung.
+ *
+ * Pieces are selected by clicking tiles rather than figures: the piece layer is pointer-events:none
+ * and an invisible button grid sits on top, so the only reliable handle is "click a tile, see
+ * whether legal targets lit up".
+ */
+/** A tied clash blocks everything until both sides pick a hand; the panel is modal. */
+async function pickTieBreakHandIfAsked() {
+  await evaluate(`(() => {
+    const b = [...document.querySelectorAll('.tiebreak-card button')];
+    if (b.length) { b[Math.floor(Math.random() * b.length)].click(); return true; }
+    return false;
   })()`);
-  process.stdout.write(JSON.stringify(measured, null, 2) + '\n');
+}
+
+async function huntTrap() {
+  // Match the pill's own wording positively. Testing for the opponent's "תור <side>" instead does
+  // not work: "התור שלך" contains that very substring, so every turn reads as theirs.
+  const canMove = `document.querySelector('.turn-pill')?.textContent.includes('התור שלך') && !document.querySelector('.board-hole') && !document.querySelector('.board-clash-cloud')`;
+  const trapTiles = [];
+  let shots = 0;
+
+  for (let turn = 0; turn < 220 && trapTiles.length < 2; turn++) {
+    try {
+      await waitFor(canMove, { timeout: 25000, label: 'my turn' });
+    } catch {
+      console.error(`turn ${turn}: never became my move — stopping`);
+      break; // game over, or stuck resolving
+    }
+    await sleep(250);
+
+    // My own figures carry .piece-mine, and each sits in the same .board-cell as its (invisible)
+    // .board-tile button, so the cells holding my pieces are the only ones worth clicking.
+    const mine = await evaluate(`(() => {
+      const cells = [...document.querySelectorAll('.board-cell')];
+      return cells
+        .map((c, i) => (c.querySelector('.piece-view.piece-mine') ? i : -1))
+        .filter((i) => i >= 0);
+    })()`);
+
+    // Selecting is a React state change, so the legal tiles only exist on the *next* render —
+    // clicking and reading back inside one evaluate() always sees the stale DOM.
+    let picked = null;
+    for (const index of mine.sort(() => Math.random() - 0.5)) {
+      await evaluate(`document.querySelectorAll('.board-cell')[${index}].querySelector('.board-tile').click()`);
+      await sleep(120);
+      const legal = await evaluate(`document.querySelectorAll('.board-tile-legal').length`);
+      if (legal > 0) {
+        picked = { index, legal };
+        break;
+      }
+    }
+    if (!picked) {
+      // Almost always the board still being locked (`resolving` outlives the cloud), or a
+      // tie-break panel waiting on a hand. Neither is terminal — wait it out and try again.
+      console.error(`turn ${turn}: no legal move offered yet (${mine.length} pieces) — retrying`);
+      await pickTieBreakHandIfAsked();
+      await sleep(1500);
+      continue;
+    }
+    console.error(`turn ${turn}: moving from cell ${picked.index} (${picked.legal} targets)`);
+
+    // Forward for this viewer is up the screen, so prefer the legal tile with the smallest top.
+    await evaluate(`(() => {
+      const legal = [...document.querySelectorAll('.board-tile-legal')];
+      legal.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      legal[0].click();
+      return true;
+    })()`);
+
+    // Watch briefly for a trap opening up.
+    for (let i = 0; i < 24; i++) {
+      await sleep(150);
+      const hole = await evaluate(`(() => {
+        const h = document.querySelector('.board-hole');
+        if (!h) return null;
+        const cell = h.closest('.board-cell') ?? h.parentElement;
+        const all = [...document.querySelectorAll('.board-cell')];
+        return { index: all.indexOf(cell) };
+      })()`);
+      if (!hole) continue;
+
+      trapTiles.push(hole.index);
+      const n = trapTiles.length;
+      console.error(`trap sprung (#${n}) at cell index ${hole.index}`);
+      // Grab the sequence: hole visible → banner → the return.
+      for (const [label, delay] of [['hole', 0], ['fallen', 900], ['returning', 1300], ['settled', 800]]) {
+        await sleep(delay);
+        await shot(`trap${n}-${++shots}-${label}`);
+        // The last-move marker must stay off this tile until the pit is gone and it is an
+        // ordinary tile again, so record what the tile actually carries at each beat.
+        const tile = await evaluate(`(() => {
+          const cell = document.querySelectorAll('.board-cell')[${hole.index}];
+          const t = cell.querySelector('.board-tile');
+          return { cls: t.className, hole: !!cell.querySelector('.board-hole'), piece: !!cell.querySelector('.piece-view') };
+        })()`);
+        console.error(`  ${label}: hole=${tile.hole} piece=${tile.piece} lastMove=${/last-move/.test(tile.cls)}`);
+      }
+      break;
+    }
+  }
+
+  const verdict = await evaluate(`(() => ({
+    tileNowHasPiece: !!document.querySelector('.board-hole') === false,
+    holeGone: !document.querySelector('.board-hole'),
+  }))()`);
+  process.stdout.write(JSON.stringify({ trapTiles, ...verdict }, null, 2) + '\n');
 }
 
 main()

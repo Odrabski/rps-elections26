@@ -66,6 +66,11 @@ export interface GameState {
    * show who's up next), which would otherwise let them move pieces mid-fight — no move is
    * accepted until this passes. Null whenever nothing is resolving. */
   resolvingUntil: number | null;
+  /** Tiles where a trap has been sprung at least once. A trap survives being triggered and is
+   * never revealed, so this is the only record that one is there — it exists to give the bot the
+   * memory a human has of watching a soldier die on that square (see bot.ts). Server-only:
+   * deliberately absent from ClientGameView, which builds its output field by field. */
+  sprungTrapTiles: Position[];
 }
 
 /** Fog-of-war-filtered view of a single piece, as seen by one recipient. */

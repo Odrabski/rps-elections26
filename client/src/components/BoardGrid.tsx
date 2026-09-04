@@ -9,6 +9,7 @@ import {
   TRAP_DISSOLVE_MS,
   TRAP_ATTACKER_JUMP_MS,
   TRAP_ATTACKER_FALL_MS,
+  TRAP_RETURN_MS,
   TRAP_SEQUENCE_MS,
 } from 'shared';
 import type { ClientPieceView, Position, Team } from 'shared';
@@ -17,9 +18,12 @@ import { mirrorPosition } from '../utils/boardMirror';
 import { play } from '../utils/sfx';
 import './BoardGrid.css';
 
-/** Both pieces involved in a just-triggered trap, kept around purely for the dissolve sequence
- * below — server data already has them both `alive: false`, so `getPieceAt` alone can't find
- * them at their tiles anymore. */
+/** Both pieces involved in a just-triggered trap, kept around purely for the sequence below.
+ *
+ * Snapshots, not live data: the attacker is already `alive: false` by the time this arrives, so
+ * `getPieceAt` can't find it at its tile anymore. The trap is still very much alive — it survives
+ * being sprung — but it's held here anyway, because this is the piece as it looked *before* the
+ * move, which is exactly what the sequence has to keep showing. */
 export interface TrapEventInfo {
   attacker: ClientPieceView;
   trap: ClientPieceView;
@@ -52,8 +56,9 @@ interface BoardGridProps {
   /** The currently-selected piece's own tile — legal-target tiles get a directional arrow
    * pointing from here, on top of their usual highlight. */
   selectedPosition?: Position | null;
-  /** Drives the one-time trap dissolve sequence (red flash → trap fades → attacker jumps onto
-   * the tile → attacker fades) — set by GameBoard for the lifetime of a 'trap-triggered' event. */
+  /** Drives the trap sequence (red flash → trap fades → attacker jumps onto the tile → attacker
+   * fades → the trap climbs back out) — set by GameBoard for the lifetime of a 'trap-triggered'
+   * event. The trap is never spent, so the sequence always ends with it back on its tile. */
   trapEvent?: TrapEventInfo | null;
   /** Drives the whole on-board clash sequence (attacker jumps in → both vanish into a persistent
    * cloud → cloud dissolves to the winner) — set by GameBoard for the lifetime of a battle/tie
@@ -72,7 +77,7 @@ const TILT_MIN_DELAY_MS = 2500;
 const TILT_MAX_DELAY_MS = 6000;
 const TILT_FIXED_INTERVAL_MS = 8000;
 
-type TrapPhase = 'warning' | 'trap-dissolve' | 'attacker-jump' | 'attacker-fall' | 'fallen';
+type TrapPhase = 'warning' | 'trap-dissolve' | 'attacker-jump' | 'attacker-fall' | 'fallen' | 'trap-return';
 
 /** Total lifetime of the trap sequence — GameBoard clears its `trapEvent` after this. Also used
  * by the server (Room.ts) to hold the next turn's timer off until this has finished playing. */
@@ -288,6 +293,10 @@ export function BoardGrid({
         () => setTrapPhase('fallen'),
         TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS,
       ),
+      // The trap was never spent, so the hole closes over and the figure rises back into place,
+      // wearing the disguise it wore before. Timed off the end of the sequence rather than the
+      // start of the banner, so it fills the tail of the banner instead of extending it.
+      setTimeout(() => setTrapPhase('trap-return'), TRAP_SEQUENCE_MS - TRAP_RETURN_MS),
     ];
     return () => timers.forEach(clearTimeout);
   }, [trapEvent]);
@@ -337,13 +346,19 @@ export function BoardGrid({
           let piece = getPieceAt(actual);
           let dissolving = false;
           let falling = false;
+          let returning = false;
           let jump: { x: string; y: string } | null = null;
-          // Once the trap is spent, the tile itself becomes a hole for the rest of the sequence —
-          // the attacker jumps onto it, then sinks into it.
+          // Once the trap has dropped out of sight the tile itself becomes a hole — the attacker
+          // jumps onto it, then sinks into it. It stays through 'trap-return' too, fading out
+          // underneath the figure climbing back over it rather than being cut away.
           const showHole =
             trapEvent &&
             atTrapTile &&
-            (trapPhase === 'attacker-jump' || trapPhase === 'attacker-fall' || trapPhase === 'fallen');
+            (trapPhase === 'attacker-jump' ||
+              trapPhase === 'attacker-fall' ||
+              trapPhase === 'fallen' ||
+              trapPhase === 'trap-return');
+          const holeClosing = showHole && trapPhase === 'trap-return';
           const showClashCloud =
             clashEvent && atClashTarget && (clashPhase === 'in-cloud' || clashPhase === 'dissolving');
           // The defender reacts in place — a quick flinch, not a dissolve — for exactly as long
@@ -374,8 +389,16 @@ export function BoardGrid({
             piece = trapEvent.attacker;
             falling = true;
           } else if (trapEvent && atTrapTile && trapPhase === 'fallen') {
-            // Gone: the hole above is all that's left of either of them.
+            // The attacker is gone for good. The trap is only out of sight — the hole above is
+            // all there is to see for this beat.
             piece = undefined;
+          } else if (trapEvent && atTrapTile && trapPhase === 'trap-return') {
+            // Back up, in the same disguise as before. Deliberately the pre-move snapshot rather
+            // than a fresh lookup: it's the same piece either way (the trap outlives the spring
+            // and is never revealed), and reusing it guarantees the figure that climbs out is the
+            // one that went down.
+            piece = trapEvent.trap;
+            returning = true;
           } else if (
             trapEvent &&
             atAttackerOrigin &&
@@ -390,8 +413,14 @@ export function BoardGrid({
           const legal = isLegalTarget?.(actual) ?? false;
           const isPulsing = pulsePosition && samePos(actual, pulsePosition);
           const arrowDir = legal && selectedPosition ? arrowDirection(selectedPosition, actual, team) : null;
+          // The server credits the trap's tile to the trap's owner the moment the move lands, but
+          // the marker has no business appearing while that tile is a hole — it would sit on open
+          // ground under the falling soldier. Held back until the sequence is over and the tile is
+          // an ordinary tile again.
           const lastMoveTeam: Team | null =
-            lastMove && samePos(actual, lastMove.position) ? lastMove.team : null;
+            lastMove && samePos(actual, lastMove.position) && !(trapEvent && atTrapTile)
+              ? lastMove.team
+              : null;
           return (
             <div key={key} className="board-cell">
               <button
@@ -407,7 +436,13 @@ export function BoardGrid({
                 disabled={!isClickable(actual)}
                 aria-label={key}
               />
-              {showHole && <img src="/assets/pieces/hole.webp" alt="" className="board-hole" />}
+              {showHole && (
+                <img
+                  src="/assets/pieces/hole.webp"
+                  alt=""
+                  className={`board-hole${holeClosing ? ' board-hole-closing' : ''}`}
+                />
+              )}
               {arrowDir && <span className={`board-arrow board-arrow-${arrowDir}`} aria-hidden="true" />}
               {defenderFlinch && (
                 <div className="board-piece-anim" style={{ '--piece-row': display.row } as CSSProperties}>
@@ -442,6 +477,7 @@ export function BoardGrid({
                       isPulsing ? 'board-piece-tilt' : '',
                       dissolving ? 'piece-dissolving' : '',
                       falling ? 'piece-falling' : '',
+                      returning ? 'piece-returning' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
@@ -472,7 +508,7 @@ export function BoardGrid({
           );
         })}
       </div>
-      {trapPhase === 'fallen' && trapEvent && (
+      {(trapPhase === 'fallen' || trapPhase === 'trap-return') && trapEvent && (
         <div className="trap-warning-banner">
           {trapEvent.attacker.team === team ? 'מלכודת! נפלת בתרגיל פוליטי' : 'הופה! הפלת את היריב שלך בפח'}
         </div>
