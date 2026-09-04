@@ -54,6 +54,14 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
   // hidden through that gap too, not just while the cinematic itself (activeEvent) is showing,
   // or it would pop up early, overlapping the on-board jump/cloud animation.
   const [cinematicPending, setCinematicPending] = useState(false);
+  const fanfareTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  useEffect(() => {
+    const timers = fanfareTimersRef.current;
+    return () => {
+      for (const t of timers) clearTimeout(t);
+      timers.clear();
+    };
+  }, []);
 
   const seed = gameSeed(view);
   const myTurn = view.turn === team && !view.tieBreak;
@@ -167,6 +175,12 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       const attackerBefore = prevPiecesRef.current.get(event.attackerId);
       const defenderBefore = prevPiecesRef.current.get(event.defenderId);
       play('clash.impact');
+      // Then the charge, in the gap the board already leaves before the cinematic: the jump and
+      // cloud run for CLASH_REVEAL_DELAY_MS (1500ms) before "3" appears, so a 1.32s call started
+      // just after the collision finishes exactly as the countdown begins. Nothing is retimed for
+      // it — it fills a beat that was silent.
+      const fanfare = setTimeout(() => play('fight.fanfare'), 160);
+      fanfareTimersRef.current.add(fanfare);
       if (attackerBefore && defenderBefore) {
         setClashEvent({
           attacker: attackerBefore,

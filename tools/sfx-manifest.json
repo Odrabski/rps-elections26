@@ -43,6 +43,9 @@
     "clash.impact": [
       "kenney_impact-sounds/Audio/impactPunch_heavy_001.ogg"
     ],
+    "fight.fanfare": [
+      "__own__"
+    ],
     "fight.throw": [
       "kenney_interface-sounds/Audio/scratch_001.ogg"
     ],

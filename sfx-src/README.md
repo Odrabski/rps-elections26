@@ -25,7 +25,8 @@ wearing out.
 | `move.step.1` `.2` | **your** soldier moves to an empty tile | 20–40 |
 | `move.opponent.1` `.2` | **their** soldier moves | 20–40 |
 | `clash.impact` | two soldiers meet and the cloud drops | 10–20 |
-| `fight.start` | the announcer on the FIGHT beat, after 3-2-1 | 10–20 |
+| `fight.fanfare` | a bugle charge in the beat before 3-2-1 | 10–20 |
+| `fight.start` | on the FIGHT beat, after 3-2-1 | 10–20 |
 | `fight.throw` | rock/paper/scissors are revealed | 10–20 |
 | `fight.win` | you won that fight | 5–12 |
 | `fight.lose` | you lost that fight | 5–12 |
@@ -55,6 +56,11 @@ sound with life in it; a single take read sixty times reads as a machine.
 **Level them together.** Aim for about −16 LUFS. The build does not normalise, so a clip mastered
 loud will jump out. If one ends up too loud, `GAIN` near the top of `client/src/utils/sfx.ts` trims
 a single cue without re-cutting the file.
+
+`fight.fanfare` is synthesised rather than sampled — no CC0 pack I could find has a trumpet, and a
+bugle call only uses notes from the harmonic series, which is exactly why it sounds like one. The
+generator is in the commit history if you want to retune it; dropping a real trumpet in here
+replaces it like any other cue.
 
 The two move cues are the same fabric pitched apart — yours up 22%, theirs down 16% — so they
 read as the same kind of event from two different people. Both are trimmed to 480ms, the length of
