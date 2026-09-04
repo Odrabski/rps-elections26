@@ -352,6 +352,11 @@
       "file": "client/src/components/SoundToggle.tsx"
     },
     {
+      "id": "SoundToggle.ce8881",
+      "text": "לחצו להפעלת סאונד! (מומלץ!)",
+      "file": "client/src/components/SoundToggle.tsx"
+    },
+    {
       "id": "SplashScreen.32fb9b",
       "text": "טוען...",
       "file": "client/src/components/SplashScreen.tsx"

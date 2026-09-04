@@ -42,7 +42,7 @@ export function SoundToggle({ prominent = false }: SoundToggleProps) {
       <span className="sound-toggle-icon">{off ? '🔇' : '🔊'}</span>
       {/* Rendered only when asking, so the button has nothing to collapse *from* once sound is on
           and the layout never shifts underneath a second click. */}
-      {asking && <span className="sound-toggle-label">הפעל סאונד!</span>}
+      {asking && <span className="sound-toggle-label">לחצו להפעלת סאונד! (מומלץ!)</span>}
     </button>
   );
 }

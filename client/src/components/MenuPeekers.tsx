@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { RPSHand, Team } from 'shared';
-import { HIDDEN_BODY_ASSET, HIDDEN_HEAD_POOL, SOLDIER_BACK_EXPOSED_ASSET } from 'shared';
+import { HIDDEN_BODY_ASSET, HIDDEN_HEAD_POOL, SOLDIER_HAND_ASSET } from 'shared';
 import './MenuPeekers.css';
 
 /** How long one of them is on screen, in and out included. */
@@ -27,14 +27,16 @@ const HANDS: RPSHand[] = ['rock', 'paper', 'scissors'];
 
 /**
  * The body under the head — either the anonymous decoy suit every unrevealed piece wears, or one
- * of the three weapon-exposed backs, picked at random so the menu shows off all four.
+ * of the three front-facing weapon bodies, picked at random so the menu shows off all four.
  *
- * The exposed sprites carry their own back-of-head, which the portrait mask lands on top of and
- * covers; the result reads as the character having turned around to show you what they're holding.
+ * Front-facing (SOLDIER_HAND_ASSET), not the back-view `_x` family: these are the sprites the
+ * board uses for a revealed opponent, so they are already built to be seen from the front with a
+ * portrait layered on. The back-view ones face away and carry their own back-of-head, which the
+ * mask then has to cover — it worked, but a figure leaning into frame should be facing you.
  */
 function randomBody(team: Team): string {
   if (Math.random() < 0.4) return HIDDEN_BODY_ASSET[team];
-  return SOLDIER_BACK_EXPOSED_ASSET[team][HANDS[Math.floor(Math.random() * HANDS.length)]];
+  return SOLDIER_HAND_ASSET[team][HANDS[Math.floor(Math.random() * HANDS.length)]];
 }
 
 interface Peeker {
