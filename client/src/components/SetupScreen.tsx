@@ -124,7 +124,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
               '⚠️ הלו, צריך לבחור מתוך האנשים שלך כאן למטה ולא מהצד השני'
             ) : (
               <>
-                {step === 'king' && '👑 איפה נחביא את המלך?'}
+                {step === 'king' && '👑 בחרו את המלך'}
                 {step === 'trap' && '🪤 ואיפה תהיה המלכודת?'}
               </>
             )}
