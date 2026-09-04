@@ -317,6 +317,16 @@
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
+      "id": "SetupScreen.4cbd20",
+      "text": "בחרו מקום למלך",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
+      "id": "SetupScreen.9bd851",
+      "text": "בחרו מקום למלכודת",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
       "id": "SetupScreen.599191",
       "text": "ברגע שהצד השני יסיים להתארגן נתחיל",
       "file": "client/src/components/SetupScreen.tsx"

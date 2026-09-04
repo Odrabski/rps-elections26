@@ -153,7 +153,10 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
           reading. `.turn-pill` lives in GameBoard.css, which is always in the bundle (App imports
           GameBoard statically), so it needs no import here. */}
       <div className="turn-pill setup-turn-pill" style={{ background: theme.solid }}>
-        שלב סידור הלוח
+        {/* Tracks the step rather than sitting on one label: "בחרו מקום למלך" would be actively
+            wrong the moment the king is down and the trap is what's being placed. Falls back to
+            naming the phase once both are placed and the choice is only whether to start. */}
+        {step === 'king' ? 'בחרו מקום למלך' : step === 'trap' ? 'בחרו מקום למלכודת' : 'שלב סידור הלוח'}
       </div>
 
       <button type="button" className="setup-howto-link" onClick={() => setShowHowTo(true)}>
