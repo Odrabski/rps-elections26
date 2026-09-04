@@ -199,8 +199,18 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
         <img src="/assets/logo.webp" alt="אבניהו - מהדורת בחירות 2026" className="home-logo" />
         <div className="home-panel panel">
           <button type="button" className="btn-primary home-vs-bot-btn" onClick={() => startTeamPick(true)}>
-          משחק מול בוט
-        </button>
+            <span>משחק מול בוט</span>
+            {/* Stroke-only and inheriting currentColor, so it sits in the button's own ink rather
+                than as a coloured emoji whose look is up to whichever font the device happens to
+                have. Last in the DOM, which in this RTL layout puts it after the words. */}
+            <svg className="home-btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="4" y="8" width="16" height="12" rx="3" />
+              <path d="M12 8V4.5" />
+              <circle cx="12" cy="3" r="1.4" />
+              <path d="M9 13.2v1.6M15 13.2v1.6" />
+              <path d="M1.8 12.5v3M22.2 12.5v3" />
+            </svg>
+          </button>
 
         <button type="button" className="btn-primary home-create-btn" onClick={() => startTeamPick(false)}>
           משחק מול חבר

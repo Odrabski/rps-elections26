@@ -17,7 +17,7 @@
    mirror of it from the right, so both lean *in*. A single direction would tip the right-hand one
    away off the screen. The tilt lives here and the rise on the child — separate elements, because
    a keyframe setting `transform` replaces the whole value and would drop the rotation. */
-.menu-peeker-left {
+.menu-peeker-bottom-left {
   left: -6px;
   /* Pivoting on the bottom corner puts the origin below the window, which swings the figure out of
      view as it tilts. Centre-bottom keeps it where it was placed. */
@@ -25,13 +25,13 @@
   transform-origin: center bottom;
 }
 
-.menu-peeker-right {
+.menu-peeker-bottom-right {
   right: -6px;
   transform: rotate(-24deg);
   transform-origin: center bottom;
 }
 
-/* Straight up from the bottom, deliberately untilted: a figure leaning 26 degrees while rising
+/* Straight up from the bottom middle, deliberately untilted: a figure leaning 26 degrees while rising
    vertically reads as falling over. The side ones are tilted because they are leaning round
    something; this one is not. */
 .menu-peeker-bottom {

@@ -9,7 +9,19 @@ const FIRST_DELAY_MS = 3500;
 const GAP_MIN_MS = 7000;
 const GAP_MAX_MS = 14000;
 
-type Side = 'left' | 'right' | 'bottom';
+/**
+ * Where one arrives from — all three rise out of the window's lower edge, at a corner or in the
+ * middle.
+ *
+ * Horizontal entries from the left and right edges were tried and dropped. A whole figure needs a
+ * steep tilt to read as leaning round a vertical edge, and at that angle it stops looking like a
+ * lean and starts looking like someone lying down in the middle of the menu. The corner risers
+ * below already arrive from the left and right; they just do it from the floor, where a modest
+ * tilt is enough.
+ */
+type Side = 'bottom-left' | 'bottom-right' | 'bottom';
+
+const SIDES: Side[] = ['bottom-left', 'bottom-right', 'bottom'];
 
 interface Peeker {
   /** Remounts the element for each appearance, so the animation restarts rather than being skipped
@@ -25,15 +37,15 @@ interface Peeker {
 function randomPeeker(key: number): Peeker {
   const team: Team = Math.random() < 0.5 ? 'blue' : 'red';
   const pool = HIDDEN_HEAD_POOL[team];
-  const side: Side = (['left', 'right', 'bottom'] as const)[Math.floor(Math.random() * 3)];
+  const side = SIDES[Math.floor(Math.random() * SIDES.length)];
   return {
     key,
     head: pool[Math.floor(Math.random() * pool.length)],
     team,
     side,
-    // Where along the bottom edge they come up. The side ones hug their corner, so only the
-    // middle arrivals need placing — kept off the very edges, where the copyright line sits.
-    along: 16 + Math.random() * 58,
+    // Only the middle arrival needs placing: the corner ones hug their corner. Kept off the very
+    // ends, where the copyright line sits.
+    along: 22 + Math.random() * 46,
   };
 }
 
@@ -113,8 +125,9 @@ export function LogoPeeker() {
         head: pool[Math.floor(Math.random() * pool.length)],
         team,
         side: 'bottom',
-        // Anywhere across the logo except dead centre, where the crown is.
-        along: Math.random() < 0.5 ? 14 + Math.random() * 22 : 62 + Math.random() * 22,
+        // Across the middle of the logo, skipping dead centre where the crown sits. Kept well off
+        // the ends: out near the edges a head has no logo behind it to rise from.
+        along: Math.random() < 0.5 ? 32 + Math.random() * 12 : 56 + Math.random() * 12,
       });
       hide = setTimeout(() => setPeeker(null), LOGO_VISIBLE_MS);
     };

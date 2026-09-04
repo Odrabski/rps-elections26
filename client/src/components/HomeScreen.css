@@ -67,6 +67,12 @@
 .home-create-btn,
 .home-vs-bot-btn {
   width: 100%;
+  /* The two primary buttons keep matching heights, so the one carrying an icon lays its label and
+     glyph out in a row rather than growing taller than its neighbour. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   padding: 12px 28px;
   font-size: 16px;
   font-weight: 700;
@@ -487,4 +493,17 @@
   50% {
     transform: translateX(calc(-50% - 6px)) rotate(8deg);
   }
+}
+
+/* Line-art, in the button's own ink. Sized against the label rather than in px so it tracks the
+   text if the button's font-size ever changes. */
+.home-btn-icon {
+  flex: none;
+  width: 1.35em;
+  height: 1.35em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
