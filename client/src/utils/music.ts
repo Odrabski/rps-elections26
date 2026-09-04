@@ -1,11 +1,12 @@
 /**
  * The looping tracks: the menu bed, and the two that play under the result screen.
  *
- * Deliberately one <audio> element rather than the Web Audio graph the effects use. Each track runs
- * about 31 seconds, and decoding that into an AudioBuffer costs ~5.2MB of resident memory — this
- * game already fights phone browsers discarding the tab under memory pressure (see the splash skip
- * in App.tsx), and spending that on background audio is exactly how it gets worse. An <audio>
- * element streams instead, and gets native looping for free.
+ * Deliberately one <audio> element rather than the Web Audio graph the effects use. The tracks run
+ * from ~30 seconds (the result loops) to a couple of minutes (the menu bed), and decoding that into
+ * an AudioBuffer costs on the order of megabytes of resident memory apiece — this game already
+ * fights phone browsers discarding the tab under memory pressure (see the splash skip in App.tsx),
+ * and spending that on background audio is exactly how it gets worse. An <audio> element streams
+ * instead, and gets native looping for free.
  *
  * One element, swapped between sources, because only one is ever wanted at a time: you are either
  * in the menu or looking at a result, never both.
@@ -24,7 +25,7 @@ const SOURCES: Record<Track, string> = {
 
 /** The result tracks sit higher than the menu bed: nothing competes with them, and they carry the
  *  moment rather than sitting under it. */
-const VOLUME: Record<Track, number> = { menu: 0.34, win: 0.44, lose: 0.4 };
+const VOLUME: Record<Track, number> = { menu: 0.17, win: 0.44, lose: 0.4 };
 
 const STORAGE_KEY = 'rps-politika:muted';
 

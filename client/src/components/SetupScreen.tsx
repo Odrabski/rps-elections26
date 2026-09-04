@@ -8,6 +8,7 @@ import { ExitButton } from './ExitButton';
 import { ScoreHeader } from './ScoreHeader';
 import { LockedInOverlay } from './LockedInOverlay';
 import { BoardGrid } from './BoardGrid';
+import { HowToPlayModal } from './HowToPlayModal';
 import { play } from '../utils/sfx';
 import './SetupScreen.css';
 
@@ -28,6 +29,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
   const isReady = view.readiness[team];
   const [zoneStart, zoneEnd] = ZONE_ROWS[team];
   const [pulsePosition, setPulsePosition] = useState<Position | null>(null);
+  const [showHowTo, setShowHowTo] = useState(false);
   const seed = gameSeed(view);
 
   const ownPieces = view.pieces.filter((p) => p.team === team);
@@ -146,6 +148,13 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
           That's what makes the board and score-header land at the exact same y on both screens
           once each gets the same extra translateY (see SetupScreen.css). */}
       <div className="setup-turn-pill-spacer" aria-hidden="true" />
+
+      <button type="button" className="setup-howto-link" onClick={() => setShowHowTo(true)}>
+        <span className="setup-howto-mark" aria-hidden="true">?</span>
+        איך משחקים?
+      </button>
+
+      {showHowTo && <HowToPlayModal onClose={() => setShowHowTo(false)} />}
 
       {isReady && (
         <LockedInOverlay subtitle="עכשיו, מחכים לצד השני...">

@@ -6,7 +6,7 @@
   "characterAssets.a49277": "Tooltip / screen reader only (img title + alt), not visible text",
   "characterAssets.557e36": "Tooltip / screen reader only (img title + alt), not visible text",
   "characters.c0e65a": "Tooltip / screen reader only (img title + alt), not visible text",
-  "HomeScreen.552471": "Screen reader only (aria-label on the modal's X)",
+  "HowToPlayModal.552471": "Screen reader only (aria-label on the modal's X)",
   "App.ee7958": "Screen reader only (aria-label on the room code)",
   "HomeScreen.92d0d1": "Screen reader only (logo alt text)",
   "ExitButton.b93906": "Visible label AND the button's aria-label"
