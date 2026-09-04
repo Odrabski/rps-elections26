@@ -21,7 +21,7 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
   // Once per mount. The screen isn't remounted mid-result, and a rematch unmounts it, so this
   // needs no guard beyond the empty dependency list.
   useEffect(() => {
-    play(won ? 'win' : 'lose');
+    play(won ? 'result.win' : 'result.lose');
   }, [won]);
   const detail =
     // Only the opponent ever sees a resignation: exiting resigns and then leaves, which clears the

@@ -69,7 +69,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
 
     if (!isDesignatable(actual)) {
       if (!isOpponentTile(actual)) return;
-      play('ui');
+      play('setup.wrong-side');
       setMisclick(true);
       if (misclickTimer.current) clearTimeout(misclickTimer.current);
       misclickTimer.current = setTimeout(() => setMisclick(false), 2600);
@@ -77,6 +77,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
     }
 
     setMisclick(false);
+    play(step === 'king' ? 'setup.king' : 'setup.trap');
     onPlaceSpecial(step, actual);
     setPulsePosition(actual);
   };

@@ -121,7 +121,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
   const hadTieBreak = useRef(false);
   useEffect(() => {
     const has = view.tieBreak !== null;
-    if (has && !hadTieBreak.current) play('tie');
+    if (has && !hadTieBreak.current) play('fight.tie');
     hadTieBreak.current = has;
   }, [view.tieBreak]);
 
@@ -138,7 +138,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     const event = view.lastEvent;
 
     if (event?.type === 'king-captured') {
-      play('king');
+      play('king.captured');
     }
 
     if (event?.type === 'trap-triggered') {
@@ -150,7 +150,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       const attacker = prevPiecesRef.current.get(event.attackerId);
       const trap = prevPiecesRef.current.get(event.trapId);
       if (attacker && trap) setTrapEvent({ attacker, trap });
-      play('trap');
+      play('trap.spring');
     } else if ((event?.type === 'battle' || event?.type === 'tie-break-started') && !clashEventRef.current) {
       // A fresh clash (no cloud on the board yet — a repeat, or the eventual decisive battle
       // after some ties, just falls through to the plain branch below instead) gets a jump onto
@@ -159,7 +159,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       // clashEvent effect further down).
       const attackerBefore = prevPiecesRef.current.get(event.attackerId);
       const defenderBefore = prevPiecesRef.current.get(event.defenderId);
-      play('clash');
+      play('clash.impact');
       if (attackerBefore && defenderBefore) {
         setClashEvent({
           attacker: attackerBefore,
@@ -228,7 +228,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
             // Deliberately here and not where the 'battle' event first arrives: that is a whole
             // fight sequence earlier, and a win/lose sting there would announce the result before
             // the animation reached it — the same spoiler the score badges used to give away.
-            play(winner.team === team ? 'capture' : 'lost-piece');
+            play(winner.team === team ? 'fight.win' : 'fight.lose');
             setClashEvent((current) => (current ? { ...current, winner } : current));
           } else {
             setClashEvent(null);
@@ -272,7 +272,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
 
     if (occupant && occupant.team === team && occupant.kind === 'soldier') {
       const next = occupant.id === selectedId ? null : occupant.id;
-      if (next) play('select');
+      if (next) play('piece.select');
       setSelectedId(next);
       return;
     }
@@ -281,7 +281,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       // Only a quiet move is sounded locally, for responsiveness — it produces no server event of
       // its own. A clash is left to the event branch below, which fires on both clients, so an
       // attacker doesn't hear it twice.
-      if (!pieceByTile.get(tileKey(actual))) play('move');
+      if (!pieceByTile.get(tileKey(actual))) play('move.step');
       onMove(selected.id, actual);
       setSelectedId(null);
     }

@@ -20,7 +20,7 @@ export function SoundToggle() {
         setMuted(next);
         setOff(next);
         // Unmuting confirms itself; muting can't, and doesn't need to.
-        if (!next) play('ui');
+        if (!next) play('ui.tap');
       }}
     >
       {off ? '🔇' : '🔊'}

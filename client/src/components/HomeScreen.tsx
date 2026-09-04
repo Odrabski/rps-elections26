@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import type { BotDifficulty, Team } from 'shared';
 import { HIDDEN_HEAD_POOL } from 'shared';
 import { TEAM_THEME } from '../data/theme';
+import { play, preload } from '../utils/sfx';
 import './HomeScreen.css';
 
 interface HomeScreenProps {
@@ -84,6 +85,10 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
   );
 
   const startTeamPick = (vsBot: boolean) => {
+    // First real interaction — the gesture a browser needs before it will start an AudioContext,
+    // and the first point at which pulling ~124KB of clips is worth doing.
+    play('ui.tap');
+    preload();
     setVsBotFlow(vsBot);
     setChosenTeam(null);
     setStep('team-pick');
@@ -91,6 +96,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
 
   const chooseTeam = (team: Team) => {
     if (chosenTeam) return;
+    play('team.pick');
     setChosenTeam(team);
     // Brief pause so the head's grayscale-to-color transition is actually visible before
     // navigating on.
