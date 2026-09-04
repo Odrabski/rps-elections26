@@ -11,7 +11,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VENV="$ROOT/.piper-venv"
 VOICE_DIR="$ROOT/.sfx-sources/piper"
-VOICE="en_US-norman-medium"
+VOICE="en_US-john-medium"
 
 if [ ! -x "$VENV/bin/piper" ]; then
   echo "  creating venv"

@@ -23,6 +23,14 @@
   font-size: 3rem;
 }
 
+/* Sized here rather than left at the browser's 2em default, so the longest of the two results
+   ("קולולו! ניצחת") still holds one line on a narrow phone. Margin zeroed because the panel is a
+   flex column and already spaces its children with `gap`. */
+.gameover-panel h1 {
+  margin: 0;
+  font-size: clamp(1.55rem, 7.5vw, 2.15rem);
+}
+
 .gameover-detail {
   margin: 0 0 8px;
   font-weight: 600;

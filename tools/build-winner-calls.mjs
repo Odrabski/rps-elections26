@@ -1,95 +1,45 @@
 #!/usr/bin/env node
 /**
- * Generates the "<NAME> wins!" announcements, one per character portrait.
+ * Generates the "<NAME>! Wins!" announcements, one per character portrait.
  *
- *   tools/setup-piper.sh          # once: installs Piper and fetches the voice
- *   node tools/build-winner-calls.mjs
+ *   tools/setup-piper.sh              # once: installs Piper and fetches the voice
+ *   node tools/build-winner-calls.mjs # writes all 30
+ *   node tools/vo-studio.mjs          # ...or tune them by ear at http://localhost:5180
  *
  * There is no CC0 pack of Israeli politicians' names being shouted, so these are synthesised.
  *
  * Piper (MIT, rhasspy/piper) rather than macOS `say`: the only voices installed on a stock Mac are
- * the legacy formant synthesisers, and no amount of pitch-shifting makes one of those sound human
- * because there is no human in it to begin with. Piper's models are neural and trained on real
- * recordings. en_US-norman was picked by measuring the fundamental of a test line across the
- * candidates — 88Hz, against en_GB-alan's 98 and en_US-ryan's 210, which is a narrator, not an
- * announcer.
+ * the legacy formant synthesisers, and no amount of pitch-shifting makes one sound human because
+ * there is no human in it to begin with. Piper's models are neural, trained on real recordings.
  *
- * It is then pitched down a further 8%, which also slows the delivery — both of which an announcer
- * wants. Combined with length-scale that lands the call around a second and a half.
- *
- * A few names are spelled phonetically below: the speech engine reads the display spelling of some
- * of them wrongly, and it is the sound that matters here, not the spelling.
+ * Every setting — voice, pitch, pace, and how each name is spelled for the engine — lives in
+ * tools/winner-calls.json, so the studio and this script always agree on what a call sounds like.
  */
-import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { speak, characterNames, ROOT } from './lib/speak.mjs';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'client/public/sfx');
-const TMP = join(ROOT, '.sfx-sources/.tts');
-const PIPER = join(ROOT, '.piper-venv/bin/piper');
-const MODEL = join(ROOT, '.sfx-sources/piper/en_US-norman-medium.onnx');
-const PITCH = 0.92;
-/** Piper's own pacing, before the pitch shift slows it further. */
-const LENGTH_SCALE = '1.1';
+const cfg = JSON.parse(readFileSync(join(ROOT, 'tools/winner-calls.json'), 'utf8'));
 
-/** Where `say` mispronounces the display name badly enough to matter. */
-const PHONETIC = {
-  'BEN-GVIR': 'ben gveer',
-  SMOTRICH: 'smoat rich',
-  GOLDKNOPF: 'gold knopf',
-  KARHI: 'kar hee',
-  ROTHMAN: 'rote man',
-  SAAR: 'sah ar',
-  STROOK: 'strook',
-  GOTTLIEB: 'got leeb',
-  EISENKOT: 'eye zen kot',
-  KARIV: 'kah reev',
-  LAZIMI: 'lah zee mee',
-  'BEN-ARI': 'ben ah ree',
-  TIBON: 'tee bone',
-  TIBI: 'tee bee',
-  RAYTEN: 'ray ten',
-  GAFNI: 'gaf nee',
-  DERI: 'deh ree',
-  BIBI: 'bee bee',
-};
-
-const src = readFileSync(join(ROOT, 'client/src/data/characterAssets.ts'), 'utf8');
-const block = src.slice(src.indexOf('const HEAD_DISPLAY_NAME'));
-const names = [...block.slice(0, block.indexOf('};')).matchAll(/(\w+):\s*'([^']+)'/g)];
-
-mkdirSync(TMP, { recursive: true });
 mkdirSync(OUT, { recursive: true });
 
-for (const [, headId, display] of names) {
-  const spoken = `${PHONETIC[display] ?? display} wins!`;
-  const raw = join(TMP, `${headId}.wav`);
-  execFileSync(PIPER, ['-m', MODEL, '--length-scale', LENGTH_SCALE, '-f', raw], { input: spoken });
+const names = characterNames();
+let longest = 0;
+let longestName = '';
 
-  // Pitch down by resampling: telling afconvert the file has a lower sample rate than it does
-  // stretches it, which drops the pitch and slows the delivery in one step. Piper writes 22050Hz
-  // for the medium models, the same rate `say` produced, so the arithmetic below is unchanged.
-  const rate = Math.round(22050 * PITCH);
-  execFileSync('afconvert', ['-f', 'WAVE', '-d', `LEI16@${rate}`, '-c', '1', raw, '/tmp/tts-a.wav']);
-  execFileSync('sh', ['-c',
-    `python3 - "$0" "$1" <<'PY'
-import sys, wave
-src, dst = sys.argv[1], sys.argv[2]
-with wave.open(src) as r:
-    frames, params = r.readframes(r.getnframes()), r.getparams()
-with wave.open(dst, 'w') as w:
-    w.setnchannels(1); w.setsampwidth(2); w.setframerate(${rate})
-    w.writeframes(frames)
-PY`, '/tmp/tts-a.wav', '/tmp/tts-b.wav']);
+for (const { id, name } of names) {
+  // A name Piper mangles is fixed by respelling it the way it should sound — it takes plain text,
+  // so there is no phonetic markup to reach for.
+  const spoken = cfg.template.replace('${name}', cfg.pronunciations[name] ?? name);
+  const mp3 = speak(spoken, cfg);
+  writeFileSync(join(OUT, `win.${id}.mp3`), mp3);
 
-  execFileSync('lame', ['--quiet', '-m', 'm', '-b', '48', '--resample', '44.1', '/tmp/tts-b.wav',
-                        join(OUT, `win.${headId}.mp3`)]);
-  process.stdout.write(`  win.${headId}.mp3  "${spoken}"\n`);
+  const seconds = mp3.length / (48000 / 8);
+  if (seconds > longest) [longest, longestName] = [seconds, name];
+  process.stdout.write(`  win.${id}.mp3  "${spoken}"  ${seconds.toFixed(2)}s\n`);
 }
 
-rmSync('/tmp/tts-a.wav', { force: true });
-rmSync('/tmp/tts-b.wav', { force: true });
-writeFileSync(join(OUT, '.winner-calls.json'), JSON.stringify(names.map(([, h]) => h), null, 2) + '\n');
-console.log(`\n${names.length} announcements, en_US-norman-medium at ${Math.round(PITCH * 100)}% pitch`);
+writeFileSync(join(OUT, '.winner-calls.json'), JSON.stringify(names.map((n) => n.id), null, 2) + '\n');
+console.log(`\n${names.length} announcements — ${cfg.voice}, pitch ${cfg.pitch}, pace ${cfg.lengthScale}`);
+console.log(`longest: ${longestName} at ${longest.toFixed(2)}s (the fight reveal holds 3.60s)`);

@@ -88,6 +88,14 @@ button {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.4));
+  /* Its own line box, and a little room under the baseline.
+     :root sets `font: 18px/145%`, and the shorthand resolves that to an absolute 26.1px which every
+     descendant inherits whatever its own size — so a 36px heading was drawing inside a 26.1px box.
+     The gradient is painted with background-clip:text, meaning the paint stops at the box edge, so
+     the parts of a glyph outside it simply vanish: ק and ן lost their descenders and the caps were
+     shaved. Unitless, so it scales with whatever size the heading is set at. */
+  line-height: 1.18;
+  padding-bottom: 0.06em;
 }
 
 .btn-primary {

@@ -1,0 +1,27 @@
+{
+  "voice": "en_US-john-medium",
+  "pitch": 0.92,
+  "lengthScale": 1.1,
+  "maxGapMs": 180,
+  "template": "${name}! Wins!",
+  "pronunciations": {
+    "BEN-GVIR": "ben gveer",
+    "SMOTRICH": "smoat rich",
+    "GOLDKNOPF": "gold knopf",
+    "KARHI": "kar hee",
+    "ROTHMAN": "rote man",
+    "SAAR": "sah ar",
+    "STROOK": "strook",
+    "GOTTLIEB": "got leeb",
+    "EISENKOT": "eye zen kot",
+    "KARIV": "kah reev",
+    "LAZIMI": "lah zee mee",
+    "BEN-ARI": "ben ah ree",
+    "TIBON": "tee bone",
+    "TIBI": "tee bee",
+    "RAYTEN": "ray ten",
+    "GAFNI": "gaf nee",
+    "DERI": "deh ree",
+    "BIBI": "bee bee"
+  }
+}
