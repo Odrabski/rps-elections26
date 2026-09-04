@@ -81,6 +81,16 @@
     ],
     "fight.lose-fanfare": [
       "__own__"
+    ],
+    "fight.punch": [
+      "__own__",
+      "__own__",
+      "__own__",
+      "__own__",
+      "__own__",
+      "__own__",
+      "__own__",
+      "__own__"
     ]
   }
 }

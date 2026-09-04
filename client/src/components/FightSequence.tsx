@@ -63,7 +63,19 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
       );
     timers.push(setTimeout(() => setPhase('standoff'), BEAT_MS * 4));
     timers.push(setTimeout(() => setPhase('clash'), BEAT_MS * 4 + STANDOFF_MS));
-    timers.push(setTimeout(() => setPhase('cloud'), BEAT_MS * 4 + STANDOFF_MS + CLASH_MS));
+    const cloudAt = BEAT_MS * 4 + STANDOFF_MS + CLASH_MS;
+    timers.push(setTimeout(() => setPhase('cloud'), cloudAt));
+    // A scuffle, not one hit: punches land right through the cloud beat, at gaps random enough
+    // that no two fights sound alike. Scheduled from the top level so they sit in `timers` and
+    // stop with everything else if the fight unmounts — a punch arriving over the reveal would
+    // read as someone else's audio. The samples run 0.31-0.62s, so at these gaps they overlap,
+    // which is what makes it a brawl rather than a metronome.
+    // The cutoff is short of CLOUD_MS on purpose: these samples run up to 0.65s, so a punch
+    // started at the very end of the beat is still ringing well into the reveal and lands on top
+    // of the flourish. Stopping ~200ms early lets the last blow finish inside the cloud.
+    for (let at = 0; at < CLOUD_MS - 200; at += 185 + Math.random() * 115) {
+      timers.push(setTimeout(() => play('fight.punch'), cloudAt + at));
+    }
     const revealAt = BEAT_MS * 4 + STANDOFF_MS + CLASH_MS + CLOUD_MS;
     timers.push(
       setTimeout(() => {

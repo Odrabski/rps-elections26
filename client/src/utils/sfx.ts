@@ -30,6 +30,9 @@ const CUES = {
   'clash.impact': 1,
   'fight.fanfare': 1,
   'fight.throw': 1,
+  // Eight, because they land three or four to a fight and a repeat inside one scuffle is
+  // instantly audible.
+  'fight.punch': 8,
   'fight.start': 1,
   'fight.win-fanfare': 1,
   'fight.lose-fanfare': 1,
@@ -57,6 +60,8 @@ const GAIN: Partial<Record<Sfx, number>> = {
   'clash.impact': 0.8,
   'fight.fanfare': 0.7,
   'fight.win-fanfare': 0.3,
+  // Several overlap inside the cloud beat, so each one sits below where a single hit would.
+  'fight.punch': 0.5,
   // Half level, deliberately: the loser's flourish should register without competing with the
   // announcement of who beat them.
   'fight.lose-fanfare': 0.5,
@@ -72,6 +77,8 @@ let muted = readMuted();
  *  rather than delayed, since a late sound is worse than none. */
 const buffers = new Map<string, AudioBuffer>();
 const loading = new Set<string>();
+/** The variant each cue played last, so the next pick can avoid it — see play(). */
+const lastStem = new Map<string, string>();
 
 function readMuted(): boolean {
   try {
@@ -209,8 +216,18 @@ export function play(name: Sfx): void {
   try {
     const a = audio();
     if (!a) return;
-    const stems = fileStems(name);
+    let stems = fileStems(name);
+    // Don't repeat the variant just played. Uniform random draws collide far more often than
+    // people expect — four punches from eight samples repeat about 40% of the time, and inside a
+    // single scuffle that is instantly audible. Only applied from three variants up: with two,
+    // excluding the last one is strict alternation, which is its own kind of obvious.
+    if (stems.length >= 3) {
+      const previous = lastStem.get(name);
+      const fresh = stems.filter((s) => s !== previous);
+      if (fresh.length > 0) stems = fresh;
+    }
     const stem = stems[Math.floor(Math.random() * stems.length)];
+    lastStem.set(name, stem);
     const buf = buffers.get(stem);
     if (!buf) {
       // First time for this cue: fetch it now so the *next* one is instant. Deliberately not
