@@ -3,7 +3,7 @@ import type { BotDifficulty, Team } from 'shared';
 import { HIDDEN_HEAD_POOL } from 'shared';
 import { TEAM_THEME } from '../data/theme';
 import { play, preload } from '../utils/sfx';
-import { MenuPeekers } from './MenuPeekers';
+import { LogoPeeker, MenuPeekers } from './MenuPeekers';
 import './HomeScreen.css';
 
 interface HomeScreenProps {
@@ -195,6 +195,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
     <div className="home-screen">
       <MenuPeekers />
       <div className="home-card-wrap">
+        <LogoPeeker />
         <img src="/assets/logo.webp" alt="אבניהו - מהדורת בחירות 2026" className="home-logo" />
         <div className="home-panel panel">
           <button type="button" className="btn-primary home-vs-bot-btn" onClick={() => startTeamPick(true)}>

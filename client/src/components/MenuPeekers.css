@@ -1,55 +1,64 @@
-/* Someone leaning in from the edge of the menu. Above the panel rather than behind it: on a phone
-   the card is 92vw, so anything behind it would be hidden in the ~15px of margin left over. */
+/* Someone rising into the menu from an edge of the window.
+   Nothing is clipped: they are simply anchored low enough that their legs fall outside the
+   viewport, and the window edge does the hiding. Above the panel rather than behind it — on a
+   phone the card is 92vw, so anything behind it would be lost in the ~15px of margin left over. */
 .menu-peeker {
   position: fixed;
   z-index: 3;
   width: 132px;
+  /* Below the edge by enough that the legs fall outside the window, and no more — the first pass
+     sat 78px under and left only a hat visible. */
+  bottom: -44px;
   pointer-events: none;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
-  /* The whole appearance in one animation: lean in, hold, lean back out. Doing it as one keyframe
-     set rather than an enter/exit pair means the element only has to be mounted for its lifetime,
-     with no exit state to coordinate. */
-  animation: menuPeek 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Rotated into the screen from whichever edge they arrive at: clockwise from the left, and the
-   mirror of it from the right, so both lean *in* rather than one of them tipping off-screen. */
+/* Tilted into the screen from whichever side they arrive at: clockwise from the left, and the
+   mirror of it from the right, so both lean *in*. A single direction would tip the right-hand one
+   away off the screen. The tilt lives here and the rise on the child — separate elements, because
+   a keyframe setting `transform` replaces the whole value and would drop the rotation. */
 .menu-peeker-left {
-  left: 0;
-  /* Most of the body stays past the edge — only the head and a shoulder lean in. Fully on screen
-     it reads as someone standing in the menu rather than peeking round it. */
-  --peek-rest: rotate(30deg) translateX(-42%);
-  --peek-away: rotate(30deg) translateX(-125%);
-  transform-origin: bottom left;
+  left: -6px;
+  /* Pivoting on the bottom corner puts the origin below the window, which swings the figure out of
+     view as it tilts. Centre-bottom keeps it where it was placed. */
+  transform: rotate(24deg);
+  transform-origin: center bottom;
 }
 
 .menu-peeker-right {
-  right: 0;
-  --peek-rest: rotate(-30deg) translateX(42%);
-  --peek-away: rotate(-30deg) translateX(125%);
-  transform-origin: bottom right;
+  right: -6px;
+  transform: rotate(-24deg);
+  transform-origin: center bottom;
 }
 
-/* Both frames carry the rotation as well as the slide: a keyframe that sets `transform` replaces
-   the base value outright, so leaving the rotate out of either end would snap them upright. */
-@keyframes menuPeek {
+/* Straight up from the bottom, deliberately untilted: a figure leaning 26 degrees while rising
+   vertically reads as falling over. The side ones are tilted because they are leaning round
+   something; this one is not. */
+.menu-peeker-bottom {
+  transform: none;
+}
+
+/* Up from below the window, hold, and back down out of it. One keyframe set rather than an
+   enter/exit pair, so the element only has to exist for its two seconds. */
+.menu-peeker-rise {
+  animation: menuPeekRise 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes menuPeekRise {
   0% {
-    transform: var(--peek-away);
-    opacity: 0;
+    transform: translateY(105%);
   }
-  18%,
-  76% {
-    transform: var(--peek-rest);
-    opacity: 1;
+  20%,
+  74% {
+    transform: translateY(0);
   }
   100% {
-    transform: var(--peek-away);
-    opacity: 0;
+    transform: translateY(105%);
   }
 }
 
-/* The figure itself is the board's own composite, so .piece-mask and the per-portrait corrections
-   in PieceView.css position the head. Only the size is ours. */
+/* The figure is the board's own composite, so .piece-mask and the per-portrait corrections in
+   PieceView.css place the head. Only the size is ours. */
 .menu-peeker-figure {
   position: relative;
   width: 100%;
@@ -62,7 +71,44 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .menu-peeker {
+  .menu-peeker-rise {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* The one behind the logo. z-index 1 puts it under .home-logo (which is 2) and over the panel, so
+   the logo art is the mask — everything below its top edge is simply covered. */
+.logo-peeker {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  width: 96px;
+  margin-left: -48px;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.45));
+}
+
+/* Rises just far enough for a head to clear the logo, then drops back behind it. */
+.logo-peeker-rise {
+  animation: logoPeek 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes logoPeek {
+  0% {
+    transform: translateY(46px);
+  }
+  22%,
+  72% {
+    transform: translateY(-30px);
+  }
+  100% {
+    transform: translateY(46px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-peeker-rise {
     animation: none;
     opacity: 0;
   }
