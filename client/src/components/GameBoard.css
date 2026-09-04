@@ -40,12 +40,12 @@
   transform: translateY(70px);
 }
 
-/* A small pill, at least 3 of its 7 columns wide — sits above the board (swapped with
-   ScoreHeader, which moved below), centered by .game-board-screen's own flex layout. Stays at
-   its prior y position (the +30px group shift from before the board/score-header were split
-   apart) while the board and score-header move further down independently. */
+/* A small pill, at least 3 of its 7 columns wide — sits below the board, with ScoreHeader above
+   it, centered by .game-board-screen's own flex layout. The board and score-header carry their own
+   independent shifts, so this one is tuned on its own: 45px clears the board frame's bottom edge,
+   which it used to sit right against. */
 .turn-pill {
-  transform: translateY(30px);
+  transform: translateY(45px);
   min-width: min(94vw, 220px);
   text-align: center;
   padding: 8px 20px;
@@ -59,8 +59,8 @@
 
 /* Only while it's actually your move — a double thump every 4.5s, so the pill reads as waiting on
    you without ever becoming something you have to look away from.
-   Every frame restates translateY(30px): the pill's resting position lives in `transform`, and a
-   keyframe that sets `transform` replaces it outright, which would drop the pill 30px on the first
+   Every frame restates translateY(45px): the pill's resting position lives in `transform`, and a
+   keyframe that sets `transform` replaces it outright, which would drop the pill 45px on the first
    beat and snap it back at the end. */
 .turn-pill-beating {
   animation: turnPillBeat 4.5s ease-in-out infinite;
@@ -71,13 +71,13 @@
   8%,
   17%,
   100% {
-    transform: translateY(30px) scale(1);
+    transform: translateY(45px) scale(1);
   }
   4% {
-    transform: translateY(30px) scale(1.055);
+    transform: translateY(45px) scale(1.055);
   }
   12% {
-    transform: translateY(30px) scale(1.03);
+    transform: translateY(45px) scale(1.03);
   }
 }
 
