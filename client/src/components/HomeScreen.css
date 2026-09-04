@@ -497,17 +497,6 @@
 
 /* Line-art, in the button's own ink. Sized against the label rather than in px so it tracks the
    text if the button's font-size ever changes. */
-.home-btn-icon {
-  flex: none;
-  width: 1.35em;
-  height: 1.35em;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 /* The rock/paper/scissors cycle in the how-to-play modal (see HowToPlayModal.tsx). Sized in `em`
    off the modal body's own font-size, so it shrinks with the copy on the short-screen steps above
    instead of holding its width while everything around it gets smaller. */

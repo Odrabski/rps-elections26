@@ -173,7 +173,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
             {/* Stroke-only and inheriting currentColor, so it sits in the button's own ink rather
                 than as a coloured emoji whose look is up to whichever font the device happens to
                 have. Last in the DOM, which in this RTL layout puts it after the words. */}
-            <svg className="home-btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="4" y="8" width="16" height="12" rx="3" />
               <path d="M12 8V4.5" />
               <circle cx="12" cy="3" r="1.4" />

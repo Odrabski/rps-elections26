@@ -132,6 +132,18 @@
   white-space: nowrap;
 }
 
+/* Wider than the button beside it, and laying its glyph and label out in a row so the icon does
+   not make it taller than its neighbour — the same reason .home-vs-bot-btn goes flex. This is the
+   button the whole setup is building toward, so the extra width is what marks it as the action
+   rather than one of a matched pair. */
+.setup-btn-onboard-start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding-inline: 46px;
+}
+
 .setup-btn-onboard-shuffle {
   background: #2a2a2e;
   border-color: #3d3d42;

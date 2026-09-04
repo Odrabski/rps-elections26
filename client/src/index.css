@@ -114,6 +114,20 @@ button {
     filter 0.15s ease;
 }
 
+/* Stroke-only button glyphs, inheriting the button's own ink via currentColor rather than being a
+   coloured emoji whose look is up to whichever font the device happens to have. Shared by the home
+   screen's bot button and the setup screen's start button, so the two cannot drift apart. */
+.btn-icon {
+  flex: none;
+  width: 1.35em;
+  height: 1.35em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.08);

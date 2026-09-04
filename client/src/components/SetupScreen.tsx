@@ -134,7 +134,13 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
         {!isReady && step === 'ready' && (
           <div className="setup-onboard-buttons">
             <button type="button" className="btn-primary setup-btn-onboard setup-btn-onboard-start" onClick={onReady}>
-              להתחיל לשחק
+              {/* First in the DOM, which in this RTL layout puts it at the *start* of the words —
+                  the opposite end from the home screen's bot glyph. Stroke-only on currentColor,
+                  which on .btn-primary is the near-black #1a1a2e. */}
+              <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 6.2 18.5 12 9 17.8Z" />
+              </svg>
+              <span>להתחיל לשחק</span>
             </button>
             <button type="button" className="btn-secondary setup-btn-onboard setup-btn-onboard-shuffle"
               onClick={() => {
