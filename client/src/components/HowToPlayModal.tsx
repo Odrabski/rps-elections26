@@ -99,12 +99,12 @@ export function HowToPlayModal({ onClose }: { onClose: () => void }) {
           sentence: split across two elements it would become two rows in content/ui-strings.csv
           and have to be rewritten in halves. The emphasis is done in CSS instead. */}
       <h3 className="howto-heading">המטרה</h3>
-      <p>להעיף את המלך של היריב מהכיסא ולנצח בבחירות.</p>
+      <p>למצוא ולהעיף מהכיסא את המלך של הצד השני ולנצח בבחירות.</p>
 
       <h3 className="howto-heading">הארסנל שלך</h3>
       <ul className="howto-list">
         <li>המלך: ממוקם על הלוח בתחילת המשחק. תגן עליו טוב-טוב, כי בלעדיו הלך עליך.</li>
-        <li>מלכודת סמויה: ממוקמת מראש על הלוח. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע — והמלכודת נשארת שם ומחכה לבא בתור.</li>
+        <li>מלכודת: מקמו אותה על הלוח בתחילת המשחק. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע — והמלכודת נשארת שם ומחכה לבא בתור.</li>
         <li>פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.</li>
       </ul>
 
