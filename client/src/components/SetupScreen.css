@@ -76,6 +76,18 @@
     setupOnboardBreathe 2.6s ease-in-out 0.3s infinite;
 }
 
+/* Correcting a tap onto the other side's pieces. Red rather than the team's own colour, and
+   allowed to wrap — the prompt it replaces is short enough for `nowrap`, this sentence isn't, and
+   on a phone it would otherwise run straight off the board. */
+.setup-onboard-banner-warn {
+  white-space: normal;
+  max-width: 78%;
+  border-color: #e11d48;
+  color: #ffe4e6;
+  font-size: clamp(0.86rem, 4.2vw, 1.08rem);
+  line-height: 1.35;
+}
+
 /* Both frames restate translate(-50%, -50%). A keyframe that sets `transform` replaces the base
    rule's outright, so leaving it out here would drop the centering and fling the banner to the
    board's centre-right on the first frame. */

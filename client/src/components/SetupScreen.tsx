@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SETUP_SECONDS, ZONE_ROWS } from 'shared';
 import type { ClientGameView, Position, Team } from 'shared';
 import { TEAM_THEME } from '../data/theme';
@@ -8,6 +8,7 @@ import { ExitButton } from './ExitButton';
 import { ScoreHeader } from './ScoreHeader';
 import { LockedInOverlay } from './LockedInOverlay';
 import { BoardGrid } from './BoardGrid';
+import { play } from '../utils/sfx';
 import './SetupScreen.css';
 
 interface SetupScreenProps {
@@ -52,8 +53,30 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
     return occupant?.kind === 'unassigned';
   };
 
+  /** A tile holding one of the other side's pieces. Not designatable, but worth a word back —
+   *  a silent no-op reads as the game being broken rather than as the tap being wrong. */
+  const isOpponentTile = (actual: Position): boolean =>
+    view.pieces.some(
+      (p) => p.team !== team && p.alive && p.position.row === actual.row && p.position.col === actual.col,
+    );
+
+  const [misclick, setMisclick] = useState(false);
+  const misclickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (misclickTimer.current) clearTimeout(misclickTimer.current); }, []);
+
   const handleTileClick = (actual: Position) => {
-    if (step === 'ready' || !isDesignatable(actual)) return;
+    if (step === 'ready') return;
+
+    if (!isDesignatable(actual)) {
+      if (!isOpponentTile(actual)) return;
+      play('ui');
+      setMisclick(true);
+      if (misclickTimer.current) clearTimeout(misclickTimer.current);
+      misclickTimer.current = setTimeout(() => setMisclick(false), 2600);
+      return;
+    }
+
+    setMisclick(false);
     onPlaceSpecial(step, actual);
     setPulsePosition(actual);
   };
@@ -81,16 +104,27 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
           team={team}
           seed={seed}
           getPieceAt={(actual) => view.pieces.find((p) => p.position.row === actual.row && p.position.col === actual.col)}
-          isClickable={isDesignatable}
+          isClickable={(actual) => isDesignatable(actual) || isOpponentTile(actual)}
           isLegalTarget={isDesignatable}
           onTileClick={handleTileClick}
           pulsePosition={pulsePosition}
         />
 
         {!isReady && step !== 'ready' && (
-          <div className="setup-onboard-banner" style={{ borderColor: theme.border, color: theme.text }}>
-            {step === 'king' && '👑 איפה נחביא את המלך?'}
-            {step === 'trap' && '🪤 ואיפה תהיה המלכודת?'}
+          <div
+            className={`setup-onboard-banner${misclick ? ' setup-onboard-banner-warn' : ''}`}
+            // The team colours are dropped while correcting, so the warn class's own red isn't
+            // fighting an inline style it can't override.
+            style={misclick ? undefined : { borderColor: theme.border, color: theme.text }}
+          >
+            {misclick ? (
+              'הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני'
+            ) : (
+              <>
+                {step === 'king' && '👑 איפה נחביא את המלך?'}
+                {step === 'trap' && '🪤 ואיפה תהיה המלכודת?'}
+              </>
+            )}
           </div>
         )}
 

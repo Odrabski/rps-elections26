@@ -274,6 +274,11 @@
       "file": "client/src/components/SetupScreen.tsx"
     },
     {
+      "id": "SetupScreen.3224da",
+      "text": "הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
       "id": "SetupScreen.1d6882",
       "text": "להתחיל לשחק",
       "file": "client/src/components/SetupScreen.tsx"
