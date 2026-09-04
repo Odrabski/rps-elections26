@@ -247,3 +247,49 @@
     opacity: 1;
   }
 }
+
+/* Gentle confetti behind a won fight. Pinned to the viewport rather than the reveal card, which is
+   a shrink-to-fit flex column — anchored to that, the pieces would fall down a narrow strip in the
+   middle instead of across the screen. */
+.fight-confetti {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1; /* behind the reveal itself; the overlay's own backdrop is further back still */
+}
+
+.fight-confetti-piece {
+  position: absolute;
+  top: -20px;
+  border-radius: 1px;
+  opacity: 0;
+  animation-name: fightConfettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fightConfettiFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  8% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift, 0px), 92vh, 0) rotate(var(--spin, 360deg));
+  }
+}
+
+/* Held still for anyone who's asked their OS to cut animation. */
+@media (prefers-reduced-motion: reduce) {
+  .fight-confetti-piece {
+    animation: none;
+    opacity: 0;
+  }
+}

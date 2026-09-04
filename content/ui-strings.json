@@ -259,6 +259,11 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
+      "id": "SetupScreen.66a9e5",
+      "text": "❗הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני",
+      "file": "client/src/components/SetupScreen.tsx"
+    },
+    {
       "id": "SetupScreen.4dc735",
       "text": "👑 איפה נחביא את המלך?",
       "file": "client/src/components/SetupScreen.tsx"
@@ -271,11 +276,6 @@
     {
       "id": "SetupScreen.599191",
       "text": "ברגע שהצד השני יסיים להתארגן נתחיל",
-      "file": "client/src/components/SetupScreen.tsx"
-    },
-    {
-      "id": "SetupScreen.3224da",
-      "text": "הלו, צריך לבחור מתוך האנשים שלך, לא של הצד השני",
       "file": "client/src/components/SetupScreen.tsx"
     },
     {

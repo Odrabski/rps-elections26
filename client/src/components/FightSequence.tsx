@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import type { ClientPieceView, Team } from 'shared';
 import {
   FIGHT_BEAT_MS as BEAT_MS,
@@ -29,6 +29,43 @@ interface FightSequenceProps {
 type Phase = 'intro' | 'standoff' | 'clash' | 'cloud' | 'reveal';
 
 const COUNT_LABELS = ['3', '2', '1', 'FIGHT'];
+
+function randomBetween(min: number, max: number): number {
+  return min + Math.random() * (max - min);
+}
+
+const CONFETTI_COUNT = 22;
+const CONFETTI_COLORS = ['#d4af37', '#f6e27a', '#ffffff', '#4aa3ff', '#ffd166'];
+
+/**
+ * A gentle drift of confetti behind the "YOU WIN" reveal — deliberately far lighter than the
+ * game-over celebration, which is the actual payoff. Winning one fight is a good moment, not the
+ * end of the story, so this is 22 slow pieces rather than a screenful.
+ */
+function FightConfetti() {
+  const pieces = useMemo(
+    () =>
+      Array.from({ length: CONFETTI_COUNT }, (_, i) => ({
+        left: `${(100 / CONFETTI_COUNT) * i + randomBetween(-3, 3)}%`,
+        width: `${randomBetween(5, 9).toFixed(0)}px`,
+        height: `${randomBetween(8, 14).toFixed(0)}px`,
+        background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        animationDelay: `${randomBetween(0, 1.4).toFixed(2)}s`,
+        animationDuration: `${randomBetween(2.6, 4.2).toFixed(2)}s`,
+        // Each piece tumbles a different way, so the fall never reads as one sheet coming down.
+        '--spin': `${randomBetween(-540, 540).toFixed(0)}deg`,
+        '--drift': `${randomBetween(-30, 30).toFixed(0)}px`,
+      })),
+    [],
+  );
+  return (
+    <div className="fight-confetti" aria-hidden="true">
+      {pieces.map((style, i) => (
+        <span key={i} className="fight-confetti-piece" style={style as CSSProperties} />
+      ))}
+    </div>
+  );
+}
 
 export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }: FightSequenceProps) {
   const [phase, setPhase] = useState<Phase>('intro');
@@ -94,6 +131,7 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
     const youWon = winner.team === viewerTeam;
     return (
       <div className="fight-sequence">
+        {youWon && <FightConfetti />}
         <div className="fight-reveal">
           <div className={`fight-you-result ${youWon ? 'fight-you-win' : 'fight-you-lose'}`}>
             {youWon ? 'YOU WIN' : 'YOU LOST'}
