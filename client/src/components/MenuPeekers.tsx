@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { Team } from 'shared';
-import { HIDDEN_BODY_ASSET, HIDDEN_HEAD_POOL } from 'shared';
+import type { RPSHand, Team } from 'shared';
+import { HIDDEN_BODY_ASSET, HIDDEN_HEAD_POOL, SOLDIER_BACK_EXPOSED_ASSET } from 'shared';
 import './MenuPeekers.css';
 
 /** How long one of them is on screen, in and out included. */
@@ -23,11 +23,26 @@ type Side = 'bottom-left' | 'bottom-right' | 'bottom';
 
 const SIDES: Side[] = ['bottom-left', 'bottom-right', 'bottom'];
 
+const HANDS: RPSHand[] = ['rock', 'paper', 'scissors'];
+
+/**
+ * The body under the head — either the anonymous decoy suit every unrevealed piece wears, or one
+ * of the three weapon-exposed backs, picked at random so the menu shows off all four.
+ *
+ * The exposed sprites carry their own back-of-head, which the portrait mask lands on top of and
+ * covers; the result reads as the character having turned around to show you what they're holding.
+ */
+function randomBody(team: Team): string {
+  if (Math.random() < 0.4) return HIDDEN_BODY_ASSET[team];
+  return SOLDIER_BACK_EXPOSED_ASSET[team][HANDS[Math.floor(Math.random() * HANDS.length)]];
+}
+
 interface Peeker {
   /** Remounts the element for each appearance, so the animation restarts rather than being skipped
    *  on the ones where the side and character happen to repeat. */
   key: number;
   head: string;
+  body: string;
   team: Team;
   side: Side;
   /** Where along the edge they arrive: down the screen for the sides, across it for the bottom. */
@@ -41,6 +56,7 @@ function randomPeeker(key: number): Peeker {
   return {
     key,
     head: pool[Math.floor(Math.random() * pool.length)],
+    body: randomBody(team),
     team,
     side,
     // Only the middle arrival needs placing: the corner ones hug their corner. Kept off the very
@@ -92,7 +108,7 @@ export function MenuPeekers() {
           sets `transform` replaces the whole value, and would drop the rotation on frame one. */}
       <div className="menu-peeker-rise">
         <div className="piece-view menu-peeker-figure">
-          <img src={`/assets/pieces/${HIDDEN_BODY_ASSET[peeker.team]}`} alt="" className="piece-portrait" />
+          <img src={`/assets/pieces/${peeker.body}`} alt="" className="piece-portrait" />
           <img src={`/assets/pieces/${peeker.head}`} alt="" className={`piece-mask piece-mask-${headId}`} />
         </div>
       </div>
@@ -123,6 +139,7 @@ export function LogoPeeker() {
       setPeeker({
         key: ++n,
         head: pool[Math.floor(Math.random() * pool.length)],
+        body: randomBody(team),
         team,
         side: 'bottom',
         // Across the middle of the logo, skipping dead centre where the crown sits. Kept well off
@@ -147,7 +164,7 @@ export function LogoPeeker() {
     <div className="logo-peeker" style={{ left: `${peeker.along}%` }} aria-hidden="true">
       <div key={peeker.key} className="logo-peeker-rise">
         <div className="piece-view menu-peeker-figure">
-          <img src={`/assets/pieces/${HIDDEN_BODY_ASSET[peeker.team]}`} alt="" className="piece-portrait" />
+          <img src={`/assets/pieces/${peeker.body}`} alt="" className="piece-portrait" />
           <img src={`/assets/pieces/${peeker.head}`} alt="" className={`piece-mask piece-mask-${headId}`} />
         </div>
       </div>

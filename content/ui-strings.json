@@ -197,6 +197,11 @@
       "file": "client/src/components/HomeScreen.tsx"
     },
     {
+      "id": "HowToPlayModal.07da84",
+      "text": "אבן",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
       "id": "HowToPlayModal.deea33",
       "text": "הארסנל שלך",
       "file": "client/src/components/HowToPlayModal.tsx"
@@ -222,8 +227,33 @@
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
+      "id": "HowToPlayModal.4a2253",
+      "text": "מי מנצח את מי",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
       "id": "HowToPlayModal.adae45",
       "text": "מלכודת סמויה: ממוקמת מראש על הלוח. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע — והמלכודת נשארת שם ומחכה לבא בתור.",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
+      "id": "HowToPlayModal.5e718e",
+      "text": "מספריים",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
+      "id": "HowToPlayModal.3d86dd",
+      "text": "נייר",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
+      "id": "HowToPlayModal.f866f9",
+      "text": "נייר מנצח אבן מנצח מספריים מנצח נייר.",
+      "file": "client/src/components/HowToPlayModal.tsx"
+    },
+    {
+      "id": "HowToPlayModal.49e4cd",
+      "text": "נייר מנצח אבן, אבן מנצחת מספריים, ומספריים מנצחים נייר",
       "file": "client/src/components/HowToPlayModal.tsx"
     },
     {
@@ -317,23 +347,8 @@
       "file": "client/src/components/SplashScreen.tsx"
     },
     {
-      "id": "TieBreakPanel.07da84",
-      "text": "אבן",
-      "file": "client/src/components/TieBreakPanel.tsx"
-    },
-    {
       "id": "TieBreakPanel.7d7f07",
       "text": "בחרו יד לקרב ההכרעה",
-      "file": "client/src/components/TieBreakPanel.tsx"
-    },
-    {
-      "id": "TieBreakPanel.5e718e",
-      "text": "מספריים",
-      "file": "client/src/components/TieBreakPanel.tsx"
-    },
-    {
-      "id": "TieBreakPanel.3d86dd",
-      "text": "נייר",
       "file": "client/src/components/TieBreakPanel.tsx"
     },
     {

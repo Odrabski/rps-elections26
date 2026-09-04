@@ -35,6 +35,62 @@ export function Modal({
   );
 }
 
+/**
+ * The rock/paper/scissors cycle, drawn as a triangle so that it reads as a loop rather than as a
+ * list of three facts to memorise.
+ *
+ * One inline SVG rather than HTML chips plus a separate arrow layer: the arrows have to start and
+ * end on the circles' edges, and keeping the nodes and the curves in one coordinate space is what
+ * makes that hold at every width instead of drifting apart as the modal resizes.
+ *
+ * The emoji match the ones the tie-break panel already offers when you pick a hand, so this is the
+ * same vocabulary a player meets in play, not a second one invented for the rules screen.
+ */
+function BeatsCycle() {
+  // Circle centres, and the arrows between them. Each arrow runs from the edge of one circle to
+  // the edge of the next and bows outward, away from the triangle's centre.
+  const nodes = [
+    { emoji: '📄', label: 'נייר', cx: 140, cy: 40 },
+    { emoji: '🪨', label: 'אבן', cx: 222, cy: 134 },
+    { emoji: '✂️', label: 'מספריים', cx: 58, cy: 134 },
+  ];
+  // paper → rock → scissors → paper, matching BEATS in server/src/game/combat.ts.
+  const arrows = [
+    'M161.7 64.9 Q199.7 79.8 200.3 109.1',
+    'M189 134 Q140 157 91 134',
+    'M79.7 109.1 Q80.3 79.8 118.3 64.9',
+  ];
+
+  return (
+    <svg
+      className="howto-cycle"
+      viewBox="0 0 280 175"
+      role="img"
+      aria-label="נייר מנצח אבן, אבן מנצחת מספריים, ומספריים מנצחים נייר"
+    >
+      <defs>
+        <marker id="howto-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--gold)" />
+        </marker>
+      </defs>
+      {arrows.map((d) => (
+        <path key={d} d={d} className="howto-cycle-arrow" markerEnd="url(#howto-arrow)" />
+      ))}
+      {nodes.map(({ emoji, label, cx, cy }) => (
+        <g key={label}>
+          <circle cx={cx} cy={cy} r="28" className="howto-cycle-node" />
+          <text x={cx} y={cy - 3} className="howto-cycle-emoji">
+            {emoji}
+          </text>
+          <text x={cx} y={cy + 15} className="howto-cycle-label">
+            {label}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 /** The "how to play" rules modal, shared by the home screen and the setup board. */
 export function HowToPlayModal({ onClose }: { onClose: () => void }) {
   return (
@@ -51,6 +107,10 @@ export function HowToPlayModal({ onClose }: { onClose: () => void }) {
         <li>מלכודת סמויה: ממוקמת מראש על הלוח. היריב דורך עליה? הפוליטיקאי שלו הולך הביתה ברגע — והמלכודת נשארת שם ומחכה לבא בתור.</li>
         <li>פוליטיקאים: הצבא שלך, חברי הגוש שלך חמושים באבן, נייר או מספריים.</li>
       </ul>
+
+      <h3 className="howto-heading">מי מנצח את מי</h3>
+      <BeatsCycle />
+      <p className="howto-cycle-caption">נייר מנצח אבן מנצח מספריים מנצח נייר.</p>
 
       <h3 className="howto-heading">חוקי המשחק</h3>
       <ul className="howto-list">

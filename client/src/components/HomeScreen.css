@@ -507,3 +507,51 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+/* The rock/paper/scissors cycle in the how-to-play modal (see HowToPlayModal.tsx). Sized in `em`
+   off the modal body's own font-size, so it shrinks with the copy on the short-screen steps above
+   instead of holding its width while everything around it gets smaller. */
+.howto-cycle {
+  display: block;
+  width: 100%;
+  max-width: 17em;
+  margin: 2px auto 0;
+  height: auto;
+  overflow: visible;
+}
+
+.howto-cycle-node {
+  fill: rgba(212, 175, 55, 0.1);
+  stroke: var(--gold);
+  stroke-width: 1.5;
+}
+
+.howto-cycle-arrow {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+/* Emoji and label both centred on the node. text-anchor rather than any RTL-aware property: this
+   is one glyph and one short word centred in a circle, and direction never enters into it. */
+.howto-cycle-emoji {
+  text-anchor: middle;
+  font-size: 20px;
+}
+
+.howto-cycle-label {
+  text-anchor: middle;
+  /* 9px, not 10: "מספריים" is the longest of the three and at 10 it grazes the circle's edge. */
+  font-size: 9px;
+  font-weight: 800;
+  fill: var(--text-h);
+}
+
+/* Spells the loop out in words underneath, for anyone who reads the sentence before the picture. */
+.howto-cycle-caption {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.85em;
+}
