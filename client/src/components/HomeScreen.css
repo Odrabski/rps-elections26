@@ -266,7 +266,11 @@
 .home-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  /* Above the three corner controls, which sit at 900 so they clear the fight cinematic and the
+     tie panel. A modal is the one thing that should cover them: it is a deliberate stop, and the
+     ✕ and ? floating over it looked like leftovers. Still under the splash's 1000, which is a
+     curtain over the whole app. */
+  z-index: 950;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -312,7 +316,9 @@
 .home-modal-x {
   position: absolute;
   top: 10px;
-  right: 10px;
+  /* Physical `left`, not `inset-inline-start`: the page is RTL, so a logical property would put it
+     back on the right. This corner is a deliberate choice, not a reading-order one. */
+  left: 10px;
   z-index: 2;
   width: 32px;
   height: 32px;

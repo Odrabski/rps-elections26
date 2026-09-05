@@ -97,11 +97,6 @@
       "file": "client/src/components/GameBoard.tsx"
     },
     {
-      "id": "GameOverScreen.e0df0d",
-      "text": "🔁 סבב נוסף?",
-      "file": "client/src/components/GameOverScreen.tsx"
-    },
-    {
       "id": "GameOverScreen.eb3c95",
       "text": "${theme.label} מצאה את המלך\\nולקחה את הבחירות",
       "file": "client/src/components/GameOverScreen.tsx"
@@ -124,6 +119,11 @@
     {
       "id": "GameOverScreen.5dc458",
       "text": "ליריב שלך אין יותר אפשרויות לזוז",
+      "file": "client/src/components/GameOverScreen.tsx"
+    },
+    {
+      "id": "GameOverScreen.90c608",
+      "text": "סבב נוסף?",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {

@@ -42,11 +42,23 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
           {detail}
         </p>
         <div className="gameover-actions">
-          <button type="button" className="btn-secondary" onClick={onBackToLobby}>
-            לך הביתה
+          <button type="button" className="btn-secondary btn-with-icon" onClick={onBackToLobby}>
+            {/* First in the DOM, which in this RTL layout puts it at the start of the words. */}
+            <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3.2 11.2 12 4l8.8 7.2" />
+              <path d="M5.6 9.8V20h12.8V9.8" />
+              <path d="M9.8 20v-5.2h4.4V20" />
+            </svg>
+            <span>לך הביתה</span>
           </button>
-          <button type="button" className="btn-primary" onClick={onRematch}>
-            🔁 סבב נוסף?
+          <button type="button" className="btn-primary btn-with-icon" onClick={onRematch}>
+            {/* Replaces a 🔁, which rendered as a coloured emoji at whatever the device's font
+                decided — this takes the button's own near-black ink like every other button glyph. */}
+            <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.4 12a8.4 8.4 0 1 1-2.7-6.2" />
+              <path d="M20.7 4.3v4.4h-4.4" />
+            </svg>
+            <span>סבב נוסף?</span>
           </button>
         </div>
       </div>

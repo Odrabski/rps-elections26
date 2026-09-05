@@ -134,6 +134,17 @@ button {
   stroke-linejoin: round;
 }
 
+/* Any button carrying a .btn-icon needs to lay its glyph and label out in a row, or the icon makes
+   the button taller than its neighbours. Shared so the four that have one cannot drift apart.
+   (.home-vs-bot-btn and .setup-btn-onboard-start predate this and keep their own layout, since
+   each also has width rules of its own.) */
+.btn-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.08);

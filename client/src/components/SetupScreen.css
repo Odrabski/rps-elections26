@@ -51,9 +51,11 @@
    top, since this isn't reacting to a specific tile. */
 .setup-onboard-banner {
   position: absolute;
-  /* Nudged up off the exact centre line; the pop keyframes carry the translate, so the offset
-     lives here in `top` rather than in the transform. */
-  top: calc(50% - 20px);
+  /* Dead centre on the board. It used to sit 20px above that line, which is what read as "not
+     centred" — the box is centred horizontally by the translate below, so the vertical offset was
+     the only thing left that could be off. Any offset belongs here in `top` rather than in the
+     transform: the pop keyframes carry the translate and would drop anything baked into it. */
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 4;

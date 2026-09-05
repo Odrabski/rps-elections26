@@ -158,8 +158,13 @@ export default function App() {
           >
             שיתוף בוואטסאפ
           </a>
-          <button type="button" className="btn-secondary lobby-back" onClick={leave}>
-            לך הביתה
+          <button type="button" className="btn-secondary lobby-back btn-with-icon" onClick={leave}>
+            <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3.2 11.2 12 4l8.8 7.2" />
+              <path d="M5.6 9.8V20h12.8V9.8" />
+              <path d="M9.8 20v-5.2h4.4V20" />
+            </svg>
+            <span>לך הביתה</span>
           </button>
         </div>
       </div>
