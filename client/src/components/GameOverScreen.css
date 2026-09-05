@@ -34,6 +34,12 @@
 .gameover-detail {
   margin: 0 0 8px;
   font-weight: 600;
+  /* The defeat line carries its own break, so it reads as two balanced lines rather than wrapping
+     wherever the width happens to run out. `pre-line` honours that newline while still collapsing
+     ordinary whitespace — which is what lets the break live inside the string instead of splitting
+     it across two elements, where it would become two rows in content/ui-strings.csv and have to be
+     rewritten in halves. The other detail lines have no newline and are unaffected. */
+  white-space: pre-line;
 }
 
 .gameover-actions {

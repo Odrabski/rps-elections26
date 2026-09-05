@@ -30,7 +30,7 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
           : 'סונדלת, אין לך יותר אפשרויות לזוז'
         : won
           ? 'העפת את המלך מכיסא השלטון וניצחת בבחירות'
-          : `${theme.label} מצאה את המלך ולקחה את הבחירות`;
+          : `${theme.label} מצאה את המלך\nולקחה את הבחירות`;
 
   return (
     <div className="gameover-screen">

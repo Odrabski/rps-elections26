@@ -72,6 +72,21 @@
       "file": "client/src/components/FightSequence.tsx"
     },
     {
+      "id": "GameBoard.605f63",
+      "text": "המשחק מתחיל - הצד השני מתחיל",
+      "file": "client/src/components/GameBoard.tsx"
+    },
+    {
+      "id": "GameBoard.8b7fa7",
+      "text": "המשחק מתחיל - התור שלך",
+      "file": "client/src/components/GameBoard.tsx"
+    },
+    {
+      "id": "GameBoard.53e941",
+      "text": "התור של הצד השני",
+      "file": "client/src/components/GameBoard.tsx"
+    },
+    {
       "id": "GameBoard.57d6b0",
       "text": "התור שלך",
       "file": "client/src/components/GameBoard.tsx"
@@ -82,23 +97,13 @@
       "file": "client/src/components/GameBoard.tsx"
     },
     {
-      "id": "GameBoard.350eff",
-      "text": "קרב הכרעה!",
-      "file": "client/src/components/GameBoard.tsx"
-    },
-    {
-      "id": "GameBoard.9f9c1c",
-      "text": "תור ${turnTheme.label}",
-      "file": "client/src/components/GameBoard.tsx"
-    },
-    {
       "id": "GameOverScreen.e0df0d",
       "text": "🔁 סבב נוסף?",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
-      "id": "GameOverScreen.a91646",
-      "text": "${theme.label} מצאה את המלך ולקחה את הבחירות",
+      "id": "GameOverScreen.eb3c95",
+      "text": "${theme.label} מצאה את המלך\\nולקחה את הבחירות",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
