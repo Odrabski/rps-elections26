@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { play, preload } from '../utils/sfx';
 import './SplashScreen.css';
 
-/** How long before the way in is offered. The art is worth a beat, and the preloads underneath
- *  want the time. */
-const READY_AFTER_MS = 2200;
+/** How long the art holds before the menu takes over, and how long it takes to fade once it does.
+ *  The preloads underneath want most of this time anyway. */
+const HOLD_MS = 5200;
 const FADE_OUT_MS = 400;
 
 interface SplashScreenProps {
@@ -12,37 +11,26 @@ interface SplashScreenProps {
 }
 
 /**
- * Sits on top of everything while the app mounts and preloads underneath, and waits for a tap.
+ * Sits on top of everything while the app mounts and preloads underneath, then leaves on its own.
  *
- * It used to dismiss itself on a timer, which was the reason the menu opened in silence: browsers
- * refuse to start an AudioContext or play an <audio> element until the user has interacted with
- * the page, and a screen that leaves by itself never gives them that. The button is that
- * interaction, so the effects and the menu track are both allowed the instant it is pressed
- * rather than whenever the player happens to touch something later.
+ * It used to wait for a tap, and that tap was load-bearing: browsers refuse to start an
+ * AudioContext or play an <audio> element until the user has interacted with the page, so a screen
+ * that dismissed itself left the menu silent. That is no longer true, because the game now opens
+ * muted by default — the first sound anyone hears is the one they ask for by pressing the sound
+ * toggle, and that press is itself the gesture the browser wants. With nothing left for a button
+ * here to unlock, waiting for one was only ever asking people to tap past the art.
  */
 export function SplashScreen({ onDone }: SplashScreenProps) {
-  const [ready, setReady] = useState(false);
   const [fadingOut, setFadingOut] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setReady(true), READY_AFTER_MS);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!fadingOut) return;
-    const doneTimer = setTimeout(onDone, FADE_OUT_MS);
-    return () => clearTimeout(doneTimer);
-  }, [fadingOut, onDone]);
-
-  const enter = () => {
-    if (fadingOut) return;
-    // Both of these need to happen inside the click itself: the browser grants the audio
-    // permission to the gesture, not to the code that runs a moment afterwards.
-    preload();
-    play('ui.tap');
-    setFadingOut(true);
-  };
+    const leave = setTimeout(() => setFadingOut(true), HOLD_MS);
+    const done = setTimeout(onDone, HOLD_MS + FADE_OUT_MS);
+    return () => {
+      clearTimeout(leave);
+      clearTimeout(done);
+    };
+  }, [onDone]);
 
   return (
     <div className={`splash-screen${fadingOut ? ' splash-screen-fading' : ''}`}>
@@ -51,24 +39,12 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
         <img src="/assets/splash2.webp" alt="" className="splash-image" />
       </picture>
 
-      {/* High up, in the sky above the artwork. The label is painted into the sign art, so the
-          button itself is only a hit target and the accessible name has to be spelled out. */}
-      <button
-        type="button"
-        className={`splash-enter${ready ? ' splash-enter-ready' : ''}`}
-        onClick={enter}
-        disabled={!ready}
-        aria-label="יאללה כבר!"
-      >
-        <img src="/assets/yalla.webp" alt="" className="splash-enter-sign" />
-      </button>
-
-      {!ready && (
-        <div className="splash-loader">
-          <span className="splash-spinner" />
-          <span className="splash-loading-text">טוען...</span>
-        </div>
-      )}
+      {/* Shown for the whole hold now, rather than until a button armed — there is nothing to wait
+          for any more, so it is reporting progress rather than gating on it. */}
+      <div className="splash-loader">
+        <span className="splash-spinner" />
+        <span className="splash-loading-text">טוען...</span>
+      </div>
     </div>
   );
 }

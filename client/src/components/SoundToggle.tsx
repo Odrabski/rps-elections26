@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isMuted, play, setMuted } from '../utils/sfx';
 import { setMusicMuted } from '../utils/music';
 import './SoundToggle.css';
+
+/** How long the pill spells itself out before shrinking to the icon. Long enough to be read on
+ *  arrival, short enough that it isn't still asking while someone reads the menu. */
+const ASKING_MS = 13000;
 
 interface SoundToggleProps {
   /**
@@ -22,7 +26,15 @@ interface SoundToggleProps {
  */
 export function SoundToggle({ prominent = false }: SoundToggleProps) {
   const [off, setOff] = useState(isMuted);
-  const asking = prominent && off;
+  // Runs once from first mount — this component stays mounted for the whole session, so the
+  // countdown starts when the menu first appears and never restarts on the way into a match.
+  const [withinAskingWindow, setWithinAskingWindow] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setWithinAskingWindow(false), ASKING_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  const asking = prominent && off && withinAskingWindow;
 
   return (
     <button
