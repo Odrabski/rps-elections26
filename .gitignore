@@ -43,3 +43,9 @@ node_modules/
 
 # Piper TTS: a 63MB model and its venv, both rebuildable via tools/setup-piper.sh
 .piper-venv/
+
+# Source media dropped at the repo root — kept on disk, out of git. The build reads its copy
+# in sfx-src/ instead (see tools/build-sfx.sh).
+/*.jpeg
+/*.jpg
+/*.mp3
