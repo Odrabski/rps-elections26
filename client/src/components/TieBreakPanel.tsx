@@ -2,6 +2,7 @@ import { TIE_BREAK_SECONDS } from 'shared';
 import type { ClientPieceView, ClientTieBreakView, RPSHand, Team } from 'shared';
 import { CountdownRing } from './CountdownRing';
 import { resolveFightVisual, soldierHandAsset, soldierIdkAsset } from '../data/characterAssets';
+import { play } from '../utils/sfx';
 import './TieBreakPanel.css';
 import './PieceView.css';
 
@@ -75,7 +76,12 @@ export function TieBreakPanel({ tieBreak, pieces, team, seed, onPick }: TieBreak
               key={hand}
               type="button"
               className={`tiebreak-hand-btn${tieBreak.yourPick === hand ? ' tiebreak-hand-selected' : ''}`}
-              onClick={() => onPick(hand)}
+              onClick={() => {
+                // The pick is the one moment in a tie-break the player acts, and it had no sound
+                // at all — the panel just went quiet until the next cinematic.
+                play('ui.tap');
+                onPick(hand);
+              }}
               disabled={picked}
             >
               <span className="tiebreak-hand-emoji">{emoji}</span>

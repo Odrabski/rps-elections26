@@ -186,7 +186,10 @@ button {
   position: fixed;
   bottom: calc(12px + env(safe-area-inset-bottom));
   right: calc(12px + env(safe-area-inset-right));
-  z-index: 40;
+  /* Above everything the game puts on screen — the fight cinematic (70), the tie panel (65), the
+     locked-in overlay (60) and the modals (200) all used to bury it. Short of the splash's 1000,
+     which is a curtain over the whole app and never coexists with this button anyway. */
+  z-index: 900;
   padding: 0;
   border: none;
   background: none;

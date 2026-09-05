@@ -157,13 +157,12 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
     const winnerTheme = TEAM_THEME[winner.team as Team];
     const winnerVisual = attackerWon ? attackerVisual : defenderVisual;
     const loserVisual = attackerWon ? defenderVisual : attackerVisual;
-    const youWon = winner.team === viewerTeam;
     return (
       <div className="fight-sequence">
         <div className="fight-reveal">
-          <div className={`fight-you-result ${youWon ? 'fight-you-win' : 'fight-you-lose'}`}>
-            {youWon ? 'YOU WIN' : 'YOU LOST'}
-          </div>
+          {/* No "YOU WIN"/"YOU LOST" line any more. The winner's own name is announced aloud and
+              printed under the figures, which says the same thing without a second heading over
+              it — and each side already hears its own flourish. */}
           <div className="fight-figure-pair">
             <div className="fight-figure-winner">
               <FightFigure visual={winnerVisual} tiltHead />

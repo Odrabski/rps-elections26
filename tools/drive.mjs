@@ -129,6 +129,12 @@ async function main() {
 
   await send('Page.enable');
   await send('Runtime.enable');
+  if (process.argv.includes('--no-cache')) {
+    // Reproduces a first visit: the clash cloud is fetched during the fight it appears in, which
+    // is the only moment its missing intrinsic height can misplace it.
+    await send('Network.enable');
+    await send('Network.setCacheDisabled', { cacheDisabled: true });
+  }
   await send('Emulation.setDeviceMetricsOverride', {
     width,
     height,
@@ -312,6 +318,22 @@ async function huntFight() {
     }
     if (!sawFight) continue;
     await evaluate(`window.__played = [];`);
+
+    // Where the clash cloud actually sits, relative to the cell it belongs to. The bug this
+    // guards against only shows before cloud2.webp has loaded, so the caller disables the cache.
+    const cloud = await evaluate(`(() => {
+      const img = document.querySelector('.board-clash-cloud');
+      if (!img) return null;
+      const cell = img.closest('.board-cell');
+      const c = cell.getBoundingClientRect(), i = img.getBoundingClientRect();
+      const tile = c.height;
+      return {
+        loaded: img.complete && img.naturalHeight > 0,
+        offsetInTiles: +(((i.top + i.height / 2) - (c.top + c.height / 2)) / tile).toFixed(2),
+        heightInTiles: +(i.height / tile).toFixed(2),
+      };
+    })()`);
+    if (cloud) console.error(`clash cloud: ${JSON.stringify(cloud)}`);
 
     // Sample the vs-screen head's float amplitude.
     //

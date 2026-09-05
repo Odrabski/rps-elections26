@@ -34,6 +34,10 @@ export function preloadPieceAssets(viewerTeam?: Team): void {
   const hands: RPSHand[] = ['rock', 'paper', 'scissors'];
 
   files.add(TRAP_ASSET);
+  // The clash cloud and the trap's hole are not pieces, so nothing above reaches them — and the
+  // cloud in particular was being fetched for the first time during the fight it appears in.
+  files.add('cloud2.webp');
+  files.add('hole.webp');
   for (const team of teams) {
     files.add(KING_ASSET[team]);
     files.add(HIDDEN_BODY_ASSET[team]);

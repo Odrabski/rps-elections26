@@ -259,23 +259,6 @@
   color: var(--text);
 }
 
-.fight-you-result {
-  font-size: 1.6rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
-  margin-bottom: 14px;
-  transform: translateY(-20px);
-}
-
-.fight-you-win {
-  color: var(--gold);
-}
-
-.fight-you-lose {
-  color: var(--danger);
-}
-
 @keyframes fightRevealPop {
   from {
     transform: scale(0.85);

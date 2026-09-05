@@ -184,6 +184,13 @@
   top: 50%;
   left: 50%;
   width: 182%; /* 260% * 0.7 */
+  /* cloud2.webp is 512x512. Stating the ratio here rather than letting the loaded bitmap supply it
+     is what keeps this centred: the element is placed with translate(-50%, -50%), which shifts it
+     by half its OWN height, and until the image arrives that height is zero. The cloud then hangs
+     downward from the cell's centre line instead of straddling it — half its height, which at 182%
+     of a tile is very nearly one whole tile low. Invisible on desktop, where the fetch beats the
+     first render; plainly wrong on a phone, on the first fight, before the file is cached. */
+  aspect-ratio: 1;
   z-index: 20;
   transform: translate(-50%, -50%) rotate(-12deg);
   pointer-events: none;
