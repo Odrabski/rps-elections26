@@ -36,6 +36,7 @@ export default function App() {
     joinRoom,
     placeSpecial,
     shuffleHands,
+    resetSpecials,
     ready,
     move,
     tiePick,
@@ -187,6 +188,7 @@ export default function App() {
             team={team}
             onPlaceSpecial={placeSpecial}
             onShuffle={shuffleHands}
+            onReset={resetSpecials}
             onReady={ready}
             onExit={resignAndLeave}
           />

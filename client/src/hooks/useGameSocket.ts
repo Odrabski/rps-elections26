@@ -163,6 +163,7 @@ export function useGameSocket() {
     [send]
   );
   const shuffleHands = useCallback(() => send({ type: 'shuffle-hands' }), [send]);
+  const resetSpecials = useCallback(() => send({ type: 'reset-specials' }), [send]);
   const ready = useCallback(() => send({ type: 'ready' }), [send]);
   const move = useCallback((pieceId: string, to: Position) => send({ type: 'move', pieceId, to }), [send]);
   const tiePick = useCallback((hand: RPSHand) => send({ type: 'tie-pick', hand }), [send]);
@@ -214,6 +215,7 @@ export function useGameSocket() {
     joinRoom,
     placeSpecial,
     shuffleHands,
+    resetSpecials,
     ready,
     move,
     tiePick,

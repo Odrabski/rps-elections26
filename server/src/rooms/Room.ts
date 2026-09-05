@@ -17,6 +17,7 @@ import {
   initializeTeamPieces,
   markReady,
   placeSpecial,
+  resetSpecials,
   shuffleHands,
   type TeamSetupData,
 } from '../game/setup.js';
@@ -456,6 +457,11 @@ export class Room {
       }
       case 'shuffle-hands': {
         const err = shuffleHands(this.state, this.setupData, team);
+        if (err) return this.sendTo(team, { type: 'error', message: err });
+        break;
+      }
+      case 'reset-specials': {
+        const err = resetSpecials(this.state, this.setupData, team);
         if (err) return this.sendTo(team, { type: 'error', message: err });
         break;
       }

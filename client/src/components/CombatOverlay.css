@@ -13,6 +13,15 @@
   pointer-events: none;
 }
 
+/* A phone screen is almost entirely board, so a light veil is enough to push it back. A desktop
+   window is mostly the surrounding scene, and at that size 0.72 leaves the fight competing with
+   everything still showing through around it. */
+@media (min-width: 900px) {
+  .combat-overlay {
+    background: rgba(2, 6, 23, 0.9);
+  }
+}
+
 @keyframes combatFadeIn {
   from {
     opacity: 0;

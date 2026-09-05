@@ -17,13 +17,14 @@ interface SetupScreenProps {
   team: Team;
   onPlaceSpecial: (piece: 'king' | 'trap', position: Position) => void;
   onShuffle: () => void;
+  onReset: () => void;
   onReady: () => void;
   onExit: () => void;
 }
 
 const PULSE_DURATION_MS = 700;
 
-export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, onExit }: SetupScreenProps) {
+export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReset, onReady, onExit }: SetupScreenProps) {
   const theme = TEAM_THEME[team];
   const opponent: Team = team === 'red' ? 'blue' : 'red';
   const isReady = view.readiness[team];
@@ -147,6 +148,19 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
                 onShuffle();
               }}>
               ערבוב כלי נשק
+            </button>
+            {/* Hands every piece back its blank slate, so the King and Trap can be picked again.
+                No confirmation: nothing is lost that a second tap can't redo, and the whole point
+                is that it's quicker than restarting. `step` reads off view.pieces, so the banner
+                goes back to asking for the King on its own once the new state lands. */}
+            <button type="button" className="btn-secondary setup-btn-onboard setup-btn-onboard-reset"
+              onClick={() => {
+                play('ui.tap');
+                setMisclick(false);
+                setPulsePosition(null);
+                onReset();
+              }}>
+              איפוס
             </button>
           </div>
         )}

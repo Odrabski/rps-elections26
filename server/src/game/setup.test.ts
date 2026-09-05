@@ -7,6 +7,7 @@ import {
   initializeTeamPieces,
   markReady,
   placeSpecial,
+  resetSpecials,
   shuffleHands,
   type TeamSetupData,
 } from './setup.js';
@@ -106,6 +107,62 @@ describe('placeSpecial', () => {
     expect(pieces).toHaveLength(14);
     expect(pieces.filter((p) => p.kind === 'soldier')).toHaveLength(SOLDIER_COUNT);
     expect(pieces.filter((p) => p.kind === 'unassigned')).toHaveLength(0);
+  });
+});
+
+describe('resetSpecials', () => {
+  it('puts every piece back to unassigned so both specials can be chosen again', () => {
+    const state = setupState();
+    const setupData = freshSetupData();
+    placeSpecial(state, setupData, 'red', 'king', { row: 0, col: 0 });
+    placeSpecial(state, setupData, 'red', 'trap', { row: 0, col: 1 });
+    // Designating the second special deals the rest their hands, so this is the full state.
+    expect(piecesOf(state, 'red').filter((p) => p.kind === 'unassigned')).toHaveLength(0);
+
+    expect(resetSpecials(state, setupData, 'red')).toBeNull();
+
+    const pieces = piecesOf(state, 'red');
+    expect(pieces).toHaveLength(14);
+    expect(pieces.every((p) => p.kind === 'unassigned')).toBe(true);
+    // The weapons go with them: placeSpecial only accepts a piece that is still unassigned, so a
+    // soldier left holding a hand could never be designated King on the second pass.
+    expect(pieces.every((p) => p.hand === null)).toBe(true);
+  });
+
+  it('leaves the other side alone', () => {
+    const state = setupState();
+    const setupData = freshSetupData();
+    placeSpecial(state, setupData, 'blue', 'king', { row: 4, col: 0 });
+    placeSpecial(state, setupData, 'blue', 'trap', { row: 4, col: 1 });
+
+    resetSpecials(state, setupData, 'red');
+
+    expect(piecesOf(state, 'blue').filter((p) => p.kind === 'king')).toHaveLength(1);
+    expect(piecesOf(state, 'blue').filter((p) => p.kind === 'trap')).toHaveLength(1);
+  });
+
+  it('lets the king and trap be designated again afterwards', () => {
+    const state = setupState();
+    const setupData = freshSetupData();
+    placeSpecial(state, setupData, 'red', 'king', { row: 0, col: 0 });
+    placeSpecial(state, setupData, 'red', 'trap', { row: 0, col: 1 });
+    resetSpecials(state, setupData, 'red');
+
+    expect(placeSpecial(state, setupData, 'red', 'king', { row: 0, col: 5 })).toBeNull();
+    expect(placeSpecial(state, setupData, 'red', 'trap', { row: 0, col: 6 })).toBeNull();
+
+    const king = piecesOf(state, 'red').find((p) => p.kind === 'king');
+    expect(king?.position).toEqual({ row: 0, col: 5 });
+  });
+
+  it('refuses once the team has locked in', () => {
+    const state = setupState();
+    const setupData = freshSetupData();
+    placeSpecial(state, setupData, 'red', 'king', { row: 0, col: 0 });
+    placeSpecial(state, setupData, 'red', 'trap', { row: 0, col: 1 });
+    setupData.red.ready = true;
+
+    expect(resetSpecials(state, setupData, 'red')).toBe('already-ready');
   });
 });
 

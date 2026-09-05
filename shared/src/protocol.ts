@@ -6,6 +6,7 @@ export type ClientMessage =
   | { type: 'rejoin'; roomCode: string; token: string }
   | { type: 'place-special'; piece: 'king' | 'trap'; position: Position }
   | { type: 'shuffle-hands' }
+  | { type: 'reset-specials' }
   | { type: 'ready' }
   | { type: 'move'; pieceId: string; to: Position }
   | { type: 'tie-pick'; hand: RPSHand }

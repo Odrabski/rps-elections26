@@ -116,6 +116,30 @@ export function shuffleHands(
   return null;
 }
 
+/**
+ * Undesignates the team's King and Trap so both can be chosen again.
+ *
+ * Takes the soldiers' weapons back with them. They were only dealt because both specials were in
+ * place (see finalizeSoldiersIfReady), and leaving them dealt would mean the re-designation had to
+ * land on a piece already holding a weapon — the "still unassigned" rule placeSpecial enforces
+ * would have nothing left to choose from.
+ */
+export function resetSpecials(
+  state: GameState,
+  setupData: Record<Team, TeamSetupData>,
+  team: Team
+): SetupError | null {
+  if (state.phase !== 'setup') return 'not-setup-phase';
+  if (setupData[team].ready) return 'already-ready';
+
+  for (const piece of teamPieces(state, team)) {
+    piece.kind = 'unassigned';
+    piece.hand = null;
+    piece.characterId = `${team}-piece`;
+  }
+  return null;
+}
+
 export function markReady(
   state: GameState,
   setupData: Record<Team, TeamSetupData>,
