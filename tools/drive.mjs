@@ -198,10 +198,13 @@ async function main() {
 
   await send('Page.navigate', { url: URL });
 
-  // The splash dismisses itself now — there is no button to press. Wait for it to *appear* before
-  // waiting for it to go: straight after navigate it does not exist yet, so "gone" is trivially
-  // true and the driver would race ahead of a splash that is about to cover everything.
-  await waitFor(`document.querySelector('.splash-screen')`, { label: 'splash to appear', timeout: 20000 });
+  // The splash waits for a press again — the play button is the gesture that lets the game make any
+  // sound at all, so it cannot dismiss itself. Wait for the button rather than for the splash to
+  // appear: it only exists once the menu art has loaded, which is the same signal, and clicking it
+  // is what takes us on. (Leaving the audio switches alone, so the driver hears the game as a
+  // player would.)
+  await waitFor(`document.querySelector('.splash-play')`, { label: 'splash play button', timeout: 25000 });
+  await evaluate(`document.querySelector('.splash-play').click()`);
   await waitFor(`!document.querySelector('.splash-screen')`, { label: 'splash to leave', timeout: 20000 });
   await shot('1-menu');
 
