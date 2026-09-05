@@ -63,3 +63,25 @@
 .score-count-right {
   right: -8px;
 }
+
+/* The badge belonging to whoever is up. A ring in the side's own colour rather than a generic
+   white one, so the two stay telling apart at a glance while one is lit; the lift is small on
+   purpose, since these sit still for the whole match and a big one would fidget. */
+.score-pill-active {
+  box-shadow:
+    0 0 0 2.5px rgba(255, 255, 255, 0.85),
+    0 0 16px 2px var(--pill-glow);
+  transform: scale(1.06);
+}
+
+.score-pill {
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .score-pill {
+    transition: none;
+  }
+}

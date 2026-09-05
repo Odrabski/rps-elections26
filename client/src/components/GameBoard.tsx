@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { ClientGameView, ClientPieceView, GameEvent, Position, RPSHand, Team } from 'shared';
 import { BOARD_COLS, BOARD_ROWS, TURN_SECONDS } from 'shared';
 import { TEAM_THEME } from '../data/theme';
@@ -357,6 +357,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
         <ScoreHeader
           team={team}
           pieces={scorePieces}
+          activeTurn={turnTeam}
           center={
             <CountdownRing
               deadline={view.turnDeadline}
@@ -369,7 +370,12 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
             />
           }
         />
-        <div className="board-wrap">
+        <div
+          className="board-wrap"
+          // Driven from TEAM_THEME rather than duplicated in CSS, so the board's ring, the turn
+          // pill and the score badges can never disagree about what each side's colour is.
+          style={{ '--turn-color': turnTheme.solid, '--turn-glow': turnTheme.border } as CSSProperties}
+        >
           {showMatchStart && <div className="match-start-pill">המשחק מתחיל</div>}
           <BoardGrid
             team={team}

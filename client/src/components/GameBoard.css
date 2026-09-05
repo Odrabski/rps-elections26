@@ -127,3 +127,23 @@
     opacity: 1;
   }
 }
+
+/* Whose move it is, said by the board itself: a ring in that side's colour, plus a soft glow.
+   Drawn with box-shadow rather than `outline` so it follows the frame's 16px radius, and it
+   restates the frame's own drop shadow because a second box-shadow would replace it outright.
+   The colours arrive as custom properties from TEAM_THEME (see GameBoard.tsx), so this rule never
+   names a colour and cannot drift from the turn pill or the score badges. */
+.board-wrap .board-frame {
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 3px var(--turn-color),
+    0 0 22px 2px var(--turn-glow);
+  transition:
+    box-shadow 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-wrap .board-frame {
+    transition: none;
+  }
+}
