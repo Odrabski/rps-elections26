@@ -128,17 +128,23 @@
   animation: setupOnboardPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Equal thirds. `flex-basis: 0` rather than `auto` is what makes them equal — from `auto` the
-   longest label ("ערבוב כלי נשק") would still claim the most room. `min-width: 0` lets them
-   actually shrink to that share instead of being floored at their content width. */
+/* Equal thirds, each stacking its glyph over its label. `flex-basis: 0` rather than `auto` is what
+   makes them equal — from `auto` the longest label ("ערבוב כלי נשק") would still claim the most
+   room. `min-width: 0` lets them actually shrink to that share instead of being floored at their
+   content width. */
 .setup-btn-onboard {
   flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   /* .btn-primary has no border and .btn-secondary has 1px. With a zero flex-basis each item's
      border and padding sit *outside* the share it grows into, so the borderless one would come out
      2px narrower than the other two. A transparent border on all three makes them identical. */
   border: 1px solid transparent;
-  padding: 11px 10px;
+  padding: 10px 8px;
   font-size: 1rem;
   /* .btn-primary is 700 and .btn-secondary 600; matched here so the three read as one row. The
      sizes were already identical — the weight was the whole of the difference. */
@@ -147,14 +153,11 @@
   white-space: nowrap;
 }
 
-/* Lays its glyph and label out in a row so the icon does not make it taller than its neighbours —
-   the same reason .home-vs-bot-btn goes flex. It used to be the wide one of the pair; with three
-   across, its colour is what marks it as the action instead. */
-.setup-btn-onboard-start {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
+/* A touch larger than the 1.35em .btn-icon default: on its own line it is carrying the button's
+   identity rather than just marking a label. */
+.setup-btn-onboard .btn-icon {
+  width: 1.6em;
+  height: 1.6em;
 }
 
 .setup-btn-onboard-shuffle {
@@ -179,10 +182,6 @@
   .setup-btn-onboard {
     padding-inline: 4px;
     font-size: 0.8rem;
-  }
-
-  .setup-btn-onboard-start {
-    gap: 4px;
   }
 }
 

@@ -100,6 +100,13 @@
   transform: translate(-50%, -50%);
 }
 
+/* Same pill, saying why a tap did nothing rather than whose turn it is. Only the edge is tinted —
+   a correction should look different from an announcement at a glance, but it is still the board's
+   own quiet voice and not an alarm. */
+.turn-pill-warn {
+  border-color: rgba(248, 113, 113, 0.75);
+}
+
 @keyframes turnPillPop {
   from {
     transform: translate(-50%, -50%) scale(0.6);

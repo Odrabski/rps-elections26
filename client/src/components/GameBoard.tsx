@@ -33,6 +33,8 @@ const PILL_TEXT = {
   startTheirs: 'המשחק מתחיל - הצד השני מתחיל',
   yours: 'התור שלך',
   theirs: 'התור של הצד השני',
+  kingStuck: 'המלך לא יכול לזוז',
+  trapStuck: 'המלכודת לא יכולה לזוז',
 } as const;
 
 /** Map key for a board tile — positions are plain objects, so they can't be keyed on directly. */
@@ -101,7 +103,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
    * end with "התור שלך", and setting identical state would not re-render, so the hide timer below
    * would never restart and the second pill would inherit the first one's remaining time.
    */
-  const [turnPill, setTurnPill] = useState<{ text: string; key: number } | null>(() =>
+  const [turnPill, setTurnPill] = useState<{ text: string; key: number; warn?: boolean } | null>(() =>
     // Keyed to a board that has had no move yet rather than to this component mounting: it also
     // mounts on a mid-game rejoin, where announcing the start again would be wrong.
     view.lastMove === null
@@ -361,6 +363,19 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       return;
     }
 
+    // Your own King or Trap. Both are rooted for the whole match, and until now tapping one did
+    // nothing at all — which reads as the board being broken rather than as the rule it is. Says so
+    // instead, in the same slot the turn announcements use.
+    if (occupant && occupant.team === team && (occupant.kind === 'king' || occupant.kind === 'trap')) {
+      play('ui.error');
+      setTurnPill((prev) => ({
+        text: occupant.kind === 'king' ? PILL_TEXT.kingStuck : PILL_TEXT.trapStuck,
+        key: (prev?.key ?? 0) + 1,
+        warn: true,
+      }));
+      return;
+    }
+
     if (selected && legalTargets.some((t) => t.row === actual.row && t.col === actual.col)) {
       // Only a quiet move is sounded locally, for responsiveness — it produces no server event of
       // its own. A clash is left to the event branch below, which fires on both clients, so an
@@ -407,7 +422,14 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
           // pill and the score badges can never disagree about what each side's colour is.
           style={{ '--turn-color': turnTheme.solid, '--turn-glow': turnTheme.border } as CSSProperties}
         >
-          {turnPill && <div className="turn-pill">{turnPill.text}</div>}
+          {/* Keyed so each pill is a fresh element: swapping only the text on the same node leaves
+              the pop animation already spent, and tapping the King twice would show the second
+              message with no beat of its own. */}
+          {turnPill && (
+            <div key={turnPill.key} className={`turn-pill${turnPill.warn ? ' turn-pill-warn' : ''}`}>
+              {turnPill.text}
+            </div>
+          )}
           <BoardGrid
             team={team}
             seed={seed}

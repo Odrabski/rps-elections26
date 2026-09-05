@@ -134,9 +134,7 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReset, on
         {!isReady && step === 'ready' && (
           <div className="setup-onboard-buttons">
             <button type="button" className="btn-primary setup-btn-onboard setup-btn-onboard-start" onClick={onReady}>
-              {/* First in the DOM, which in this RTL layout puts it at the *start* of the words —
-                  the opposite end from the home screen's bot glyph. Stroke-only on currentColor,
-                  which on .btn-primary is the near-black #1a1a2e. */}
+              {/* Stroke-only on currentColor, which on .btn-primary is the near-black #1a1a2e. */}
               <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 6.2 18.5 12 9 17.8Z" />
               </svg>
@@ -147,7 +145,13 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReset, on
                 play('setup.shuffle');
                 onShuffle();
               }}>
-              ערבוב כלי נשק
+              {/* Two paths crossing, with their arrowheads kept separate so a stroke join can't
+                  pull the heads out of shape at this size. */}
+              <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6h3.6l10 12H21M3 18h3.6l2.7-3.2M14.4 9.2 16.6 6H21" />
+                <path d="m18.4 3.4 2.6 2.6-2.6 2.6M18.4 15.4l2.6 2.6-2.6 2.6" />
+              </svg>
+              <span>ערבוב כלי נשק</span>
             </button>
             {/* Hands every piece back its blank slate, so the King and Trap can be picked again.
                 No confirmation: nothing is lost that a second tap can't redo, and the whole point
@@ -160,7 +164,13 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReset, on
                 setPulsePosition(null);
                 onReset();
               }}>
-              איפוס
+              {/* An arc left open at the top right, with the arrowhead closing it — the usual
+                  "start over" glyph. */}
+              <svg className="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.5 12a8.5 8.5 0 1 1-2.9-6.4" />
+                <path d="M20.6 3.6V9h-5.4" />
+              </svg>
+              <span>איפוס</span>
             </button>
           </div>
         )}
