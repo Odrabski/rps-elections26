@@ -148,6 +148,7 @@ async function main() {
     // and the winner calls are both 0.97s).
     await send('Page.addScriptToEvaluateOnNewDocument', {
       source: `
+        try { sessionStorage.removeItem('rps-politika-session'); } catch {}
         if (!window.__audioProbe) {
           window.__audioProbe = true;
           // The game now opens muted (see SoundToggle), and play() returns before touching the
@@ -197,9 +198,11 @@ async function main() {
 
   await send('Page.navigate', { url: URL });
 
-  await waitFor(`document.querySelector('.splash-enter-ready')`, { label: 'splash button to arm' });
-  await click('.splash-enter');
-  await waitFor(`!document.querySelector('.splash-screen')`, { label: 'splash to leave' });
+  // The splash dismisses itself now — there is no button to press. Wait for it to *appear* before
+  // waiting for it to go: straight after navigate it does not exist yet, so "gone" is trivially
+  // true and the driver would race ahead of a splash that is about to cover everything.
+  await waitFor(`document.querySelector('.splash-screen')`, { label: 'splash to appear', timeout: 20000 });
+  await waitFor(`!document.querySelector('.splash-screen')`, { label: 'splash to leave', timeout: 20000 });
   await shot('1-menu');
 
   await click('button', 'משחק מול בוט');
@@ -318,6 +321,32 @@ async function huntFight() {
     }
     if (!sawFight) continue;
     await evaluate(`window.__played = [];`);
+
+    // The overlay's own geometry across the two phases: where the cloud sits while the fighters
+    // are inside it, and where the winner lands once it dissolves. These should agree — the reveal
+    // is meant to read as the cloud clearing to show who is standing there.
+    const geom = await evaluate(`(async () => {
+      const wait = async (sel, ms) => { const end = Date.now() + ms;
+        while (Date.now() < end) { const el = document.querySelector(sel); if (el) return el; await new Promise(r => setTimeout(r, 40)); }
+        return null; };
+      const overlayMid = () => { const o = document.querySelector('.fight-sequence');
+        const r = o.getBoundingClientRect(); return r; };
+      const cloud = await wait('.fight-cloud', 12000);
+      if (!cloud) return null;
+      const cr = cloud.getBoundingClientRect(); const co = overlayMid();
+      const winner = await wait('.fight-figure-winner', 12000);
+      if (!winner) return { cloudCentreY: +(cr.top + cr.height/2).toFixed(1), cloudLoaded: cloud.complete && cloud.naturalHeight>0, winner: null };
+      await new Promise(r => setTimeout(r, 250));
+      const wr = winner.getBoundingClientRect();
+      return {
+        cloudCentreY: +(cr.top + cr.height/2).toFixed(1),
+        cloudHeight: +cr.height.toFixed(1),
+        cloudLoaded: cloud.complete && cloud.naturalHeight > 0,
+        winnerCentreY: +(wr.top + wr.height/2).toFixed(1),
+        driftPx: +((wr.top + wr.height/2) - (cr.top + cr.height/2)).toFixed(1),
+      };
+    })()`);
+    if (geom) console.error('fight overlay geometry: ' + JSON.stringify(geom));
 
     // Where the clash cloud actually sits, relative to the cell it belongs to. The bug this
     // guards against only shows before cloud2.webp has loaded, so the caller disables the cache.

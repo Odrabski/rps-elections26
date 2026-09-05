@@ -60,12 +60,13 @@ export const BATTLE_SEQUENCE_MS = CLASH_REVEAL_DELAY_MS + FIGHT_SEQUENCE_MS + CL
  */
 export const KING_CAPTURE_SEQUENCE_MS = CLASH_JUMP_MS + 900;
 
-// The client's trap sequence (BoardGrid: warning banner → trap dissolves → attacker jumps onto
-// the hole → attacker sinks and vanishes → the trap climbs back out). Defined here (not just in
-// BoardGrid.tsx) so the server can hold the next turn's timer off until the whole sequence has
-// actually finished playing — mirroring BATTLE_SEQUENCE_MS's own reasoning for battles.
-export const TRAP_WARNING_MS = 1000;
-export const TRAP_DISSOLVE_MS = 400;
+// The client's trap sequence (BoardGrid: the attacker steps onto the tile while the trap dissolves
+// under it and the pit opens → the attacker sinks in → the trap climbs back out). Defined here (not
+// just in BoardGrid.tsx) so the server can hold the next turn's timer off until the whole sequence
+// has actually finished playing — mirroring BATTLE_SEQUENCE_MS's own reasoning for battles.
+//
+// The trap's own fade is .piece-dissolving (0.4s in BoardGrid.css), which now runs inside the jump
+// below rather than before it, so it needs no constant of its own here.
 export const TRAP_ATTACKER_JUMP_MS = 500;
 export const TRAP_ATTACKER_FALL_MS = 600;
 /** How long the "you fell in a trap" banner stays up once the soldier has actually sunk into the
@@ -80,8 +81,15 @@ export const TRAP_BANNER_MS = 1200;
  *  up the hole has already been on screen for 1100ms, so it has long since read as empty. */
 export const TRAP_RETURN_MS = 700;
 
-export const TRAP_SEQUENCE_MS =
-  TRAP_WARNING_MS + TRAP_DISSOLVE_MS + TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS + TRAP_BANNER_MS;
+/**
+ * The whole trap beat, and what the server locks the board for.
+ *
+ * It used to open with a 1000ms hold on the untouched trap and a 400ms dissolve before the attacker
+ * moved at all — so the first thing that happened after the tap was nothing, twice over. The
+ * attacker now steps onto the tile immediately and the trap dissolves under it in the same beat,
+ * taking 1400ms off the front: 3700ms down to 2300ms.
+ */
+export const TRAP_SEQUENCE_MS = TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS + TRAP_BANNER_MS;
 
 /** Row indices (inclusive) that belong to each team's placement zone. */
 export const ZONE_ROWS: Record<'red' | 'blue', [number, number]> = {
