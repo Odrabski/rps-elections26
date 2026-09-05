@@ -25,7 +25,7 @@ const SOURCES: Record<Track, string> = {
 
 /** The result tracks sit higher than the menu bed: nothing competes with them, and they carry the
  *  moment rather than sitting under it. */
-const VOLUME: Record<Track, number> = { menu: 0.17, win: 0.44, lose: 0.4 };
+const VOLUME: Record<Track, number> = { menu: 0.24, win: 0.44, lose: 0.4 };
 
 const STORAGE_KEY = 'rps-politika:muted';
 
