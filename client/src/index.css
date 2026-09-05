@@ -9,7 +9,13 @@
   --gold: #d4af37;
   --danger: #e11d48;
 
-  --sans: 'Assistant', 'Segoe UI', Arial, sans-serif;
+  /* Assistant comes from Google Fonts (see index.html), so it works whether or not it is installed
+     locally. The rest of the stack is what shows if that request never lands — offline, blocked, or
+     just slow, since `display=swap` paints in the fallback first either way. It used to go straight
+     to 'Segoe UI', Arial: Segoe UI is Windows-only, so every Mac, iPhone and Android fell through
+     to Arial. system-ui picks each platform's own UI face, all of which cover Hebrew and none of
+     which look as foreign next to this game's art as Arial does. */
+  --sans: 'Assistant', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 
   font: 18px/145% var(--sans);
   color-scheme: dark;

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-04",
+  "generated": "2026-09-05",
   "rows": [
     {
       "id": "App.90b6d9",
@@ -97,8 +97,8 @@
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
-      "id": "GameOverScreen.9ac6b0",
-      "text": "${theme.label} מצאו את המלך ולקחו את הבחירות",
+      "id": "GameOverScreen.a91646",
+      "text": "${theme.label} מצאה את המלך ולקחה את הבחירות",
       "file": "client/src/components/GameOverScreen.tsx"
     },
     {
