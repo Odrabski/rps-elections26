@@ -5,7 +5,8 @@
   position: fixed;
   top: max(10px, env(safe-area-inset-top));
   inset-inline-start: 10px;
-  z-index: 150;
+  z-index: 900; /* matches .exit-btn and .howto-link — the three corner controls stay reachable
+                    over the fight cinematic, the tie panel and the modals alike */
   display: flex;
   align-items: center;
   justify-content: center;
