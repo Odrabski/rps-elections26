@@ -29,7 +29,7 @@
 .splash-controls {
   position: absolute;
   left: 50%;
-  bottom: 9%;
+  bottom: 6%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -39,9 +39,8 @@
   width: max-content;
   max-width: 92vw;
   /* Height of the loaded state (play button + gap + toggles), reserved up front so the loader sits
-     roughly where the play button will appear rather than jumping up 8% of the screen when it
-     swaps in. */
-  min-height: 142px;
+     roughly where the play button will appear rather than jumping when it swaps in. */
+  min-height: 234px;
 }
 
 /* ── while loading ───────────────────────────────────────────────────────── */
@@ -53,7 +52,7 @@
   justify-content: center;
   gap: 12px;
   /* Matches .splash-play, so the loader is already standing where the button appears. */
-  height: 92px;
+  height: 184px;
 }
 
 .splash-spinner {
@@ -88,8 +87,8 @@
   border: none;
   background: none;
   cursor: pointer;
-  width: 92px;
-  height: 92px;
+  width: 184px;
+  height: 184px;
   -webkit-tap-highlight-color: transparent;
   animation: splashPlayFloat 2.8s ease-in-out infinite;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
@@ -119,65 +118,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-/* Dark and translucent, because these sit on bright artwork and have to stay legible over whatever
-   is behind them. */
-.splash-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(6, 12, 26, 0.72);
-  color: rgba(255, 255, 255, 0.6);
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.splash-toggle-on {
-  color: #fff;
-  border-color: rgba(212, 175, 55, 0.75);
-}
-
-.splash-toggle-track {
-  position: relative;
-  flex: none;
-  width: 32px;
-  height: 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  transition: background 0.2s ease;
-}
-
-.splash-toggle-on .splash-toggle-track {
-  background: var(--gold, #d4af37);
-}
-
-/* Slides between the two ends of the track. `inset-inline-start` rather than `left`: the page is
-   RTL, so "on" has to mean the reading-start side or the knob travels the wrong way. */
-.splash-toggle-knob {
-  position: absolute;
-  top: 2px;
-  inset-inline-start: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: inset-inline-start 0.2s ease;
-}
-
-.splash-toggle-on .splash-toggle-knob {
-  inset-inline-start: 16px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -211,5 +151,65 @@
   .splash-loader {
     width: 66px;
     height: 66px;
+  }
+}
+
+/* Desktop. Room enough to stop tucking things into a corner: the button takes the centre of the
+   screen and the switches sit under the logo, where the wide crop leaves a clear strip of path.
+   Width as well as orientation, so a phone held sideways keeps the compact side layout above. */
+@media (min-width: 900px) and (orientation: landscape) {
+  .splash-controls {
+    inset: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    transform: none;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Centred by the flex container rather than a transform of its own, so the float keyframes still
+     own `transform` outright — restating a centring offset in every frame is a trap this file has
+     been caught by before. */
+  .splash-play,
+  .splash-loader {
+    width: 276px;
+    height: 276px;
+  }
+
+  .splash-toggles {
+    position: absolute;
+    left: 50%;
+    bottom: 3.5%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  /* Half again as large — at this distance the phone sizing reads as an afterthought. */
+  .audio-toggle {
+    gap: 12px;
+    padding: 11px 18px;
+    font-size: 1.23rem;
+  }
+
+  .audio-toggle-track {
+    width: 48px;
+    height: 27px;
+  }
+
+  .audio-toggle-knob {
+    top: 3px;
+    inset-inline-start: 3px;
+    width: 21px;
+    height: 21px;
+  }
+
+  .audio-toggle-on .audio-toggle-knob {
+    inset-inline-start: 24px;
   }
 }

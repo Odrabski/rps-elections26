@@ -12,7 +12,7 @@
  * policy, no output device, an old WebView) must never take a move with it.
  */
 
-import { isMasterMuted, setMasterMuted, sfxSilenced } from './audioPrefs';
+import { setSfxPref, sfxSilenced } from './audioPrefs';
 
 /** Every cue, and how many numbered variants each has on disk. Frequent cues get several so a
  *  sound heard 40-80 times a game doesn't wear a hole in the player. */
@@ -79,22 +79,19 @@ const loading = new Set<string>();
 /** The variant each cue played last, so the next pick can avoid it — see play(). */
 const lastStem = new Map<string, string>();
 
-/** Effects are silenced either by the splash's own "צלילים" toggle or by the master mute. Read
- *  through audioPrefs rather than cached here, so a change on either takes effect immediately. */
+/** Silenced by the "צלילים" channel being off — set on the splash, or from the speaker menu. Read
+ *  through audioPrefs rather than cached here, so a change takes effect immediately. */
 function silenced(): boolean {
   return sfxSilenced();
 }
 
-export function isMuted(): boolean {
-  return isMasterMuted();
-}
-
-/** The corner button's master mute. The splash's per-channel choice is set through
- *  audioPrefs.savePrefs instead, and is what this restores you to when it is switched back off. */
-export function setMuted(next: boolean): void {
-  setMasterMuted(next);
-  if (master) master.gain.value = next ? 0 : 1;
-  if (!next) void preload();
+/** Turns the effects channel on or off, from either place that offers the choice. Muting through
+ *  the gain node rather than tearing the context down: it has to survive being switched back on
+ *  mid-match, and re-creating it there would need another user gesture. */
+export function setSfxOn(next: boolean): void {
+  setSfxPref(next);
+  if (master) master.gain.value = next ? 1 : 0;
+  if (next) void preload();
 }
 
 /**

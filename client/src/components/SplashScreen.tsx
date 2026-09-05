@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { currentPrefs, savePrefs } from '../utils/audioPrefs';
 import { play, preload } from '../utils/sfx';
+import { AudioToggle } from './AudioToggle';
 import './SplashScreen.css';
 
 /** The art deserves a beat even on a fast connection, so the loader never flashes past. */
@@ -88,12 +89,12 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
               <img src="/assets/play.webp" alt="" />
             </button>
             <div className="splash-toggles">
-              <SplashToggle
+              <AudioToggle
                 label="מוזיקת רקע"
                 on={prefs.music}
                 onToggle={() => setPrefs((p) => ({ ...p, music: !p.music }))}
               />
-              <SplashToggle
+              <AudioToggle
                 label="צלילים"
                 on={prefs.sfx}
                 onToggle={() => setPrefs((p) => ({ ...p, sfx: !p.sfx }))}
@@ -111,21 +112,3 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
   );
 }
 
-/** A labelled switch. `role="switch"` rather than a styled checkbox so the on/off state is
- *  announced, since the knob's position is the only visual cue. */
-function SplashToggle({ label, on, onToggle }: { label: string; on: boolean; onToggle: () => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      className={`splash-toggle${on ? ' splash-toggle-on' : ''}`}
-      onClick={onToggle}
-    >
-      <span className="splash-toggle-track">
-        <span className="splash-toggle-knob" />
-      </span>
-      <span className="splash-toggle-label">{label}</span>
-    </button>
-  );
-}

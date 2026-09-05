@@ -12,10 +12,10 @@
  * in the menu or looking at a result, never both.
  *
  * Silence is decided in audioPrefs, shared with the effects, but applied separately here — this
- * element is not in the graph their master gain node controls, so muting it means pausing it.
+ * element is not in the graph their gain node controls, so silencing it means pausing it.
  */
 
-import { musicSilenced } from './audioPrefs';
+import { musicSilenced, setMusicPref } from './audioPrefs';
 
 export type Track = 'menu' | 'win' | 'lose';
 
@@ -33,8 +33,8 @@ let el: HTMLAudioElement | null = null;
 let current: Track | null = null;
 let awaitingGesture = false;
 
-/** Silenced by the splash's own "מוזיקת רקע" toggle or by the master mute — see audioPrefs, which
- *  both this and sfx.ts read so neither has to know about the other. */
+/** Silenced by the "מוזיקת רקע" channel being off — see audioPrefs, which both this and sfx.ts
+ *  read so neither has to know about the other. */
 function muted(): boolean {
   return musicSilenced();
 }
@@ -90,11 +90,12 @@ export function setTrack(next: Track | null): void {
   if (!muted()) playWhenAllowed(a);
 }
 
-/** Mirrors the effects' mute toggle. A separate call rather than importing sfx.ts, which would
+/** Turns the music channel on or off. A separate call rather than importing sfx.ts, which would
  *  make the two modules import each other. */
-export function setMusicMuted(next: boolean): void {
+export function setMusicOn(next: boolean): void {
+  setMusicPref(next);
   const a = element();
   if (!a) return;
-  if (next) a.pause();
+  if (!next) a.pause();
   else if (current) playWhenAllowed(a);
 }

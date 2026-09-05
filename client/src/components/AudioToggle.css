@@ -1,0 +1,60 @@
+/* Dark and translucent, because these sit over bright artwork on the splash and over the board in
+   the speaker menu, and have to stay legible against both. The "on" blue is the logo's royal blue
+   rather than the gold used elsewhere — the splash art is mostly gold, and a gold switch on it
+   reads as decoration instead of a control. */
+.audio-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(6, 12, 26, 0.72);
+  color: rgba(255, 255, 255, 0.6);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.audio-toggle-on {
+  color: #fff;
+  border-color: rgba(88, 160, 255, 0.8);
+}
+
+.audio-toggle-track {
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.2s ease;
+}
+
+.audio-toggle-on .audio-toggle-track {
+  background: linear-gradient(180deg, #4a93ff, #1f5fd6);
+}
+
+/* Slides between the two ends of the track. `inset-inline-start` rather than `left`: the page is
+   RTL, so "on" has to mean the reading-end side or the knob travels the wrong way. */
+.audio-toggle-knob {
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: inset-inline-start 0.2s ease;
+}
+
+.audio-toggle-on .audio-toggle-knob {
+  inset-inline-start: 16px;
+}

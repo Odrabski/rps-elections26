@@ -1,12 +1,19 @@
 /* Pinned to the top of the screen's leading edge — which in this RTL layout is the *right*. That
    keeps it clear of the version label in the opposite corner and of the exit button, which owns
    the bottom. It sits above the score pills rather than beside them. */
-.sound-toggle {
+.sound-menu {
   position: fixed;
   top: max(10px, env(safe-area-inset-top));
   inset-inline-start: 10px;
   z-index: 900; /* matches .exit-btn and .howto-link — the three corner controls stay reachable
                     over the fight cinematic, the tie panel and the modals alike */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sound-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,47 +45,30 @@
   line-height: 1;
 }
 
-/* The "turn sound on" state: a gold pill wide enough for the words, rather than the bare circle.
-   Only ever rendered while sound is off and a match isn't in progress (see SoundToggle.tsx). */
-.sound-toggle-asking {
-  width: auto;
-  height: 40px;
-  padding: 0 15px 0 13px;
-  border-radius: 999px;
-  border-color: rgba(212, 175, 55, 0.55);
-  background: linear-gradient(180deg, rgba(245, 166, 35, 0.95), rgba(224, 133, 12, 0.95));
-  color: #1a1a2e;
-  font-weight: 800;
-  opacity: 1;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  animation: soundToggleNudge 3.6s ease-in-out 1.2s infinite;
+/* Hangs under the button rather than over the board's centre, so it never covers the tile the
+   player is looking at. Column, because the two labels are different lengths and a row of them
+   reads ragged at this size. */
+.sound-menu-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  animation: soundMenuOpen 0.14s ease-out;
 }
 
-.sound-toggle-label {
-  font-size: 0.85rem;
-  letter-spacing: 0.01em;
-}
-
-/* A double beat every few seconds — enough to catch the eye once, not enough to sit in the corner
-   demanding attention for the whole visit. The button carries no resting transform of its own, so
-   these frames are free to own it outright. */
-@keyframes soundToggleNudge {
-  0%,
-  9%,
-  18%,
-  100% {
-    transform: scale(1);
+@keyframes soundMenuOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
   }
-  4.5% {
-    transform: scale(1.07);
-  }
-  13.5% {
-    transform: scale(1.04);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sound-toggle-asking {
+  .sound-menu-panel {
     animation: none;
   }
 }

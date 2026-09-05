@@ -1,11 +1,10 @@
 /**
- * What the player wants to hear, and the one switch that overrides it.
+ * What the player wants to hear: two independent channels, background music and sound effects.
  *
- * Three stored values, because "is this audible right now" is genuinely two questions:
- *
- *   music / sfx  — the mix, chosen on the splash before the game starts. Both default on.
- *   master mute  — the 🔊 button in the corner during play. One tap silences everything; tapping
- *                  back restores whatever the splash was set to, rather than turning everything on.
+ * Both are chosen on the splash before the game starts, and can be changed at any time from the
+ * speaker button's menu. There is no separate master mute — with both channels one tap away in the
+ * corner, a third value that overrides them would only ever contradict what the menu was showing.
+ * "Muted" is simply both channels being off, which is what the speaker icon reports.
  *
  * Kept in its own module rather than in sfx.ts or music.ts because both need it and those two must
  * not import each other — music.ts streams through an <audio> element that sfx.ts's gain node has
@@ -18,9 +17,9 @@
 const KEY = {
   music: 'rps-politika:music',
   sfx: 'rps-politika:sfx',
-  /** Deliberately the old key. Anyone who muted the game before this split keeps their choice, and
-   *  it still means the same thing: silence everything. */
-  master: 'rps-politika:muted',
+  /** Retired. Read once, so someone who muted the game back when it was a single switch opens it
+   *  silent rather than having both channels spring back on. */
+  legacyMute: 'rps-politika:muted',
 } as const;
 
 function read(key: string, fallback: boolean): boolean {
@@ -41,43 +40,40 @@ function write(key: string, value: boolean): void {
   }
 }
 
-let musicOn = read(KEY.music, true);
-let sfxOn = read(KEY.sfx, true);
-let masterMuted = read(KEY.master, false);
+/** Both channels default on; a standing mute from the old single switch turns both off instead. */
+const defaultOn = !read(KEY.legacyMute, false);
 
-/** The splash's toggles, as they should appear when it opens. */
-export function currentPrefs(): { music: boolean; sfx: boolean } {
+let musicOn = read(KEY.music, defaultOn);
+let sfxOn = read(KEY.sfx, defaultOn);
+
+export type Prefs = { music: boolean; sfx: boolean };
+
+/** How the splash toggles and the speaker menu should both appear when they open. */
+export function currentPrefs(): Prefs {
   return { music: musicOn, sfx: sfxOn };
 }
 
-/**
- * Stores the choice made on the splash. Also clears the master mute: pressing start is a deliberate
- * "play it like this", and leaving a mute from a previous visit in place would silently ignore both
- * toggles the player just set.
- */
-export function savePrefs(next: { music: boolean; sfx: boolean }): void {
-  musicOn = next.music;
-  sfxOn = next.sfx;
-  masterMuted = false;
-  write(KEY.music, musicOn);
-  write(KEY.sfx, sfxOn);
-  write(KEY.master, false);
+/** Stores both at once — what pressing start on the splash does. */
+export function savePrefs(next: Prefs): void {
+  setMusicPref(next.music);
+  setSfxPref(next.sfx);
 }
 
-export function isMasterMuted(): boolean {
-  return masterMuted;
+export function setMusicPref(next: boolean): void {
+  musicOn = next;
+  write(KEY.music, next);
 }
 
-export function setMasterMuted(next: boolean): void {
-  masterMuted = next;
-  write(KEY.master, next);
+export function setSfxPref(next: boolean): void {
+  sfxOn = next;
+  write(KEY.sfx, next);
 }
 
 /** Whether each channel should currently make any sound at all. */
 export function musicSilenced(): boolean {
-  return masterMuted || !musicOn;
+  return !musicOn;
 }
 
 export function sfxSilenced(): boolean {
-  return masterMuted || !sfxOn;
+  return !sfxOn;
 }
