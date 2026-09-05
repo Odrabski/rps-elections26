@@ -153,7 +153,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
               })}
             </div>
             <button type="button" className="btn-secondary team-pick-back" onClick={() => setStep('menu')}>
-              חזרה למזנון הכנסת
+              לך הביתה
             </button>
           </div>
         </div>

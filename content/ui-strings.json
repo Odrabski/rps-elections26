@@ -22,8 +22,8 @@
       "file": "client/src/App.tsx"
     },
     {
-      "id": "App.fa3f2a",
-      "text": "חזרה למזנון הכנסת",
+      "id": "App.03eb31",
+      "text": "לך הביתה",
       "file": "client/src/App.tsx"
     },
     {
@@ -367,11 +367,6 @@
     {
       "id": "SplashScreen.32fb9b",
       "text": "טוען...",
-      "file": "client/src/components/SplashScreen.tsx"
-    },
-    {
-      "id": "SplashScreen.50317d",
-      "text": "יאללה כבר!",
       "file": "client/src/components/SplashScreen.tsx"
     },
     {

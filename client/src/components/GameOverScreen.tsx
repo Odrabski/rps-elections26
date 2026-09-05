@@ -43,7 +43,7 @@ export function GameOverScreen({ winner, you, reason, onRematch, onBackToLobby }
         </p>
         <div className="gameover-actions">
           <button type="button" className="btn-secondary" onClick={onBackToLobby}>
-            חזרה למזנון הכנסת
+            לך הביתה
           </button>
           <button type="button" className="btn-primary" onClick={onRematch}>
             🔁 סבב נוסף?

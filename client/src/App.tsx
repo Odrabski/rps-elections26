@@ -159,7 +159,7 @@ export default function App() {
             שיתוף בוואטסאפ
           </a>
           <button type="button" className="btn-secondary lobby-back" onClick={leave}>
-            חזרה למזנון הכנסת
+            לך הביתה
           </button>
         </div>
       </div>
