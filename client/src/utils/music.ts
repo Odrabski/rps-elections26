@@ -11,9 +11,11 @@
  * One element, swapped between sources, because only one is ever wanted at a time: you are either
  * in the menu or looking at a result, never both.
  *
- * Mute is shared with the effects through the same localStorage key but applied separately — this
- * element isn't in the graph their master gain controls.
+ * Silence is decided in audioPrefs, shared with the effects, but applied separately here — this
+ * element is not in the graph their master gain node controls, so muting it means pausing it.
  */
+
+import { musicSilenced } from './audioPrefs';
 
 export type Track = 'menu' | 'win' | 'lose';
 
@@ -27,21 +29,14 @@ const SOURCES: Record<Track, string> = {
  *  moment rather than sitting under it. */
 const VOLUME: Record<Track, number> = { menu: 0.24, win: 0.44, lose: 0.4 };
 
-const STORAGE_KEY = 'rps-politika:muted';
-
 let el: HTMLAudioElement | null = null;
 let current: Track | null = null;
 let awaitingGesture = false;
 
+/** Silenced by the splash's own "מוזיקת רקע" toggle or by the master mute — see audioPrefs, which
+ *  both this and sfx.ts read so neither has to know about the other. */
 function muted(): boolean {
-  try {
-    // Matches sfx.ts: nothing stored means a first-time visitor, who starts muted.
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === null ? true : stored === '1';
-  } catch {
-    // Private mode, or storage blocked — same default as a first-time visitor.
-    return true;
-  }
+  return musicSilenced();
 }
 
 function element(): HTMLAudioElement | null {

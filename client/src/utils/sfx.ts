@@ -12,6 +12,8 @@
  * policy, no output device, an old WebView) must never take a move with it.
  */
 
+import { isMasterMuted, setMasterMuted, sfxSilenced } from './audioPrefs';
+
 /** Every cue, and how many numbered variants each has on disk. Frequent cues get several so a
  *  sound heard 40-80 times a game doesn't wear a hole in the player. */
 const CUES = {
@@ -68,11 +70,8 @@ const GAIN: Partial<Record<Sfx, number>> = {
   'king.captured': 0.9,
 };
 
-const STORAGE_KEY = 'rps-politika:muted';
-
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
-let muted = readMuted();
 /** Decoded clips, keyed by file stem. Populated lazily; a cue that hasn't loaded yet is skipped
  *  rather than delayed, since a late sound is worse than none. */
 const buffers = new Map<string, AudioBuffer>();
@@ -80,30 +79,20 @@ const loading = new Set<string>();
 /** The variant each cue played last, so the next pick can avoid it — see play(). */
 const lastStem = new Map<string, string>();
 
-function readMuted(): boolean {
-  try {
-    // Silent until asked otherwise: nothing stored means a first-time visitor, and the game opens
-    // muted with the toggle inviting them to turn it on (see SoundToggle). Sound arriving
-    // unannounced on a phone in public is the kind of thing that gets a tab closed.
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === null ? true : stored === '1';
-  } catch {
-    // Private mode, or storage blocked — same default as a first-time visitor.
-    return true;
-  }
+/** Effects are silenced either by the splash's own "צלילים" toggle or by the master mute. Read
+ *  through audioPrefs rather than cached here, so a change on either takes effect immediately. */
+function silenced(): boolean {
+  return sfxSilenced();
 }
 
 export function isMuted(): boolean {
-  return muted;
+  return isMasterMuted();
 }
 
+/** The corner button's master mute. The splash's per-channel choice is set through
+ *  audioPrefs.savePrefs instead, and is what this restores you to when it is switched back off. */
 export function setMuted(next: boolean): void {
-  muted = next;
-  try {
-    localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
-  } catch {
-    // The preference just won't survive the tab. Not worth telling anyone about.
-  }
+  setMasterMuted(next);
   if (master) master.gain.value = next ? 0 : 1;
   if (!next) void preload();
 }
@@ -122,7 +111,7 @@ function audio(): { ctx: AudioContext; master: GainNode } | null {
     try {
       ctx = new Ctor();
       master = ctx.createGain();
-      master.gain.value = muted ? 0 : 1;
+      master.gain.value = silenced() ? 0 : 1;
       master.connect(ctx.destination);
     } catch {
       ctx = null;
@@ -167,7 +156,7 @@ async function loadClip(stem: string): Promise<void> {
  * has no business competing with the splash art for a visitor who may never press anything.
  */
 export function preload(): void {
-  if (muted) return;
+  if (silenced()) return;
   for (const name of Object.keys(CUES) as Sfx[]) for (const stem of fileStems(name)) void loadClip(stem);
 }
 
@@ -179,7 +168,7 @@ export function preload(): void {
  * prefetches just the two portraits actually in the ring, seconds before the reveal needs them.
  */
 export function prefetchClip(stem: string): void {
-  if (muted) return;
+  if (silenced()) return;
   void loadClip(stem);
 }
 
@@ -189,7 +178,7 @@ export function prefetchClip(stem: string): void {
  * than none" rule play() follows.
  */
 export function playClip(stem: string, gain = 1): boolean {
-  if (muted) return false;
+  if (silenced()) return false;
   try {
     const a = audio();
     if (!a) return false;
@@ -212,7 +201,7 @@ export function playClip(stem: string, gain = 1): boolean {
 }
 
 export function play(name: Sfx): void {
-  if (muted) return;
+  if (silenced()) return;
   try {
     const a = audio();
     if (!a) return;
