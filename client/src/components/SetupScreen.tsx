@@ -152,12 +152,12 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReady, on
         )}
       </div>
 
-      {/* The setup screen's answer to GameBoard's "התור שלך" pill: same class, same slot, same
-          size, so the board and score-header still land at the exact same y on both screens — it
+      {/* Sits in the slot the game board keeps empty, at the same size, so the board and
+          score-header still land at the exact same y on both screens — it
           used to be an invisible spacer holding that space open, and now it holds something worth
-          reading. `.turn-pill` lives in GameBoard.css, which is always in the bundle (App imports
+          reading. `.phase-pill` lives in GameBoard.css, which is always in the bundle (App imports
           GameBoard statically), so it needs no import here. */}
-      <div className="turn-pill setup-turn-pill" style={{ background: theme.solid }}>
+      <div className="phase-pill setup-phase-pill" style={{ background: theme.solid }}>
         {/* Names the phase, and only that. The instruction for the current step is the banner's
             job (👑 בחרו את המלך / 🪤 ...) — having both say it left two elements telling you the
             same thing at once. This is the counterpart to GameBoard's "התור שלך", which also

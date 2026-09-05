@@ -1,6 +1,6 @@
 /* Pinned to the bottom-left, mirroring .exit-btn on the opposite corner. Fixed rather than in flow
    so it can't add to a screen's column height and throw off the board/score-header y-match between
-   setup and gameplay (the whole reason .setup-turn-pill-spacer exists). */
+   setup and gameplay (the whole reason both screens keep a .phase-pill-sized slot). */
 .howto-link {
   position: fixed;
   bottom: calc(12px + env(safe-area-inset-bottom));

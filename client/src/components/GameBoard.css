@@ -40,11 +40,12 @@
   transform: translateY(50px);
 }
 
-/* A small pill, at least 3 of its 7 columns wide — sits below the board, with ScoreHeader above
-   it, centered by .game-board-screen's own flex layout. The board and score-header carry their own
-   independent shifts, so this one is tuned on its own: 45px clears the board frame's bottom edge,
-   which it used to sit right against. */
-.turn-pill {
+/* The bottom-slot badge shape. Only the setup screen wears it now — the game board's copy has been
+   replaced by an announcement on the board itself (see .turn-pill further down, which took that
+   name). Sits below the board, with ScoreHeader above it, centered by the screen's own flex layout;
+   the board and score-header carry their own shifts, so 45px here is tuned on its own to clear the
+   board frame's bottom edge. */
+.phase-pill {
   transform: translateY(45px);
   min-width: min(94vw, 220px);
   text-align: center;
@@ -57,34 +58,12 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
-/* Only while it's actually your move — a double thump every 4.5s, so the pill reads as waiting on
-   you without ever becoming something you have to look away from.
-   Every frame restates translateY(45px): the pill's resting position lives in `transform`, and a
-   keyframe that sets `transform` replaces it outright, which would drop the pill 45px on the first
-   beat and snap it back at the end. */
-.turn-pill-beating {
-  animation: turnPillBeat 4.5s ease-in-out infinite;
-}
-
-@keyframes turnPillBeat {
-  0%,
-  8%,
-  17%,
-  100% {
-    transform: translateY(45px) scale(1);
-  }
-  4% {
-    transform: translateY(45px) scale(1.055);
-  }
-  12% {
-    transform: translateY(45px) scale(1.03);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .turn-pill-beating {
-    animation: none;
-  }
+/* Holds the slot the badge used to occupy, and nothing else. Both screens must keep a 42px element
+   here or their columns differ in height and the board lands at a different y on each — the same
+   reason the setup screen has always had one. */
+.phase-pill-spacer {
+  height: 42px;
+  width: 100%;
 }
 
 /* ScoreHeader's own -15px (see ScoreHeader.css) plus 30px more down, scoped to the game board
@@ -94,30 +73,34 @@
   transform: translateY(27px);
 }
 
-/* Announces the first move of a match, over the middle of the board. Purple so it reads as its own
-   moment rather than either side's colour — every other pill on this screen is a bloc's. */
-.match-start-pill {
+/* The Turn pill: says whose turn has just begun, over the middle of the board, for 1.5s.
+   Neutral black rather than either bloc's colour — the board's ring and the lit score badge already
+   carry the colour, so tinting this too would be a third voice saying the same thing.
+   `pointer-events: none` is load-bearing, not decoration: this sits over playable tiles, and a tap
+   during its 1.5s must reach the tile underneath. */
+.turn-pill {
   position: absolute;
   top: 50%;
   left: 50%;
   z-index: 25;
-  padding: 12px 30px;
+  padding: 7px 18px;
   border-radius: 999px;
-  background: rgba(124, 58, 237, 0.94);
-  border: 1px solid rgba(196, 181, 253, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: #fff;
-  font-weight: 800;
-  font-size: 1.15rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   pointer-events: none;
   /* Both frames restate the centring translate: a keyframe that sets `transform` replaces the
      whole value, and without it the pill would fly in from the board's top-left corner. */
-  animation: matchStartPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: turnPillPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform: translate(-50%, -50%);
 }
 
-@keyframes matchStartPop {
+@keyframes turnPillPop {
   from {
     transform: translate(-50%, -50%) scale(0.6);
     opacity: 0;

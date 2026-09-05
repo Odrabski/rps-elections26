@@ -22,9 +22,18 @@ import {
 } from './BoardGrid';
 import './GameBoard.css';
 
-/** How long the "match starting" pill holds. The cue under it runs 2.40s, so the pill outlasts it
- *  by a hair rather than cutting it off. */
-const MATCH_START_MS = 2500;
+/** How long the Turn pill holds. The match-start cue under it runs 2.40s and now outlives it,
+ *  which is fine — the pill is an announcement, not a progress bar for the sound. */
+const TURN_PILL_MS = 1500;
+
+/** What the Turn pill says. The other side is "הצד השני" rather than its bloc name: the pill is
+ *  addressed to you, and the board's own ring already carries which colour is up. */
+const PILL_TEXT = {
+  startYours: 'המשחק מתחיל - התור שלך',
+  startTheirs: 'המשחק מתחיל - הצד השני מתחיל',
+  yours: 'התור שלך',
+  theirs: 'התור של הצד השני',
+} as const;
 
 /** Map key for a board tile — positions are plain objects, so they can't be keyed on directly. */
 function tileKey(p: Position): string {
@@ -68,29 +77,6 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     };
   }, []);
 
-  /**
-   * The "match starting" pill, and the sound under it.
-   *
-   * Keyed to the board arriving with no move played yet rather than to the component mounting:
-   * GameBoard also mounts when someone rejoins mid-game, and announcing the start again there
-   * would be wrong. `lastMove` is null only until the first piece actually moves.
-   */
-  const [showMatchStart, setShowMatchStart] = useState(() => view.lastMove === null);
-  const announcedStart = useRef(false);
-  useEffect(() => {
-    if (!showMatchStart) return;
-    // The ref guards the *sound* only. StrictMode runs an effect, cleans up, then runs it again;
-    // gating the whole body on the ref meant the second pass returned early and never replaced the
-    // timer the cleanup had just cleared — so the pill sounded once and then stayed on screen for
-    // the rest of the match.
-    if (!announcedStart.current) {
-      announcedStart.current = true;
-      play('setup.begin');
-    }
-    const t = setTimeout(() => setShowMatchStart(false), MATCH_START_MS);
-    return () => clearTimeout(t);
-  }, [showMatchStart]);
-
   const seed = gameSeed(view);
   const myTurn = view.turn === team && !view.tieBreak;
   // Mirrors the server's own move guard (see validateMove): holding the turn isn't enough while
@@ -107,6 +93,51 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     clashEvent !== null ||
     cinematicPending;
   const canMove = myTurn && !resolving;
+
+  /**
+   * The Turn pill: a short announcement over the board, at the two moments a turn actually begins.
+   *
+   * Carries a key alongside the text because the same words repeat — two fights in a row can both
+   * end with "התור שלך", and setting identical state would not re-render, so the hide timer below
+   * would never restart and the second pill would inherit the first one's remaining time.
+   */
+  const [turnPill, setTurnPill] = useState<{ text: string; key: number } | null>(() =>
+    // Keyed to a board that has had no move yet rather than to this component mounting: it also
+    // mounts on a mid-game rejoin, where announcing the start again would be wrong.
+    view.lastMove === null
+      ? { text: view.turn === team ? PILL_TEXT.startYours : PILL_TEXT.startTheirs, key: 0 }
+      : null,
+  );
+  const announcedStart = useRef(false);
+  const wasResolving = useRef(resolving);
+
+  // The match-start cue, once. The ref guards the *sound* only — gating a whole effect on one made
+  // the old pill stay on screen forever, since StrictMode's run → cleanup → re-run cleared the hide
+  // timer and then returned early instead of replacing it.
+  useEffect(() => {
+    if (announcedStart.current || view.lastMove !== null) return;
+    announcedStart.current = true;
+    play('setup.begin');
+  }, [view.lastMove]);
+
+  useEffect(() => {
+    // `resolving` is already exactly "a fight, tie-break or trap is playing out", so its falling
+    // edge is the moment combat finished and the next turn's clock started. Ordinary moves never
+    // set it, which is what keeps the pill an event rather than a flicker every few seconds.
+    if (wasResolving.current && !resolving && view.phase === 'playing') {
+      setTurnPill((prev) => ({
+        text: view.turn === team ? PILL_TEXT.yours : PILL_TEXT.theirs,
+        key: (prev?.key ?? 0) + 1,
+      }));
+    }
+    wasResolving.current = resolving;
+  }, [resolving, view.phase, view.turn, team]);
+
+  useEffect(() => {
+    if (!turnPill) return;
+    const t = setTimeout(() => setTurnPill(null), TURN_PILL_MS);
+    return () => clearTimeout(t);
+  }, [turnPill]);
   const alivePieces = useMemo(() => view.pieces.filter((p) => p.alive), [view.pieces]);
   /**
    * Occupancy indexed by tile. `getPieceAt` below is called once per cell while the board renders,
@@ -376,7 +407,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
           // pill and the score badges can never disagree about what each side's colour is.
           style={{ '--turn-color': turnTheme.solid, '--turn-glow': turnTheme.border } as CSSProperties}
         >
-          {showMatchStart && <div className="match-start-pill">המשחק מתחיל</div>}
+          {turnPill && <div className="turn-pill">{turnPill.text}</div>}
           <BoardGrid
             team={team}
             seed={seed}
@@ -393,16 +424,11 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
           />
         </div>
 
-        <div
-          // Keyed to canMove, not myTurn. `turn` flips the instant combat starts, so keying on it
-          // began the beat behind a ten-second fight overlay — by the time the board was usable
-          // the pill was deep in the quiet stretch and wouldn't beat again for up to 4.5s. This
-          // restarts it the moment the board is actually yours, so the first thump lands ~180ms in.
-          className={`turn-pill${canMove ? ' turn-pill-beating' : ''}`}
-          style={{ background: turnTheme.solid }}
-        >
-          {view.tieBreak ? 'קרב הכרעה!' : myTurn ? 'התור שלך' : `תור ${turnTheme.label}`}
-        </div>
+        {/* Empty on purpose. The setup screen puts its "שלב סידור הלוח" badge here, and both
+            screens must keep something 42px tall in this slot or their columns differ in height
+            and the board lands at a different y on each. Whose turn it is now lives in the Turn
+            pill above, the board's ring and the lit score badge. */}
+        <div className="phase-pill-spacer" aria-hidden="true" />
       </div>
 
       {activeEvent && <CombatOverlay event={activeEvent} pieces={view.pieces} team={team} seed={seed} />}
