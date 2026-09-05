@@ -24,7 +24,7 @@
       "kenney_interface-sounds/Audio/error_002.ogg"
     ],
     "setup.begin": [
-      "kenney_music-jingles/Audio/Hit jingles/jingles_HIT06.ogg"
+      "__own__"
     ],
     "piece.select": [
       "kenney_interface-sounds/Audio/select_001.ogg",

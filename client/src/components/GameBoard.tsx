@@ -22,6 +22,10 @@ import {
 } from './BoardGrid';
 import './GameBoard.css';
 
+/** How long the "match starting" pill holds. The cue under it runs 2.40s, so the pill outlasts it
+ *  by a hair rather than cutting it off. */
+const MATCH_START_MS = 2500;
+
 /** Map key for a board tile — positions are plain objects, so they can't be keyed on directly. */
 function tileKey(p: Position): string {
   return `${p.row},${p.col}`;
@@ -63,6 +67,29 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
       timers.clear();
     };
   }, []);
+
+  /**
+   * The "match starting" pill, and the sound under it.
+   *
+   * Keyed to the board arriving with no move played yet rather than to the component mounting:
+   * GameBoard also mounts when someone rejoins mid-game, and announcing the start again there
+   * would be wrong. `lastMove` is null only until the first piece actually moves.
+   */
+  const [showMatchStart, setShowMatchStart] = useState(() => view.lastMove === null);
+  const announcedStart = useRef(false);
+  useEffect(() => {
+    if (!showMatchStart) return;
+    // The ref guards the *sound* only. StrictMode runs an effect, cleans up, then runs it again;
+    // gating the whole body on the ref meant the second pass returned early and never replaced the
+    // timer the cleanup had just cleared — so the pill sounded once and then stayed on screen for
+    // the rest of the match.
+    if (!announcedStart.current) {
+      announcedStart.current = true;
+      play('setup.begin');
+    }
+    const t = setTimeout(() => setShowMatchStart(false), MATCH_START_MS);
+    return () => clearTimeout(t);
+  }, [showMatchStart]);
 
   const seed = gameSeed(view);
   const myTurn = view.turn === team && !view.tieBreak;
@@ -343,6 +370,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
           }
         />
         <div className="board-wrap">
+          {showMatchStart && <div className="match-start-pill">המשחק מתחיל</div>}
           <BoardGrid
             team={team}
             seed={seed}

@@ -93,3 +93,37 @@
 .game-board-content .score-header {
   transform: translateY(27px);
 }
+
+/* Announces the first move of a match, over the middle of the board. Purple so it reads as its own
+   moment rather than either side's colour — every other pill on this screen is a bloc's. */
+.match-start-pill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 25;
+  padding: 12px 30px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.94);
+  border: 1px solid rgba(196, 181, 253, 0.5);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  /* Both frames restate the centring translate: a keyframe that sets `transform` replaces the
+     whole value, and without it the pill would fly in from the board's top-left corner. */
+  animation: matchStartPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes matchStartPop {
+  from {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
