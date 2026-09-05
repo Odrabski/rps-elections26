@@ -140,6 +140,9 @@
   border: 1px solid transparent;
   padding: 11px 10px;
   font-size: 1rem;
+  /* .btn-primary is 700 and .btn-secondary 600; matched here so the three read as one row. The
+     sizes were already identical — the weight was the whole of the difference. */
+  font-weight: 600;
   min-height: 0;
   white-space: nowrap;
 }
