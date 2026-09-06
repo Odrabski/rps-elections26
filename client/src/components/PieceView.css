@@ -168,10 +168,10 @@
   --mask-shift-x: -1px;
 }
 
-.piece-mask-op_yoaz {
-  width: 56.69%; /* 58.44% * 0.97 */
-  --mask-shift-x: -1px;
-  --mask-shift-y: -4.5px; /* 4px shared baseline - 2px - 2px - 2.5px - 2px */
+.piece-mask-op_tropper {
+  width: 56.69%; /* 48.4% * 1.17 — the default leaves the hidden body's own head showing past the
+                    ears on both sides; this covers it */
+  --mask-shift-y: -2.5px;
 }
 
 .piece-mask-co_rottman {

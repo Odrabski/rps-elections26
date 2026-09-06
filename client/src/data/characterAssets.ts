@@ -140,10 +140,10 @@ const HEAD_DISPLAY_NAME: Record<string, string> = {
   op_liberman: 'LIEBERMAN',
   op_merav: 'BEN-ARI',
   op_tibon: 'TIBON',
+  op_tropper: 'TROPPER',
   op_ronen: 'RONEN',
   op_tibi: 'TIBI',
   op_yairgolan: 'GOLAN',
-  op_yoaz: 'HENDEL',
 };
 
 function headDisplayName(headId: string): string {

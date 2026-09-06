@@ -4,7 +4,12 @@
  *
  *   tools/setup-piper.sh              # once: installs Piper and fetches the voice
  *   node tools/build-winner-calls.mjs # writes all 30
+ *   node tools/build-winner-calls.mjs op_tropper co_asher   # ...or just these
  *   node tools/vo-studio.mjs          # ...or tune them by ear at http://localhost:5180
+ *
+ * Name ids to rebuild only those. Worth using whenever a single character changes: Piper's
+ * synthesis is not deterministic, so a full run replaces all thirty with fresh takes — different
+ * from the ones already approved, and one of them came back 13% shorter.
  *
  * There is no CC0 pack of Israeli politicians' names being shouted, so these are synthesised.
  *
@@ -24,7 +29,13 @@ const cfg = JSON.parse(readFileSync(join(ROOT, 'tools/winner-calls.json'), 'utf8
 
 mkdirSync(OUT, { recursive: true });
 
-const names = characterNames();
+const only = new Set(process.argv.slice(2));
+const names = characterNames().filter(({ id }) => only.size === 0 || only.has(id));
+if (only.size > 0 && names.length !== only.size) {
+  const missing = [...only].filter((id) => !names.some((n) => n.id === id));
+  console.error(`unknown id(s): ${missing.join(', ')}`);
+  process.exit(1);
+}
 let longest = 0;
 let longestName = '';
 
@@ -40,6 +51,10 @@ for (const { id, name } of names) {
   process.stdout.write(`  win.${id}.mp3  "${spoken}"  ${seconds.toFixed(2)}s\n`);
 }
 
-writeFileSync(join(OUT, '.winner-calls.json'), JSON.stringify(names.map((n) => n.id), null, 2) + '\n');
+// Always the full cast, even on a partial run — this manifest is what the game reads.
+writeFileSync(
+  join(OUT, '.winner-calls.json'),
+  JSON.stringify(characterNames().map((n) => n.id), null, 2) + '\n',
+);
 console.log(`\n${names.length} announcements — ${cfg.voice}, pitch ${cfg.pitch}, pace ${cfg.lengthScale}`);
 console.log(`longest: ${longestName} at ${longest.toFixed(2)}s (the fight reveal holds 3.60s)`);
