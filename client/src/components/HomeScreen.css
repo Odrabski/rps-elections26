@@ -453,26 +453,47 @@
   color: var(--gold);
 }
 
-/* A standalone piece composite (not reusing PieceView's board-tuned classes/variables) — the
-   developer's own head on a soldier's body, whichever one it is currently wearing.
-   A button rather than a div: tapping it swaps the weapon and the suit, so it has to be reachable
-   from a keyboard too. All the button chrome is stripped; the figure is the whole control. */
+/* A standalone piece composite (not reusing PieceView's board-tuned classes/variables) — a head on
+   a soldier's body, whichever pair it is currently wearing. Both halves are tappable and swap
+   independently, so this is a plain box holding two buttons rather than one button holding two
+   images: a button cannot contain another button. */
 .about-figure {
   position: relative;
   align-self: center;
   width: 149.04px; /* 82.8px * 1.2 * 1.5 */
-  padding: 0;
-  border: none;
-  background: none;
   opacity: 0.88;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
   transform-origin: bottom center;
   animation: aboutFigureWobble 4s ease-in-out infinite;
 }
 
-.about-figure:active {
-  opacity: 1;
+/* Chrome stripped from both — the artwork is the whole control. */
+.about-figure-hit {
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.about-figure-hit:active {
+  filter: brightness(1.12);
+}
+
+.about-figure-body-hit {
+  width: 100%;
+}
+
+/* The head's own box, lifted onto the body's neckline. Carries the positioning and the tilt that
+   used to live on the <img> inside it, so the hit area travels with what it is drawing. Later in
+   the DOM than the body, so a tap over the head reaches the head. */
+.about-figure-head-hit {
+  position: absolute;
+  top: calc(-21% - 17px); /* -7px baseline, then 4px up, then 6px more */
+  left: 50%;
+  width: 60.72%; /* 55.2% * 1.1 */
+  transform: translateX(calc(-50% - 6px)); /* -2px - 4px */
+  animation: aboutHeadTilt 2.6s ease-in-out infinite;
 }
 
 @keyframes aboutFigureWobble {
@@ -502,12 +523,9 @@
 }
 
 .about-figure-head {
-  position: absolute;
-  top: calc(-21% - 17px); /* -7px baseline, then 4px up, then 6px more */
-  left: 50%;
-  width: 60.72%; /* 55.2% * 1.1 */
-  transform: translateX(calc(-50% - 6px)); /* -2px - 4px */
-  animation: aboutHeadTilt 2.6s ease-in-out infinite;
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Keeps the head's own translateX offset intact through every frame — a plain `rotate(...)`

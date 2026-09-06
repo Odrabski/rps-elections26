@@ -55,14 +55,35 @@ const ABOUT_BODIES = [
   'sol_op_paper.webp',
 ] as const;
 
+/** And who it is. Omri is in the pool so the figure can find its way back to him; the swap never
+ *  draws whoever is already showing, so the first poke always lands on one of the politicians. */
+const ABOUT_HEADS = [
+  'omri.webp',
+  'co_bibi.webp',
+  'op_lapid.webp',
+  'op_gadi.webp', // Eisenkot
+  'co_bengvir.webp',
+  'op_bennet.webp',
+  'op_liberman.webp',
+] as const;
+
+/** Draws a new index, never the one already showing — landing on the current value would read as a
+ *  control that does nothing. */
+function nextRandom(current: number, length: number): number {
+  const others = Array.from({ length }, (_, n) => n).filter((n) => n !== current);
+  return others[Math.floor(Math.random() * others.length)];
+}
+
 export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) {
   const [code, setCode] = useState('');
   const [step, setStep] = useState<Step>('menu');
   const [vsBotFlow, setVsBotFlow] = useState(false);
   const [chosenTeam, setChosenTeam] = useState<Team | null>(null);
   const [modal, setModal] = useState<ModalKind>(null);
-  /** Which body the About figure is wearing — see ABOUT_BODIES. Purely a toy. */
+  /** Which body the About figure is wearing, and whose head is on it. Purely a toy: the body and
+   *  the head swap independently, each from its own tap. */
   const [figureIndex, setFigureIndex] = useState(0);
+  const [headIndex, setHeadIndex] = useState(0);
   // Rolled once when the picker step opens, not re-rolled on every render.
   const heads = useMemo<Record<Team, [string, string, string]>>(
     () => ({ blue: randomHeadTrio('blue'), red: randomHeadTrio('red') }),
@@ -257,22 +278,27 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
           onClose={() => setModal(null)}
           footer={
             <>
-              <button
-                type="button"
-                className="about-figure"
-                onClick={() =>
-                  // Random, but never the one already showing — a draw that happened to land on the
-                  // current body would read as a button that does nothing.
-                  setFigureIndex((i) => {
-                    const others = ABOUT_BODIES.map((_, n) => n).filter((n) => n !== i);
-                    return others[Math.floor(Math.random() * others.length)];
-                  })
-                }
-                aria-label="החליפו נשק"
-              >
-                <img src={`/assets/pieces/${ABOUT_BODIES[figureIndex]}`} alt="" className="about-figure-body" />
-                <img src="/assets/pieces/omri.webp" alt="" className="about-figure-head" />
-              </button>
+              {/* Two hit areas rather than one button around both, because a button cannot contain
+                  another one — the head sits on top of the body, so a tap lands on whichever of the
+                  two it is actually over. */}
+              <div className="about-figure">
+                <button
+                  type="button"
+                  className="about-figure-hit about-figure-body-hit"
+                  onClick={() => setFigureIndex((i) => nextRandom(i, ABOUT_BODIES.length))}
+                  aria-label="החליפו נשק"
+                >
+                  <img src={`/assets/pieces/${ABOUT_BODIES[figureIndex]}`} alt="" className="about-figure-body" />
+                </button>
+                <button
+                  type="button"
+                  className="about-figure-hit about-figure-head-hit"
+                  onClick={() => setHeadIndex((i) => nextRandom(i, ABOUT_HEADS.length))}
+                  aria-label="החליפו דמות"
+                >
+                  <img src={`/assets/pieces/${ABOUT_HEADS[headIndex]}`} alt="" className="about-figure-head" />
+                </button>
+              </div>
               <p className="about-caption">המשחק נוצר על ידי עמרי דרבסקי</p>
             </>
           }
