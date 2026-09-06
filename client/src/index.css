@@ -76,6 +76,17 @@ button {
   touch-action: manipulation;
 }
 
+/* Keeps the artwork out of a long-press "Save Image" sheet on iOS and out of a drag on desktop.
+   A deterrent against picking the art up by accident or on a whim — not protection: every file is
+   still an ordinary URL the browser has already downloaded, and anyone who wants one can take it
+   from the network panel or by typing the path. */
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 h1,
 h2,
 h3 {

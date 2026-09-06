@@ -3,6 +3,13 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 
+// The other half of keeping the art out of a save menu (see the `img` rule in index.css): the
+// right-click / long-press menu itself. Scoped to images rather than the whole document, so the
+// context menu still works everywhere it is genuinely useful — pasting a room code, most of all.
+document.addEventListener('contextmenu', (e) => {
+  if (e.target instanceof HTMLImageElement) e.preventDefault();
+});
+
 // On a cold load, iOS Safari/Chrome (both WebKit) can report a viewport size to `position:fixed`
 // elements that doesn't match the *actual* visible area for a moment while the dynamic address
 // bar/toolbar is still settling — leaving a gap below full-screen overlays (SplashScreen,
