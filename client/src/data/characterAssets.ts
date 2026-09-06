@@ -181,6 +181,8 @@ export interface PieceVisual {
   maskAsset?: string;
   /** The head portrait's filename stem (e.g. "op_lazimi") — lets CSS target per-portrait sizing. */
   maskId?: string;
+  /** Draw the crown over the head. Only a King, and only once the match has revealed it. */
+  crown?: boolean;
   name: string;
 }
 
@@ -211,6 +213,20 @@ export function resolvePieceVisual(piece: ClientPieceView, viewerTeam: Team, see
     };
   }
   if (known && piece.kind === 'king') {
+    // Revealed — which only happens once the match is over (combat.ts revealSpecials) — the King
+    // drops the anonymous back-facing sprite and shows the politician it was all along, crowned.
+    // Same deterministic head the disguise used, so the face does not change at the reveal: this
+    // is the moment you find out that face *was* the King, not a swap to somebody else.
+    if (piece.revealed) {
+      const head = hiddenHeadAsset(piece.team, piece.id, seed);
+      return {
+        asset: `/assets/pieces/${HIDDEN_BODY_ASSET[piece.team]}`,
+        maskAsset: head.asset,
+        maskId: head.id,
+        crown: true,
+        name: KING_LABEL,
+      };
+    }
     return { asset: `/assets/pieces/${KING_ASSET[piece.team]}`, name: KING_LABEL };
   }
   if (known && piece.kind === 'trap') {

@@ -61,6 +61,24 @@
   --piece-lift: 2px;
 }
 
+/* The crown a revealed King wears. Anchored and scaled exactly like .piece-mask (same left, same
+   --mask-shift-x/y, same 1.3225) so it tracks whatever per-portrait correction that head carries,
+   then lifted clear of the hair and tilted. Painted after the mask in the DOM, so it sits on top of
+   the head rather than behind it.
+
+   The 40deg is worn-at-an-angle, not a mistake — a crown sitting dead straight on a caricature head
+   reads as a logo. */
+.piece-crown {
+  position: absolute;
+  left: 50%;
+  top: -46%;
+  width: 40%;
+  transform: translate(calc(-50% + var(--mask-shift-x, 0px)), var(--mask-shift-y, 0px)) scale(1.3225)
+    rotate(40deg);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
 /* Setup screen: your own not-yet-designated pieces are drained of colour until they're actually
    assigned a role (King, Trap, or a soldier's weapon).
    Greyscale only, deliberately — the opacity that used to come with it let the board pattern show

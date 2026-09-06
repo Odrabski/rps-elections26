@@ -143,6 +143,43 @@ describe('applyMove: trap and king', () => {
     expect(state.phase).toBe('playing');
   });
 
+  it('capturing the king reveals every king and trap, on both sides', () => {
+    const attacker = soldier('a', 'red', 'rock', 3, 3);
+    const special = (id: string, team: 'red' | 'blue', kind: 'king' | 'trap', col: number): Piece => ({
+      id, team, kind, hand: null,
+      characterId: 'x', position: { row: 5, col }, revealed: false, alive: true,
+    });
+    const blueKing: Piece = { ...special('blue-king', 'blue', 'king', 4), position: { row: 3, col: 4 } };
+    const redKing = special('red-king', 'red', 'king', 0);
+    const redTrap = special('red-trap', 'red', 'trap', 1);
+    const blueTrap = special('blue-trap', 'blue', 'trap', 2);
+    const bystander = soldier('b', 'blue', 'paper', 0, 6);
+    const state = makeState([attacker, blueKing, redKing, redTrap, blueTrap, bystander]);
+
+    applyMove(state, attacker, { row: 3, col: 4 });
+
+    // The match is decided, so both sides finally get to see who was who.
+    for (const p of [blueKing, redKing, redTrap, blueTrap]) expect(p.revealed).toBe(true);
+    // ...and only those. An uninvolved soldier keeps its disguise.
+    expect(bystander.revealed).toBe(false);
+  });
+
+  it('a mid-game fight leaves the kings and traps hidden', () => {
+    const attacker = soldier('a', 'red', 'rock', 3, 3);
+    const defender = soldier('d', 'blue', 'scissors', 3, 4);
+    const king: Piece = {
+      id: 'blue-king', team: 'blue', kind: 'king', hand: null,
+      characterId: 'x', position: { row: 5, col: 0 }, revealed: false, alive: true,
+    };
+    const trap: Piece = { ...king, id: 'blue-trap', kind: 'trap', position: { row: 5, col: 1 } };
+    const state = makeState([attacker, defender, king, trap]);
+
+    applyMove(state, attacker, { row: 3, col: 4 });
+
+    expect(king.revealed).toBe(false);
+    expect(trap.revealed).toBe(false);
+  });
+
   it('a free move onto an empty tile does not reveal the mover — only a 1:1 fight does', () => {
     const attacker = soldier('a', 'red', 'rock', 3, 3);
     const state = makeState([attacker]);

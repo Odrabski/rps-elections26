@@ -1,6 +1,20 @@
 import type { GameEvent, GameState, Piece, Position, RPSHand } from 'shared';
 import { samePosition } from './board.js';
 
+/**
+ * Lifts the fog off both sides' King and Trap. Called only once the game is decided — never during
+ * play, where the whole design rests on those two being indistinguishable from an ordinary soldier
+ * (a Trap survives being sprung, and one everybody can see is just a tile everybody walks around).
+ *
+ * `revealed` is the entire mechanism: view.ts sends a piece's `kind` to its owner or to anyone once
+ * this flag is set, so there is nothing else to change.
+ */
+export function revealSpecials(state: GameState): void {
+  for (const piece of Object.values(state.pieces)) {
+    if (piece.kind === 'king' || piece.kind === 'trap') piece.revealed = true;
+  }
+}
+
 export const BEATS: Record<RPSHand, RPSHand> = {
   rock: 'scissors',
   paper: 'rock',
@@ -58,6 +72,10 @@ export function applyMove(state: GameState, attacker: Piece, to: Position): Game
     defender.alive = false;
     attacker.position = to;
     state.winner = attacker.team;
+    // It is over, so both sides finally get to see who the King and the Trap actually were. Set
+    // here rather than when the phase flips, so it rides the broadcast that still says 'playing'
+    // and the board can show it during the capture beat.
+    revealSpecials(state);
     return { type: 'king-captured', winner: attacker.team };
   }
 

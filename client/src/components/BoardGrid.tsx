@@ -43,6 +43,9 @@ export interface ClashEventInfo {
 interface BoardGridProps {
   team: Team;
   seed: string;
+  /** The King that has just been taken, held on its own tile for the capture beat. It is dead in
+   *  the same broadcast that reveals it, so without this the winner never sees who they took. */
+  capturedKing?: ClientPieceView | null;
   getPieceAt: (actual: Position) => ClientPieceView | undefined;
   isClickable: (actual: Position) => boolean;
   isLegalTarget?: (actual: Position) => boolean;
@@ -145,6 +148,7 @@ export function BoardGrid({
   clashEvent,
   lastMove,
   tease,
+  capturedKing,
 }: BoardGridProps) {
   // Depends only on `team`, which never changes while this is mounted — but it was being rebuilt
   // (42 iterations, 126 objects) on every render, and the move detection below walks it each time.
@@ -392,6 +396,7 @@ export function BoardGrid({
             clashEvent && atClashTarget && (clashPhase === 'in-cloud' || clashPhase === 'dissolving');
           // The defender reacts in place — a quick flinch, not a dissolve — for exactly as long
           // as the attacker takes to jump in, then both turn into the cloud together.
+          const atCapturedKing = capturedKing ? samePos(actual, capturedKing.position) : false;
           const defenderFlinch =
             clashEvent && atClashTarget && clashPhase === 'jump' ? clashEvent.defender : null;
 
@@ -532,6 +537,15 @@ export function BoardGrid({
                   alt=""
                   className={`board-clash-cloud${clashPhase === 'dissolving' ? ' board-clash-cloud-dissolving' : ''}`}
                 />
+              )}
+              {/* Last in the cell, so it paints over the soldier that has just landed on this tile
+                  — the whole point of the beat is seeing who the King was, not the boot on top. */}
+              {atCapturedKing && capturedKing && (
+                <div className="board-piece-anim board-piece-anim-captured-king">
+                  <div className="board-piece-wrap">
+                    <PieceView piece={capturedKing} team={team} seed={seed} mirrorAtEdge={display.col === 0} />
+                  </div>
+                </div>
               )}
             </div>
           );

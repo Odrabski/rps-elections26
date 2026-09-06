@@ -41,7 +41,7 @@ function boardSrcSet(asset: string): string {
 }
 
 export function PieceView({ piece, team, seed, selected, mirrorAtEdge }: PieceViewProps) {
-  const { asset, maskAsset, maskId, name } = resolvePieceVisual(piece, team, seed);
+  const { asset, maskAsset, maskId, crown, name } = resolvePieceVisual(piece, team, seed);
   const isMine = piece.team === team;
   const mirrored = Boolean(mirrorAtEdge) && EDGE_MIRROR_ASSET_RE.test(asset);
 
@@ -78,6 +78,20 @@ export function PieceView({ piece, team, seed, selected, mirrorAtEdge }: PieceVi
           sizes={BOARD_SIZES}
           alt=""
           className={['piece-mask', maskId ? `piece-mask-${maskId}` : ''].filter(Boolean).join(' ')}
+          draggable={false}
+          decoding="async"
+        />
+      )}
+      {crown && (
+        /* Sits over the head rather than in it — same left/shift/scale conventions as the mask
+           above, so it rides the per-portrait head corrections and the nod keyframes instead of
+           drifting off a wobbling head. Rendered after the mask so it paints on top of it. */
+        <img
+          src="/assets/pieces/crown.webp"
+          srcSet={boardSrcSet('/assets/pieces/crown.webp')}
+          sizes={BOARD_SIZES}
+          alt=""
+          className="piece-crown"
           draggable={false}
           decoding="async"
         />

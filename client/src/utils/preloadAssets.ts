@@ -38,6 +38,9 @@ export function preloadPieceAssets(viewerTeam?: Team): void {
   // cloud in particular was being fetched for the first time during the fight it appears in.
   files.add('cloud2.webp');
   files.add('hole.webp');
+  // Only ever drawn once the match ends, but it is one small file and the end of a match is the
+  // worst moment to be waiting on a fetch.
+  files.add('crown.webp');
   for (const team of teams) {
     files.add(KING_ASSET[team]);
     files.add(HIDDEN_BODY_ASSET[team]);

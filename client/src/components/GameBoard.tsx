@@ -163,6 +163,9 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
    * kind of message. This is the board's counterpart to the setup screen's own warning, which
    * already teaches the player what a red-edged banner in the middle of the board means.
    */
+  /** Held for the capture beat, then dropped — see the 'king-captured' branch below. */
+  const [capturedKing, setCapturedKing] = useState<ClientPieceView | null>(null);
+
   const [warning, setWarning] = useState<{ text: string; key: number } | null>(null);
   const warn = (text: string) => setWarning((prev) => ({ text, key: (prev?.key ?? 0) + 1 }));
 
@@ -283,6 +286,16 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
 
     if (event?.type === 'king-captured') {
       play('king.captured');
+      // The King dies in this same broadcast and the attacker takes its tile, so the tile would
+      // simply empty and the winner would never see who they took. The event carries only the
+      // winner, so find the piece: with the match decided, the server has revealed both Kings, and
+      // the dead one belongs to the loser.
+      const loser: Team = event.winner === 'red' ? 'blue' : 'red';
+      const king = view.pieces.find((p) => p.team === loser && p.kind === 'king' && !p.alive);
+      // Shown alive on purpose. It is dead, and .piece-dead greyscales a piece — which would drain
+      // the colour out of the one thing this beat exists to show. The same trick scorePieces uses
+      // to keep a dying fighter in the count until its cinematic has played.
+      setCapturedKing(king ? { ...king, alive: true } : null);
     }
 
     if (event?.type === 'trap-triggered') {
@@ -513,6 +526,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
             isClickable={() => canMove}
             isLegalTarget={(actual) => legalTargets.some((t) => t.row === actual.row && t.col === actual.col)}
             isSelected={(piece) => piece.id === selectedId}
+            capturedKing={capturedKing}
             onTileClick={handleTileClick}
             selectedPosition={selected?.position ?? null}
             trapEvent={trapEvent}

@@ -84,9 +84,10 @@
   white-space: normal;
   /* An explicit width, because max-width alone can't help here: the banner is positioned with
      `left: 50%` and no `right`, so the space it can shrink-to-fit into is only ever half the board
-     (191px of 382). Setting the width outright is what actually makes it wider — the -50%
-     translate still centres it. */
-  width: 94%;
+     (191px of 382). Setting the width outright is what sizes it — the -50% translate still centres
+     it. Narrow enough to read as a banner rather than a bar across the whole board; the sentence
+     wraps to a third line at this width, which is what keeps it compact. */
+  width: 72%;
   max-width: none;
   padding: 9px 14px;
   border-color: #e11d48;
