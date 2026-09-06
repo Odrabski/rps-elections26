@@ -126,25 +126,14 @@
   }
 }
 
-/* The wide crop fills the centre-bottom with the logo, so there is no clear space under it to stack
-   into — the controls move to the open parkland at the reading-start edge instead, and the toggles
-   stack rather than sit side by side so the whole block stays narrow enough to fit there. */
+/* Landscape art sets the logo in the middle of the frame with an open plaza beneath it, so the
+   controls sit in that plaza — centred and bottom-anchored, exactly as they are in portrait. Only
+   the sizes differ, which is why these blocks override so little. */
 @media (orientation: landscape) {
   .splash-controls {
-    left: auto;
-    right: 5%;
-    transform: none;
-    bottom: 8%;
+    bottom: 5%;
     gap: 12px;
-    /* Same trick as portrait, re-measured for the smaller button and the stacked toggles. */
-    min-height: 154px;
-    max-width: 40vw;
-  }
-
-  .splash-toggles {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+    min-height: 113px; /* button + gap + one row of toggles */
   }
 
   .splash-play,
@@ -154,40 +143,18 @@
   }
 }
 
-/* Desktop. Room enough to stop tucking things into a corner: the button takes the centre of the
-   screen and the switches sit under the logo, where the wide crop leaves a clear strip of path.
-   Width as well as orientation, so a phone held sideways keeps the compact side layout above. */
+/* Desktop. Room for a much larger button, still clear of the logo above it. */
 @media (min-width: 900px) and (orientation: landscape) {
   .splash-controls {
-    inset: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    max-width: none;
-    transform: none;
-    min-height: 0;
-    flex-direction: column;
-    justify-content: center;
+    bottom: 5%;
+    gap: 18px;
+    min-height: 291px;
   }
 
-  /* Centred by the flex container rather than a transform of its own, so the float keyframes still
-     own `transform` outright — restating a centring offset in every frame is a trap this file has
-     been caught by before. */
   .splash-play,
   .splash-loader {
-    width: 276px;
-    height: 276px;
-  }
-
-  .splash-toggles {
-    position: absolute;
-    left: 50%;
-    bottom: 3.5%;
-    transform: translateX(-50%);
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
+    width: 220px;
+    height: 220px;
   }
 
   /* Half again as large — at this distance the phone sizing reads as an afterthought. */
