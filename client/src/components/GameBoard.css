@@ -103,8 +103,44 @@
 /* Same pill, saying why a tap did nothing rather than whose turn it is. Only the edge is tinted —
    a correction should look different from an announcement at a glance, but it is still the board's
    own quiet voice and not an alarm. */
-.turn-pill-warn {
-  border-color: rgba(248, 113, 113, 0.75);
+/* Why a tap did nothing: your King or Trap won't move, or the server refused the move outright.
+   Deliberately the setup screen's warning in a different place rather than a new look — a red-edged
+   banner over the middle of the board already means "that isn't allowed" by the time a match
+   starts, since that is how the setup screen corrects a tap onto the other side's pieces.
+   `pointer-events: none` for the same reason as the turn pill: it sits over playable tiles. */
+.board-warning {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 25;
+  width: max-content;
+  max-width: 88%;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid #e11d48;
+  background: rgba(10, 14, 30, 0.86);
+  color: #ffe4e6;
+  font-weight: 700;
+  font-size: clamp(0.82rem, 4vw, 1.08rem);
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  /* Restates the centring translate in every frame — a keyframe that sets `transform` replaces the
+     whole value, so leaving it out would fling the banner off the board's centre on frame one. */
+  animation: boardWarningPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes boardWarningPop {
+  from {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes turnPillPop {

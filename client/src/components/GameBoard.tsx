@@ -33,8 +33,15 @@ const PILL_TEXT = {
   startTheirs: 'המשחק מתחיל - הצד השני מתחיל',
   yours: 'התור שלך',
   theirs: 'התור של הצד השני',
-  kingStuck: 'המלך לא יכול לזוז',
-  trapStuck: 'המלכודת לא יכולה לזוז',
+} as const;
+
+/** How long a correction stays up — the same beat the setup screen gives its own warning. */
+const WARNING_MS = 2600;
+
+/** Why a tap did nothing. Both are rooted for the whole match. */
+const WARNING_TEXT = {
+  king: 'לא ניתן להזיז את המלך',
+  trap: 'אי אפשר להזיז את המלכודת',
 } as const;
 
 /** Map key for a board tile — positions are plain objects, so they can't be keyed on directly. */
@@ -117,7 +124,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
    * end with "התור שלך", and setting identical state would not re-render, so the hide timer below
    * would never restart and the second pill would inherit the first one's remaining time.
    */
-  const [turnPill, setTurnPill] = useState<{ text: string; key: number; warn?: boolean } | null>(() =>
+  const [turnPill, setTurnPill] = useState<{ text: string; key: number } | null>(() =>
     // Keyed to a board that has had no move yet rather than to this component mounting: it also
     // mounts on a mid-game rejoin, where announcing the start again would be wrong.
     view.lastMove === null
@@ -149,15 +156,30 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
     wasResolving.current = resolving;
   }, [resolving, view.phase, view.turn, team]);
 
-  // A rejection the server sent back. Same pill as the turn announcements, tinted as a correction
-  // — without this the message was translated and dropped, and a refused move just looked like a
-  // control that didn't work.
+  /**
+   * Corrections — "that piece cannot move", or a rejection the server sent back.
+   *
+   * Deliberately not the turn pill: that announces whose turn it is, and a refusal is a different
+   * kind of message. This is the board's counterpart to the setup screen's own warning, which
+   * already teaches the player what a red-edged banner in the middle of the board means.
+   */
+  const [warning, setWarning] = useState<{ text: string; key: number } | null>(null);
+  const warn = (text: string) => setWarning((prev) => ({ text, key: (prev?.key ?? 0) + 1 }));
+
   const shownNoticeKey = useRef<number | null>(null);
   useEffect(() => {
     if (!notice || shownNoticeKey.current === notice.key) return;
     shownNoticeKey.current = notice.key;
-    setTurnPill((prev) => ({ text: notice.text, key: (prev?.key ?? 0) + 1, warn: true }));
+    // Without this the message was translated and dropped, and a refused move just looked like a
+    // control that didn't work.
+    warn(notice.text);
   }, [notice]);
+
+  useEffect(() => {
+    if (!warning) return;
+    const t = setTimeout(() => setWarning(null), WARNING_MS);
+    return () => clearTimeout(t);
+  }, [warning]);
 
   useEffect(() => {
     if (!turnPill) return;
@@ -414,16 +436,11 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
       return;
     }
 
-    // Your own King or Trap. Both are rooted for the whole match, and until now tapping one did
-    // nothing at all — which reads as the board being broken rather than as the rule it is. Says so
-    // instead, in the same slot the turn announcements use.
+    // Your own King or Trap. Tapping one used to do nothing at all, which reads as the board being
+    // broken rather than as the rule it is.
     if (occupant && occupant.team === team && (occupant.kind === 'king' || occupant.kind === 'trap')) {
       play('ui.error');
-      setTurnPill((prev) => ({
-        text: occupant.kind === 'king' ? PILL_TEXT.kingStuck : PILL_TEXT.trapStuck,
-        key: (prev?.key ?? 0) + 1,
-        warn: true,
-      }));
+      warn(WARNING_TEXT[occupant.kind]);
       return;
     }
 
@@ -476,12 +493,17 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
           // pill and the score badges can never disagree about what each side's colour is.
           style={{ '--turn-color': turnTheme.solid, '--turn-glow': turnTheme.border } as CSSProperties}
         >
-          {/* Keyed so each pill is a fresh element: swapping only the text on the same node leaves
+          {/* Both keyed so each is a fresh element: swapping only the text on the same node leaves
               the pop animation already spent, and tapping the King twice would show the second
               message with no beat of its own. */}
           {turnPill && (
-            <div key={turnPill.key} className={`turn-pill${turnPill.warn ? ' turn-pill-warn' : ''}`}>
+            <div key={turnPill.key} className="turn-pill">
               {turnPill.text}
+            </div>
+          )}
+          {warning && (
+            <div key={warning.key} className="board-warning">
+              {warning.text}
             </div>
           )}
           <BoardGrid
