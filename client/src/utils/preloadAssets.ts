@@ -53,8 +53,24 @@ export function preloadPieceAssets(viewerTeam?: Team): void {
     }
   }
 
-  for (const file of files) {
-    const img = new Image();
-    img.src = `/assets/pieces/${file}`;
-  }
+  // In small waves rather than ~48 at once. Fired together they contend with each other and with
+  // whatever the screen still needs, and every decode lands in the same few frames — on a phone
+  // that is a visible hitch right as a match is starting. Nothing here is needed this instant: the
+  // board is still being set up when this runs.
+  //
+  // Same srcset/sizes the board renders with (see PieceView), so this warms the file that will
+  // actually be used rather than always pulling the 512px original. Set before `src`, which is
+  // only the fallback for a browser that ignores srcset.
+  const queue = [...files];
+  const WAVE = 6;
+  const warm = () => {
+    for (const file of queue.splice(0, WAVE)) {
+      const img = new Image();
+      img.sizes = '(max-width: 600px) 23vw, 185px';
+      img.srcset = `/assets/pieces/320/${file} 320w, /assets/pieces/${file} 512w`;
+      img.src = `/assets/pieces/${file}`;
+    }
+    if (queue.length > 0) setTimeout(warm, 60);
+  };
+  warm();
 }

@@ -15,6 +15,7 @@
     "test": "npm run test -w server",
     "lint": "npm run lint -w client",
     "sfx": "tools/build-sfx.sh",
+    "sprites": "tools/build-piece-sprites.sh",
     "sfx:sources": "tools/fetch-sfx-sources.sh"
   },
   "devDependencies": {

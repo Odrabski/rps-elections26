@@ -78,6 +78,9 @@ const buffers = new Map<string, AudioBuffer>();
 const loading = new Set<string>();
 /** The variant each cue played last, so the next pick can avoid it — see play(). */
 const lastStem = new Map<string, string>();
+/** Winner calls kept between fights. Four covers the current fight's two and the one before it,
+ *  so a rematch against the same pieces still plays instantly. */
+const MAX_CACHED_WIN_CALLS = 4;
 
 /** Silenced by the "צלילים" channel being off — set on the splash, or from the speaker menu. Read
  *  through audioPrefs rather than cached here, so a change takes effect immediately. */
@@ -149,8 +152,15 @@ async function loadClip(stem: string): Promise<void> {
 }
 
 /**
- * Warms the cache. Called on the first interaction rather than at startup: 124KB is small, but it
- * has no business competing with the splash art for a visitor who may never press anything.
+ * Warms the cache. Called on the first interaction rather than at startup: it has no business
+ * competing with the splash art for a visitor who may never press anything.
+ *
+ * All 40 stems, deliberately. Decoded they come to roughly 5.5MB of Float32 — far more than the
+ * 124KB they weigh on disk — but `play()` will not sound a clip it has to fetch first (a cue that
+ * lands 200ms after the moment reads as a glitch), so anything left out here is silent the first
+ * time it happens. For one-shot cues like king.captured that first time is the only one that
+ * matters. The winner calls are the exception and stay out of this sweep: there are 30 of them,
+ * any match needs two, and prefetchClip pulls those seconds ahead of the reveal.
  */
 export function preload(): void {
   if (silenced()) return;
@@ -166,6 +176,16 @@ export function preload(): void {
  */
 export function prefetchClip(stem: string): void {
   if (silenced()) return;
+  // Drop the calls from earlier fights first. Two are wanted per fight and each is ~300KB decoded,
+  // so across a long session of rematches this map would otherwise creep toward the weight of every
+  // clip in the game put together.
+  if (buffers.size > 0) {
+    const stale = [...buffers.keys()].filter((k) => k.startsWith('win.') && k !== stem);
+    while (stale.length > MAX_CACHED_WIN_CALLS) {
+      const drop = stale.shift();
+      if (drop) buffers.delete(drop);
+    }
+  }
   void loadClip(stem);
 }
 
