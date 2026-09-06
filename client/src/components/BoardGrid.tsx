@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import {
   BOARD_COLS,
   BOARD_ROWS,
@@ -146,12 +146,17 @@ export function BoardGrid({
   lastMove,
   tease,
 }: BoardGridProps) {
-  const cells: { display: Position; actual: Position }[] = [];
-  for (let row = 0; row < BOARD_ROWS; row++) {
-    for (let col = 0; col < BOARD_COLS; col++) {
-      cells.push({ display: { row, col }, actual: mirrorPosition({ row, col }, team) });
+  // Depends only on `team`, which never changes while this is mounted — but it was being rebuilt
+  // (42 iterations, 126 objects) on every render, and the move detection below walks it each time.
+  const cells = useMemo(() => {
+    const out: { display: Position; actual: Position }[] = [];
+    for (let row = 0; row < BOARD_ROWS; row++) {
+      for (let col = 0; col < BOARD_COLS; col++) {
+        out.push({ display: { row, col }, actual: mirrorPosition({ row, col }, team) });
+      }
     }
-  }
+    return out;
+  }, [team]);
 
   const gridRef = useRef<HTMLDivElement | null>(null);
   // Each live piece's actual position as of the *previous* render — comparing against this is
@@ -253,7 +258,12 @@ export function BoardGrid({
     if (idle.length === 0) return;
     const chosen = idle[Math.floor(Math.random() * idle.length)];
     chosen.classList.add(className);
-    setTimeout(() => chosen.classList.remove(className), TILT_DURATION_MS);
+    // Tracked like the rest: untracked, this outlived unmount still holding the (detached) node.
+    const timer = setTimeout(() => {
+      jumpTimersRef.current.delete(timer);
+      chosen.classList.remove(className);
+    }, TILT_DURATION_MS);
+    jumpTimersRef.current.add(timer);
   }, []);
 
   useEffect(() => {

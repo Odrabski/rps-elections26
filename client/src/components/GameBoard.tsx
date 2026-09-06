@@ -98,6 +98,18 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
     cinematicPending;
   const canMove = myTurn && !resolving;
 
+  // `resolving` is compared against Date.now() while rendering, and nothing else is scheduled for
+  // the instant the server's lock expires — so the board could stay unclickable past it until some
+  // unrelated re-render happened to come along. This is that scheduled render.
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (view.resolvingUntil === null) return;
+    const ms = view.resolvingUntil - Date.now();
+    if (ms <= 0) return;
+    const t = setTimeout(() => tick((n) => n + 1), ms + 20);
+    return () => clearTimeout(t);
+  }, [view.resolvingUntil]);
+
   /**
    * The Turn pill: a short announcement over the board, at the two moments a turn actually begins.
    *
@@ -282,7 +294,12 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
       // cloud run for CLASH_REVEAL_DELAY_MS (1500ms) before "3" appears, so a 1.32s call started
       // just after the collision finishes exactly as the countdown begins. Nothing is retimed for
       // it — it fills a beat that was silent.
-      const fanfare = setTimeout(() => play('fight.fanfare'), 160);
+      // Drops its own handle once it fires — the set is drained at unmount, so without this it
+      // accumulated one dead entry per fight for the length of the match.
+      const fanfare = setTimeout(() => {
+        fanfareTimersRef.current.delete(fanfare);
+        play('fight.fanfare');
+      }, 160);
       fanfareTimersRef.current.add(fanfare);
       if (attackerBefore && defenderBefore) {
         setClashEvent({
