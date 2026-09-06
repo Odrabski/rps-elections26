@@ -36,8 +36,20 @@ while(Date.now()<deadline){
         faceShown:(mask&&mask.currentSrc||'').split('/').pop(), crownTransform:cs?cs.transform:null,
         traps:[...document.querySelectorAll('.board-wrap img')].filter(i=>(i.currentSrc||'').includes('trap_back')).length};})()`);
     console.log('CAPTURE BEAT:', JSON.stringify(info));
+    await sleep(700); // let the reveal animation settle before looking at it
     const shot=await send('Page.captureScreenshot',{format:'png'});
     writeFileSync(OUT+'/crown-capture.png',Buffer.from(shot.data,'base64'));
+    // Zoom both kings: the captured one, and the surviving one still on the board.
+    const clips=await ev(`(()=>{const out={};
+      const cap=document.querySelector('.board-piece-anim-captured-king');
+      if(cap){const r=cap.getBoundingClientRect(); out.captured={x:Math.max(0,Math.round(r.left-24)),y:Math.max(0,Math.round(r.top-16)),width:Math.round(r.width+48),height:Math.round(r.height+32)};}
+      const live=[...document.querySelectorAll('.piece-crown')].map(c=>c.closest('.board-piece-wrap')).filter(w=>w&&!w.closest('.board-piece-anim-captured-king'))[0];
+      if(live){const r=live.getBoundingClientRect(); out.live={x:Math.max(0,Math.round(r.left-24)),y:Math.max(0,Math.round(r.top-16)),width:Math.round(r.width+48),height:Math.round(r.height+32)};}
+      return out;})()`);
+    for (const [k,c] of Object.entries(clips)) {
+      const z=await send('Page.captureScreenshot',{format:'png',clip:{...c,scale:4}});
+      writeFileSync(OUT+'/crown-'+k+'.png',Buffer.from(z.data,'base64'));
+    }
     caught=true; break;
   }
   if (await ev(`!!document.querySelector('.gameover-screen')`)) { console.log('game over — beat missed'); break; }

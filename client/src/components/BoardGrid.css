@@ -448,9 +448,12 @@
    a pool of blood, and a navy that dark simply vanished against the board's own blue. Lighter
    colours at lower opacity carry the hue better than dark ones at high opacity do.
 
-   A flat ellipse with a hard edge rather than a soft gradient — it matches the cartoon art, and it
-   is the only version where the blue reads clearly against the board's own blue. Held as bare
-   channels so the one alpha lives with the shape rather than being baked into two colours. */
+   A ring rather than a filled ellipse: open in the middle, with the colour only at the rim, so the
+   figure stands inside a halo instead of on a puddle. Brighter hues than a filled version would
+   take — at the rim there is far less of it, so it needs the extra punch to read at all, and the
+   blue has the board's own blue to compete with. Held as bare channels so the gradient can fade to
+   the same hue at both ends; fading to a flat `transparent` would drift through black on the way
+   out and grey the rim's edges. */
 .board-piece-wrap {
   --piece-shadow-rgb: 0 0 0;
 }
@@ -458,11 +461,11 @@
 /* `:has()` because the team class sits on .piece-view, a child of the wrap the shadow belongs to
    — the same pattern the legal-move hover glow above already uses. */
 .board-piece-wrap:has(.team-blue) {
-  --piece-shadow-rgb: 16 88 200;
+  --piece-shadow-rgb: 56 150 255;
 }
 
 .board-piece-wrap:has(.team-red) {
-  --piece-shadow-rgb: 214 60 100;
+  --piece-shadow-rgb: 255 105 140;
 }
 
 .board-piece-wrap::before {
@@ -471,9 +474,14 @@
   bottom: 2%; /* the source art has ~4% empty margin below the feet, so this sits right at the shoes */
   left: 50%;
   transform: translateX(-50%);
-  width: 56%;
-  height: 18%;
-  background: rgb(var(--piece-shadow-rgb) / 0.5);
+  width: 68%;
+  height: 23%;
+  background: radial-gradient(
+    ellipse,
+    rgb(var(--piece-shadow-rgb) / 0) 26%,
+    rgb(var(--piece-shadow-rgb) / 0.6) 52%,
+    rgb(var(--piece-shadow-rgb) / 0) 84%
+  );
   border-radius: 50%;
 }
 
