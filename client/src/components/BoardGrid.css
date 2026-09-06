@@ -293,6 +293,9 @@
    always exactly one tile. */
 .piece-jumping {
   animation: pieceJump 0.5s ease-out;
+  /* Only while the class is on, which is exactly the hop. Every figure inside carries stacked
+     drop-shadow() filters, so a standing hint on all 28 would cost more than it saves. */
+  will-change: transform;
 }
 
 @keyframes pieceJump {
@@ -457,19 +460,19 @@
 
 @keyframes pieceTilt {
   0% {
-    transform: rotate(0deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(0deg);
   }
   20% {
-    transform: rotate(-7deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(-7deg);
   }
   50% {
-    transform: rotate(5deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(5deg);
   }
   75% {
-    transform: rotate(-2deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(-2deg);
   }
   100% {
-    transform: rotate(0deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(0deg);
   }
 }
 
@@ -511,19 +514,19 @@
 
 @keyframes pieceTiltReverse {
   0% {
-    transform: rotate(0deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(0deg);
   }
   20% {
-    transform: rotate(7deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(7deg);
   }
   50% {
-    transform: rotate(-5deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(-5deg);
   }
   75% {
-    transform: rotate(2deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(2deg);
   }
   100% {
-    transform: rotate(0deg);
+    transform: translateY(var(--piece-lift, 0px)) rotate(0deg);
   }
 }
 
@@ -604,5 +607,35 @@
   to {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* The board had no reduced-motion handling at all, while seven other stylesheets did.
+   The slide is the one thing that still happens — without it a piece changes tile with nothing to
+   say it moved — so it collapses to a short fade rather than being removed outright. Note that a
+   removed animation fires no animationend, which is why the jump's cleanup keeps a backstop timer
+   (see BoardGrid.tsx). */
+@media (prefers-reduced-motion: reduce) {
+  .piece-jumping {
+    animation: pieceJumpReduced 0.2s ease-out;
+    will-change: auto;
+  }
+
+  .board-piece-tilt .piece-view,
+  .board-piece-tilt-reverse .piece-view,
+  .board-piece-tilt .piece-mask,
+  .board-piece-tilt-reverse .piece-mask,
+  .board-arrow,
+  .board-clash-cloud {
+    animation: none;
+  }
+
+  @keyframes pieceJumpReduced {
+    from {
+      opacity: 0.4;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }

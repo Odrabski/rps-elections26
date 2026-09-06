@@ -152,7 +152,29 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
     const t = setTimeout(() => setTurnPill(null), TURN_PILL_MS);
     return () => clearTimeout(t);
   }, [turnPill]);
-  const alivePieces = useMemo(() => view.pieces.filter((p) => p.alive), [view.pieces]);
+  /**
+   * Your own move, shown before the server has confirmed it.
+   *
+   * Every change to the board otherwise arrives through `setView`, so tapping a tile bought a full
+   * network round-trip of nothing happening — on a phone that is most of what "laggy" means here.
+   * Only ever set for a move onto an *empty* tile: a move into an occupied one starts combat, and
+   * guessing at a fight's outcome is a different and much worse idea. That is the same distinction
+   * `handleTileClick` already draws when it decides whether to play the move sound locally.
+   *
+   * Cleared by the next broadcast whatever it says, so there is nothing to roll back: a confirmed
+   * move is already at the destination, and a rejected one simply is not.
+   */
+  const [pendingMove, setPendingMove] = useState<{ id: string; to: Position } | null>(null);
+  useEffect(() => setPendingMove(null), [view]);
+  useEffect(() => {
+    if (notice) setPendingMove(null);
+  }, [notice]);
+
+  const alivePieces = useMemo(() => {
+    const alive = view.pieces.filter((p) => p.alive);
+    if (!pendingMove) return alive;
+    return alive.map((p) => (p.id === pendingMove.id ? { ...p, position: pendingMove.to } : p));
+  }, [view.pieces, pendingMove]);
   /**
    * Occupancy indexed by tile. `getPieceAt` below is called once per cell while the board renders,
    * so doing it as a linear scan meant ~42 passes over every living piece per render — built once
@@ -389,10 +411,13 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
     }
 
     if (selected && legalTargets.some((t) => t.row === actual.row && t.col === actual.col)) {
-      // Only a quiet move is sounded locally, for responsiveness — it produces no server event of
-      // its own. A clash is left to the event branch below, which fires on both clients, so an
-      // attacker doesn't hear it twice.
-      if (!pieceByTile.get(tileKey(actual))) play('move.step');
+      // Only a quiet move is sounded and shown locally, for responsiveness — it produces no server
+      // event of its own. A clash is left to the event branch below, which fires on both clients,
+      // so an attacker doesn't hear it twice, and its outcome is the server's to decide.
+      if (!pieceByTile.get(tileKey(actual))) {
+        play('move.step');
+        setPendingMove({ id: selected.id, to: actual });
+      }
       onMove(selected.id, actual);
       setSelectedId(null);
     }

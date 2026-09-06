@@ -1,6 +1,12 @@
+/* `--piece-lift` rather than a bare transform on the opponent rule below, because the idle tilt
+   animates this element's `transform` — and a keyframe that sets `transform` replaces the whole
+   value, base offset included. Keeping the offset in a custom property lets those keyframes restate
+   it without knowing which side the figure belongs to. */
 .piece-view {
   position: relative;
   width: 100%;
+  --piece-lift: 0px;
+  transform: translateY(var(--piece-lift));
 }
 
 .piece-portrait {
@@ -52,7 +58,7 @@
 /* The opponent's figures sit a touch too high above their ground shadow (painted on the
    surrounding .board-piece-wrap) — nudge the whole piece down to meet it. */
 .piece-view:not(.piece-mine) {
-  transform: translateY(2px);
+  --piece-lift: 2px;
 }
 
 /* Setup screen: your own not-yet-designated pieces are drained of colour until they're actually

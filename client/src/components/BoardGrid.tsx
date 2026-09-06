@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   BOARD_COLS,
   BOARD_ROWS,
@@ -168,7 +168,12 @@ export function BoardGrid({
       timers.clear();
     };
   }, []);
-  useEffect(() => {
+  // Deliberately a *layout* effect. As a passive effect this ran after the browser had already
+  // painted the render that put the piece on its destination tile with no .piece-jumping class —
+  // so the piece flashed at the destination, then the next render started the animation one whole
+  // tile back where it came from, and the move read as a teleport followed by a hop. Running
+  // before paint means only the animating frame is ever shown.
+  useLayoutEffect(() => {
     const next = new Map<string, Position>();
     const started: Array<{ id: string; offset: { x: string; y: string } }> = [];
     for (const { actual } of cells) {
@@ -196,15 +201,31 @@ export function BoardGrid({
       for (const { id, offset } of started) merged.set(id, offset);
       return merged;
     });
+    // A backstop only — onAnimationEnd below is what normally ends a slide. This used to be the
+    // sole cleanup, timed from when the effect ran rather than from when the animation actually
+    // started, so it pulled the class while frames remained and the piece snapped the last of the
+    // way. Kept (and given room) for the cases where no animationend ever arrives: reduced motion,
+    // or a piece unmounted mid-slide.
     const timer = setTimeout(() => {
+      jumpTimersRef.current.delete(timer);
       setJumps((current) => {
         const merged = new Map(current);
         for (const { id } of started) merged.delete(id);
         return merged;
       });
-    }, CLASH_JUMP_MS);
+    }, CLASH_JUMP_MS + 250);
     jumpTimersRef.current.add(timer);
   });
+
+  /** Ends one piece's slide. Idempotent — the backstop timer and animationend can both arrive. */
+  const endJump = useCallback((id: string) => {
+    setJumps((current) => {
+      if (!current.has(id)) return current;
+      const merged = new Map(current);
+      merged.delete(id);
+      return merged;
+    });
+  }, []);
 
   /**
    * Plays the idle wobble by toggling the class straight on the node.
@@ -215,15 +236,19 @@ export function BoardGrid({
    * on a board where nothing had actually changed. Nothing about a decorative wobble belongs in
    * render state, so it doesn't live there any more.
    *
-   * Only wraps whose className is exactly the base class are eligible, which is precisely the set
-   * of pieces React isn't already animating — no stealing a piece mid-dissolve, mid-fall,
-   * mid-flinch, or mid-pulse, and no fighting React over the same attribute.
+   * Only wraps whose className is exactly the base class, and whose parent is not mid-slide, are
+   * eligible — which is precisely the set of pieces React isn't already animating: no stealing a
+   * piece mid-dissolve, mid-fall, mid-flinch, mid-pulse or mid-move, and no fighting React over
+   * the same attribute.
    */
   const wobbleRandomPiece = useCallback((className: string) => {
     const grid = gridRef.current;
     if (!grid) return;
     const idle = Array.from(grid.querySelectorAll<HTMLElement>('.board-piece-wrap')).filter(
-      (el) => el.className === 'board-piece-wrap',
+      // The className check covers the animations React puts on the wrap itself (dissolve, fall,
+      // return, flinch). A slide is not one of them: .piece-jumping goes on the parent
+      // .board-piece-anim, so without the second check a piece could be wobbled mid-move.
+      (el) => el.className === 'board-piece-wrap' && !el.parentElement?.classList.contains('piece-jumping'),
     );
     if (idle.length === 0) return;
     const chosen = idle[Math.floor(Math.random() * idle.length)];
@@ -459,6 +484,11 @@ export function BoardGrid({
                       ...(jump ? { '--jump-from-x': jump.x, '--jump-from-y': jump.y } : {}),
                     } as CSSProperties
                   }
+                  // target === currentTarget so a child's animation (the idle tilt on .piece-view,
+                  // the head nod on .piece-mask) can't end the slide as it bubbles past.
+                  onAnimationEnd={(e) => {
+                    if (e.target === e.currentTarget) endJump(piece.id);
+                  }}
                 >
                   <div
                     className={[
