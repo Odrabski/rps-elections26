@@ -58,9 +58,10 @@ export const BATTLE_SEQUENCE_MS = CLASH_REVEAL_DELAY_MS + FIGHT_SEQUENCE_MS + CL
  * enough now for the 1.32s fanfare on the capture to finish before the result screen replaces the
  * board, rather than being played over by the victory sting.
  */
-/** Long enough for the crown to drop onto the King's head and be read before the result screen
- *  takes the board away. */
-export const KING_CAPTURE_SEQUENCE_MS = 2500;
+/** How long the board stays up after the King falls: the crown drops onto its head, every weapon
+ *  and both Traps turn face-up, and there is time to actually read the board before the result
+ *  screen takes it away. */
+export const KING_CAPTURE_SEQUENCE_MS = 5000;
 
 // The client's trap sequence (BoardGrid: the attacker steps onto the tile while the trap dissolves
 // under it and the pit opens → the attacker sinks in → the trap climbs back out). Defined here (not
