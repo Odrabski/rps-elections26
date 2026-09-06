@@ -43,12 +43,26 @@ function randomHeadTrio(team: Team): [string, string, string] {
   return [center, picked[0] ?? center, picked[1] ?? center];
 }
 
+/** What the little figure in the About box cycles through when you poke it: its own coalition
+ *  suit through all three weapons, then the opposition's blue one. Note `scrissors` — the coalition
+ *  scissors sprite is misspelled on disk and the opposition one is not. */
+const ABOUT_BODIES = [
+  'sol_co_scrissors.webp',
+  'sol_co_rock.webp',
+  'sol_co_paper.webp',
+  'sol_op_scissors.webp',
+  'sol_op_rock.webp',
+  'sol_op_paper.webp',
+] as const;
+
 export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) {
   const [code, setCode] = useState('');
   const [step, setStep] = useState<Step>('menu');
   const [vsBotFlow, setVsBotFlow] = useState(false);
   const [chosenTeam, setChosenTeam] = useState<Team | null>(null);
   const [modal, setModal] = useState<ModalKind>(null);
+  /** Which body the About figure is wearing — see ABOUT_BODIES. Purely a toy. */
+  const [figureIndex, setFigureIndex] = useState(0);
   // Rolled once when the picker step opens, not re-rolled on every render.
   const heads = useMemo<Record<Team, [string, string, string]>>(
     () => ({ blue: randomHeadTrio('blue'), red: randomHeadTrio('red') }),
@@ -243,19 +257,25 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
           onClose={() => setModal(null)}
           footer={
             <>
-              <div className="about-figure">
-                <img src="/assets/pieces/sol_co_scrissors.webp" alt="" className="about-figure-body" />
+              <button
+                type="button"
+                className="about-figure"
+                onClick={() => setFigureIndex((i) => (i + 1) % ABOUT_BODIES.length)}
+                aria-label="החליפו נשק"
+              >
+                <img src={`/assets/pieces/${ABOUT_BODIES[figureIndex]}`} alt="" className="about-figure-body" />
                 <img src="/assets/pieces/omri.webp" alt="" className="about-figure-head" />
-              </div>
+              </button>
               <p className="about-caption">המשחק נוצר על ידי עמרי דרבסקי</p>
             </>
           }
         >
           <div className="about-body">
+            <p>נמאס מסבבי בחירות אינסופיים בלי הכרעה?</p>
             <p>
-              נמאס מסבבי בחירות אינסופיים בלי הכרעה? אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב אבן-נייר-מספריים קלאסי עם טקטיקה על לוח, כדי שנוכל להכריע אחת ולתמיד מי ייקח את הבחירות – הקואליציה או האופוזיציה.
+              אבניהו - מהדורת בחירות 2026 הוא משחק אסטרטגיה סאטירי בהשראת הפוליטיקה הישראלית, המשלב אבן-נייר-מספריים קלאסי עם טקטיקה על לוח, כדי שנוכל להכריע אחת ולתמיד מי ייקח את הבחירות – הקואליציה או האופוזיציה.
             </p>
-            <p className="about-tagline">ביחד נכסח!</p>
+            <p className="about-tagline">יחד נכסח!</p>
           </div>
         </Modal>
       )}

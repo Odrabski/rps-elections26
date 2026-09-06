@@ -190,11 +190,11 @@
   font-size: 0.85rem;
 }
 
-/* Both .setup-onboard-banner and .setup-onboard-buttons are centered with translate(-50%, -50%)
-   (they need both axes, unlike .trap-warning-banner's translateX(-50%)-only centering, which is
-   what BoardGrid.css's shared trapWarningPop keyframes provide) — a dedicated keyframe that
-   carries both axes the whole way through avoids the vertical centering being dropped mid-pop and
-   snapping into place once the animation ends, which is what caused the visible "jump". */
+/* Both .setup-onboard-banner and .setup-onboard-buttons are centered with translate(-50%, -50%),
+   so their pop has to carry both axes the whole way through — otherwise the vertical centering is
+   dropped mid-pop and snaps into place once the animation ends, which is what caused the visible
+   "jump". Kept separate from BoardGrid's trapWarningPop, which is the same shape but belongs to a
+   different screen. */
 @keyframes setupOnboardPop {
   from {
     transform: translate(-50%, -50%) scale(0.6);

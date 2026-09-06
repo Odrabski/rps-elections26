@@ -285,10 +285,14 @@
   -webkit-backdrop-filter: blur(4px);
 }
 
-/* Still outside the card — the figure reads better standing on its own than boxed in — but now a
-   sibling in the overlay's column rather than pinned to the bottom of the screen, where it sat
-   ~160px adrift of the modal and looked unrelated to it. */
+/* Outside the card — the figure reads better standing on its own than boxed in — and pinned to the
+   bottom of the screen rather than tucked under the card. It is a toy now, not a signature: poking
+   it changes its weapon and its suit, and that invites a tap more clearly when it stands apart. */
 .home-modal-footer {
+  position: absolute;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -398,10 +402,17 @@
   text-align: center;
 }
 
+/* `.home-modal-body p { margin: 0 }` above is (0,1,1) and would win against a bare `.about-tagline`,
+   so both of these carry the extra class they need to actually apply. Without it the About copy ran
+   together as one block — the paragraph break was in the markup and invisible on screen. */
+.about-body p + p {
+  margin-top: 10px;
+}
+
 /* The sign-off, set apart from the paragraph above it rather than trailing after it as another
    line of body copy. */
-.about-tagline {
-  margin-top: 2px;
+.about-body .about-tagline {
+  margin-top: 16px;
   color: var(--gold);
   font-size: 1.05rem;
   font-weight: 800;
@@ -443,15 +454,25 @@
 }
 
 /* A standalone piece composite (not reusing PieceView's board-tuned classes/variables) — the
-   developer's own head on a coalition scissors-soldier body. */
+   developer's own head on a soldier's body, whichever one it is currently wearing.
+   A button rather than a div: tapping it swaps the weapon and the suit, so it has to be reachable
+   from a keyboard too. All the button chrome is stripped; the figure is the whole control. */
 .about-figure {
   position: relative;
   align-self: center;
   width: 99.36px; /* 82.8px * 1.2 */
+  padding: 0;
+  border: none;
+  background: none;
   opacity: 0.88;
-  pointer-events: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transform-origin: bottom center;
   animation: aboutFigureWobble 4s ease-in-out infinite;
+}
+
+.about-figure:active {
+  opacity: 1;
 }
 
 @keyframes aboutFigureWobble {
