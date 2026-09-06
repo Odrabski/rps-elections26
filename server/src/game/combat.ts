@@ -2,17 +2,16 @@ import type { GameEvent, GameState, Piece, Position, RPSHand } from 'shared';
 import { samePosition } from './board.js';
 
 /**
- * Lifts the fog off both sides' King and Trap. Called only once the game is decided — never during
- * play, where the whole design rests on those two being indistinguishable from an ordinary soldier
- * (a Trap survives being sprung, and one everybody can see is just a tile everybody walks around).
+ * Lifts the fog off the whole board — every King, every Trap, and every soldier's weapon. Called
+ * only once the game is decided, never during play, where the design rests on a King and a Trap
+ * being indistinguishable from an ordinary soldier (a Trap survives being sprung, and one everybody
+ * can see is just a tile everybody walks around).
  *
- * `revealed` is the entire mechanism: view.ts sends a piece's `kind` to its owner or to anyone once
- * this flag is set, so there is nothing else to change.
+ * `revealed` is the entire mechanism: view.ts sends a piece's `kind` and `hand` to its owner, or to
+ * anyone once this flag is set, so there is nothing else to change.
  */
-export function revealSpecials(state: GameState): void {
-  for (const piece of Object.values(state.pieces)) {
-    if (piece.kind === 'king' || piece.kind === 'trap') piece.revealed = true;
-  }
+export function revealEveryone(state: GameState): void {
+  for (const piece of Object.values(state.pieces)) piece.revealed = true;
 }
 
 export const BEATS: Record<RPSHand, RPSHand> = {
@@ -72,10 +71,10 @@ export function applyMove(state: GameState, attacker: Piece, to: Position): Game
     defender.alive = false;
     attacker.position = to;
     state.winner = attacker.team;
-    // It is over, so both sides finally get to see who the King and the Trap actually were. Set
-    // here rather than when the phase flips, so it rides the broadcast that still says 'playing'
-    // and the board can show it during the capture beat.
-    revealSpecials(state);
+    // It is over, so both sides finally get to see the whole board. Set here rather than when the
+    // phase flips, so it rides the broadcast that still says 'playing' and the board can show it
+    // during the capture beat.
+    revealEveryone(state);
     return { type: 'king-captured', winner: attacker.team };
   }
 

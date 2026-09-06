@@ -29,7 +29,7 @@ import {
   type TeamSetupData,
 } from '../game/setup.js';
 import { findRandomLegalMove, legalMovesFor, validateMove } from '../game/movement.js';
-import { applyMove, revealSpecials } from '../game/combat.js';
+import { applyMove, revealEveryone } from '../game/combat.js';
 import {
   autoFillTiePicks,
   startTieBreak,
@@ -384,7 +384,7 @@ export class Room {
     this.state.phase = 'gameover';
     this.state.winner = winner;
     this.state.lastEvent = { type: 'no-moves-left', winner };
-    revealSpecials(this.state);
+    revealEveryone(this.state);
     return true;
   }
 
@@ -522,7 +522,7 @@ export class Room {
         this.state.phase = 'gameover';
         this.state.winner = OTHER_TEAM[team];
         this.state.lastEvent = { type: 'resigned', winner: OTHER_TEAM[team] };
-        revealSpecials(this.state);
+        revealEveryone(this.state);
         break;
       }
       case 'rematch': {

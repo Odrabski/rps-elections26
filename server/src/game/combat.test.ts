@@ -143,7 +143,7 @@ describe('applyMove: trap and king', () => {
     expect(state.phase).toBe('playing');
   });
 
-  it('capturing the king reveals every king and trap, on both sides', () => {
+  it('capturing the king lifts the fog off the whole board', () => {
     const attacker = soldier('a', 'red', 'rock', 3, 3);
     const special = (id: string, team: 'red' | 'blue', kind: 'king' | 'trap', col: number): Piece => ({
       id, team, kind, hand: null,
@@ -158,13 +158,12 @@ describe('applyMove: trap and king', () => {
 
     applyMove(state, attacker, { row: 3, col: 4 });
 
-    // The match is decided, so both sides finally get to see who was who.
-    for (const p of [blueKing, redKing, redTrap, blueTrap]) expect(p.revealed).toBe(true);
-    // ...and only those. An uninvolved soldier keeps its disguise.
-    expect(bystander.revealed).toBe(false);
+    // The match is decided, so everything comes out: both Kings, both Traps, and every soldier's
+    // weapon — including one that never fought.
+    for (const p of [blueKing, redKing, redTrap, blueTrap, bystander]) expect(p.revealed).toBe(true);
   });
 
-  it('a mid-game fight leaves the kings and traps hidden', () => {
+  it('a mid-game fight leaves everyone else hidden', () => {
     const attacker = soldier('a', 'red', 'rock', 3, 3);
     const defender = soldier('d', 'blue', 'scissors', 3, 4);
     const king: Piece = {
@@ -178,6 +177,9 @@ describe('applyMove: trap and king', () => {
 
     expect(king.revealed).toBe(false);
     expect(trap.revealed).toBe(false);
+    // Only the two who actually fought.
+    expect(attacker.revealed).toBe(true);
+    expect(defender.revealed).toBe(true);
   });
 
   it('a free move onto an empty tile does not reveal the mover — only a 1:1 fight does', () => {

@@ -291,6 +291,14 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
       // winner, so find the piece: with the match decided, the server has revealed both Kings, and
       // the dead one belongs to the loser.
       const loser: Team = event.winner === 'red' ? 'blue' : 'red';
+      // Timed to the crown's landing rather than its release — crownDrop reaches the head at 62%
+      // of 0.55s. Tracked like the fanfare so it can't outlive the board.
+      const crown = setTimeout(() => {
+        fanfareTimersRef.current.delete(crown);
+        play('king.crown');
+      }, 340);
+      fanfareTimersRef.current.add(crown);
+
       const king = view.pieces.find((p) => p.team === loser && p.kind === 'king' && !p.alive);
       // Shown alive on purpose. It is dead, and .piece-dead greyscales a piece — which would drain
       // the colour out of the one thing this beat exists to show. The same trick scorePieces uses
