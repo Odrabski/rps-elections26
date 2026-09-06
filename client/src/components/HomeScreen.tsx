@@ -43,9 +43,9 @@ function randomHeadTrio(team: Team): [string, string, string] {
   return [center, picked[0] ?? center, picked[1] ?? center];
 }
 
-/** What the little figure in the About box cycles through when you poke it: its own coalition
- *  suit through all three weapons, then the opposition's blue one. Note `scrissors` — the coalition
- *  scissors sprite is misspelled on disk and the opposition one is not. */
+/** What the little figure in the About box can be wearing: either suit, all three weapons. A poke
+ *  draws one at random. Note `scrissors` — the coalition scissors sprite is misspelled on disk and
+ *  the opposition one is not. */
 const ABOUT_BODIES = [
   'sol_co_scrissors.webp',
   'sol_co_rock.webp',
@@ -260,7 +260,14 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
               <button
                 type="button"
                 className="about-figure"
-                onClick={() => setFigureIndex((i) => (i + 1) % ABOUT_BODIES.length)}
+                onClick={() =>
+                  // Random, but never the one already showing — a draw that happened to land on the
+                  // current body would read as a button that does nothing.
+                  setFigureIndex((i) => {
+                    const others = ABOUT_BODIES.map((_, n) => n).filter((n) => n !== i);
+                    return others[Math.floor(Math.random() * others.length)];
+                  })
+                }
                 aria-label="החליפו נשק"
               >
                 <img src={`/assets/pieces/${ABOUT_BODIES[figureIndex]}`} alt="" className="about-figure-body" />

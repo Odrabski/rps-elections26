@@ -460,7 +460,7 @@
 .about-figure {
   position: relative;
   align-self: center;
-  width: 99.36px; /* 82.8px * 1.2 */
+  width: 149.04px; /* 82.8px * 1.2 * 1.5 */
   padding: 0;
   border: none;
   background: none;
@@ -503,7 +503,7 @@
 
 .about-figure-head {
   position: absolute;
-  top: calc(-21% - 7px);
+  top: calc(-21% - 17px); /* -7px baseline, then 4px up, then 6px more */
   left: 50%;
   width: 60.72%; /* 55.2% * 1.1 */
   transform: translateX(calc(-50% - 6px)); /* -2px - 4px */
