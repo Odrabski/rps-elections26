@@ -36,8 +36,12 @@
   filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold));
 }
 
-/* Your own pieces sit at the bottom of the board (closer to camera) and render 15% larger. */
-.piece-mine .piece-portrait {
+/* Your own pieces sit at the bottom of the board (closer to camera) and render 15% larger.
+   Skipped when the piece wears a head, because .piece-mask is placed against the body's *unscaled*
+   box (top: -23% of the container width) — scaling the body underneath it leaves the head floating
+   off the neck. Only ever true for your own revealed King, which is the one piece of yours that
+   shows a face; every other `.piece-mine` sprite is a headless back view. */
+.piece-mine:not(:has(.piece-mask)) .piece-portrait {
   transform: scale(1.3225);
   transform-origin: bottom center;
 }

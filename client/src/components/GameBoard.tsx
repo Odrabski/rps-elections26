@@ -509,7 +509,11 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
           {/* Both keyed so each is a fresh element: swapping only the text on the same node leaves
               the pop animation already spent, and tapping the King twice would show the second
               message with no beat of its own. */}
-          {turnPill && (
+          {/* A warning wins the slot: both sit dead centre of the board, and with a turn pill up
+              underneath it the two rendered on top of each other, illegibly. A correction is the
+              more urgent of the two, and the pill it hides is only ever "whose turn it is", which
+              the board's ring and the lit score badge are both already saying. */}
+          {turnPill && !warning && (
             <div key={turnPill.key} className="turn-pill">
               {turnPill.text}
             </div>
