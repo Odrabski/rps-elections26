@@ -14,7 +14,7 @@ describe('validateClientMessage', () => {
     expect(accepts({ type: 'rejoin', roomCode: 'ABCD', token: 'tok' })).toBe(true);
     expect(accepts({ type: 'place-special', piece: 'king', position: { row: 5, col: 3 } })).toBe(true);
     expect(accepts({ type: 'move', pieceId: 'red-piece-0', to: { row: 2, col: 3 } })).toBe(true);
-    expect(accepts({ type: 'tie-pick', hand: 'rock' })).toBe(true);
+    expect(accepts({ type: 'tie-pick', hand: 'rock', round: 1 })).toBe(true);
     expect(accepts({ type: 'shuffle-hands' })).toBe(true);
     expect(accepts({ type: 'ready' })).toBe(true);
     expect(accepts({ type: 'rematch' })).toBe(true);
@@ -60,6 +60,8 @@ describe('validateClientMessage', () => {
     expect(accepts({ type: 'tie-pick', hand: 'lizard' })).toBe(false);
     expect(accepts({ type: 'tie-pick', hand: '' })).toBe(false);
     expect(accepts({ type: 'tie-pick' })).toBe(false);
+    expect(accepts({ type: 'tie-pick', hand: 'rock' })).toBe(false);
+    expect(accepts({ type: 'tie-pick', hand: 'rock', round: '1' })).toBe(false);
   });
 
   /** A bogus kind produced an immobile piece with no hand that killed every attacker it met. */

@@ -46,11 +46,13 @@ interface GameBoardProps {
   view: ClientGameView;
   team: Team;
   onMove: (pieceId: string, to: Position) => void;
-  onTiePick: (hand: RPSHand) => void;
+  onTiePick: (hand: RPSHand, round: number) => void;
+  /** A server rejection to flash over the board. Keyed, so two identical ones read as two. */
+  notice?: { text: string; key: number } | null;
   onExit: () => void;
 }
 
-export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardProps) {
+export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: GameBoardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeEvent, setActiveEvent] = useState<GameEvent | null>(null);
   const [trapEvent, setTrapEvent] = useState<TrapEventInfo | null>(null);
@@ -134,6 +136,16 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit }: GameBoardPr
     }
     wasResolving.current = resolving;
   }, [resolving, view.phase, view.turn, team]);
+
+  // A rejection the server sent back. Same pill as the turn announcements, tinted as a correction
+  // — without this the message was translated and dropped, and a refused move just looked like a
+  // control that didn't work.
+  const shownNoticeKey = useRef<number | null>(null);
+  useEffect(() => {
+    if (!notice || shownNoticeKey.current === notice.key) return;
+    shownNoticeKey.current = notice.key;
+    setTurnPill((prev) => ({ text: notice.text, key: (prev?.key ?? 0) + 1, warn: true }));
+  }, [notice]);
 
   useEffect(() => {
     if (!turnPill) return;

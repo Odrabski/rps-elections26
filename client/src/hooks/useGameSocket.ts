@@ -35,6 +35,10 @@ export function useGameSocket() {
   const [view, setView] = useState<ClientGameView | null>(null);
   const [opponentConnected, setOpponentConnected] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  /** The same text, keyed, for surfaces that flash a message rather than display it: two identical
+   *  rejections in a row have to read as two, so the key is what re-triggers the board's pill. */
+  const [errorNotice, setErrorNotice] = useState<{ text: string; key: number } | null>(null);
+  const noticeSeq = useRef(0);
   const [vsBot, setVsBot] = useState(false);
 
   // Declared as a ref so ensureSocket's close handler can call it without the two callbacks
@@ -100,7 +104,12 @@ export function useGameSocket() {
             reconnectTimer.current = null;
             setStatus('disconnected');
           }
-          setErrorMessage(errorText(msg.message));
+          {
+            const text = errorText(msg.message);
+            setErrorMessage(text);
+            noticeSeq.current += 1;
+            setErrorNotice({ text, key: noticeSeq.current });
+          }
           break;
       }
     });
@@ -166,7 +175,10 @@ export function useGameSocket() {
   const resetSpecials = useCallback(() => send({ type: 'reset-specials' }), [send]);
   const ready = useCallback(() => send({ type: 'ready' }), [send]);
   const move = useCallback((pieceId: string, to: Position) => send({ type: 'move', pieceId, to }), [send]);
-  const tiePick = useCallback((hand: RPSHand) => send({ type: 'tie-pick', hand }), [send]);
+  const tiePick = useCallback(
+    (hand: RPSHand, round: number) => send({ type: 'tie-pick', hand, round }),
+    [send],
+  );
   const rematch = useCallback(() => send({ type: 'rematch' }), [send]);
   /** Concedes the game before leaving, so the opponent gets a result instead of a stalled board. */
   const resign = useCallback(() => send({ type: 'resign' }), [send]);
@@ -210,6 +222,7 @@ export function useGameSocket() {
     view,
     opponentConnected,
     errorMessage,
+    errorNotice,
     vsBot,
     createRoom,
     joinRoom,

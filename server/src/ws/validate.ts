@@ -43,6 +43,7 @@ export function validateClientMessage(raw: unknown): { ok: true; msg: ClientMess
 
     case 'tie-pick':
       if (msg.hand !== 'rock' && msg.hand !== 'paper' && msg.hand !== 'scissors') return bad('invalid-hand');
+      if (!Number.isInteger(msg.round)) return bad('invalid-round');
       break;
 
     case 'shuffle-hands':

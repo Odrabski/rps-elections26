@@ -151,10 +151,15 @@ async function main() {
         try { sessionStorage.removeItem('rps-politika-session'); } catch {}
         if (!window.__audioProbe) {
           window.__audioProbe = true;
-          // The game now opens muted (see SoundToggle), and play() returns before touching the
-          // audio graph when it is — without this every audio assertion silently passes on zero
-          // events. Set before any app code runs, since sfx.ts reads it once at import.
-          try { localStorage.setItem('rps-politika:muted', '0'); } catch {}
+          // Force both audio channels on. They default on now, but a stored preference from an
+          // earlier run would otherwise silence play() before it ever touches the audio graph, and
+          // every audio assertion would pass on zero events. Set before any app code runs, since
+          // audioPrefs.ts reads these once at import.
+          try {
+            localStorage.setItem('rps-politika:music', '0'); // off: nothing to assert, and it streams
+            localStorage.setItem('rps-politika:sfx', '1');
+            localStorage.removeItem('rps-politika:muted'); // retired key
+          } catch {}
 
           window.__played = [];
           // Tag each decoded buffer with the file it came from, by remembering the *identity* of

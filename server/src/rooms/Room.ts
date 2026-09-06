@@ -1,5 +1,12 @@
 import type { WebSocket } from 'ws';
-import { BATTLE_SEQUENCE_MS, KING_CAPTURE_SEQUENCE_MS, SETUP_SECONDS, TRAP_SEQUENCE_MS, TURN_SECONDS } from 'shared';
+import {
+  BATTLE_SEQUENCE_MS,
+  CLASH_REVEAL_DELAY_MS,
+  KING_CAPTURE_SEQUENCE_MS,
+  SETUP_SECONDS,
+  TRAP_SEQUENCE_MS,
+  TURN_SECONDS,
+} from 'shared';
 import type {
   BotDifficulty,
   ClientMessage,
@@ -227,7 +234,9 @@ export class Room {
     if (this.state.tieBreak.picks[this.bot.team] !== null) return; // e.g. auto-fill beat us to it
 
     const hand = chooseBotTiePick(this.state, this.bot.team, this.bot.difficulty);
-    const err = submitTiePick(this.state, this.bot.team, hand);
+    // Reads the round off live state rather than closing over one: the timer that schedules this
+    // is set when a round starts, and a repeat can roll the round over before it fires.
+    const err = submitTiePick(this.state, this.bot.team, hand, this.state.tieBreak.round);
     if (err) return;
     this.resolveTieBreakIfReady();
     this.broadcast();
@@ -287,7 +296,13 @@ export class Room {
   }
 
   /** Common continuation after any move resolves, whether player-initiated or timeout-driven. */
-  private afterMoveResolved(event: GameEvent | null): void {
+  /**
+   * @param cloudAlreadyUp The battle is the one settling a tie-break, so its clash cloud has been
+   * on the board since the tie started. The client skips straight to the fight in that case (see
+   * GameBoard's `clashEventRef` branch) instead of replaying the jump-into-the-cloud beat, so the
+   * lock has to be shorter by exactly that beat or the board sits dead after every tie-break.
+   */
+  private afterMoveResolved(event: GameEvent | null, cloudAlreadyUp = false): void {
     if (event?.type === 'tie-break-started') {
       startTieBreak(this.state, event.attackerId, event.defenderId);
       this.clearTurnTimer();
@@ -323,7 +338,11 @@ export class Room {
     // same broadcast as the move, and the result screen replaces the board before the fight the
     // player is waiting on has played at all.
     const cinematicMs =
-      event?.type === 'battle' ? BATTLE_SEQUENCE_MS : event?.type === 'trap-triggered' ? TRAP_SEQUENCE_MS : 0;
+      event?.type === 'battle'
+        ? BATTLE_SEQUENCE_MS - (cloudAlreadyUp ? CLASH_REVEAL_DELAY_MS : 0)
+        : event?.type === 'trap-triggered'
+          ? TRAP_SEQUENCE_MS
+          : 0;
 
     if (cinematicMs > 0) {
       // The next turn's clock only starts once the cinematic + board resolve has finished playing
@@ -401,7 +420,7 @@ export class Room {
     } else {
       this.applyLastMoveOverride(event);
       this.clearTieBreakTimer();
-      this.afterMoveResolved(event);
+      this.afterMoveResolved(event, true);
     }
   }
 
@@ -479,7 +498,7 @@ export class Room {
       }
       case 'tie-pick': {
         if (!this.state.tieBreak) return this.sendTo(team, { type: 'error', message: 'no-tie-break' });
-        const err = submitTiePick(this.state, team, msg.hand);
+        const err = submitTiePick(this.state, team, msg.hand, msg.round);
         if (err) return this.sendTo(team, { type: 'error', message: err });
         this.resolveTieBreakIfReady();
         break;

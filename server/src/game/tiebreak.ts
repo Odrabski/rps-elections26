@@ -2,7 +2,7 @@ import { CLASH_REVEAL_DELAY_MS, TIE_SEQUENCE_MS, TIE_BREAK_SECONDS } from 'share
 import type { GameEvent, GameState, RPSHand, Team } from 'shared';
 import { BEATS } from './combat.js';
 
-export type TieBreakError = 'no-tie-break' | 'already-picked';
+export type TieBreakError = 'no-tie-break' | 'already-picked' | 'stale-round';
 
 /** The weapon picker only appears on each client once its collision cinematic finishes playing,
  * so the actual picking window — both the deadline shown and the server's own auto-fill timeout —
@@ -24,8 +24,24 @@ export function startTieBreak(state: GameState, attackerId: string, defenderId: 
   };
 }
 
-export function submitTiePick(state: GameState, team: Team, hand: RPSHand): TieBreakError | null {
+/**
+ * Records one side's pick for the round it was actually made in.
+ *
+ * The round check is what stops a tap being counted against a round the player never saw. A repeat
+ * clears both picks (see tryResolveTieBreak), so the 'already-picked' guard goes with them — and a
+ * second tap sent moments before the repeat, while the panel still showed the old round, would
+ * otherwise land as that player's choice for the new one. Against the bot that was terminal: it
+ * picks again about a second later, both picks are in, and the round resolves without the player
+ * ever being offered it.
+ */
+export function submitTiePick(
+  state: GameState,
+  team: Team,
+  hand: RPSHand,
+  round: number
+): TieBreakError | null {
   if (!state.tieBreak) return 'no-tie-break';
+  if (round !== state.tieBreak.round) return 'stale-round';
   if (state.tieBreak.picks[team]) return 'already-picked';
   state.tieBreak.picks[team] = hand;
   return null;

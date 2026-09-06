@@ -9,7 +9,9 @@ export type ClientMessage =
   | { type: 'reset-specials' }
   | { type: 'ready' }
   | { type: 'move'; pieceId: string; to: Position }
-  | { type: 'tie-pick'; hand: RPSHand }
+  /** `round` is the tie-break round this pick was made for. A repeat clears both picks, so
+   *  without it a tap meant for the round you were looking at is accepted as the next one's. */
+  | { type: 'tie-pick'; hand: RPSHand; round: number }
   | { type: 'rematch' }
   | { type: 'resign' };
 

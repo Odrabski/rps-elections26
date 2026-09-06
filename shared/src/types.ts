@@ -14,6 +14,15 @@ export interface Piece {
   team: Team;
   kind: PieceKind;
   hand: RPSHand | null; // null for king/trap
+  /**
+   * The hand this soldier was originally dealt, kept because a tie-break overwrites `hand` with
+   * the pick that settled it. Server-only: `toClientView` whitelists the fields it copies, and
+   * this is not among them — it would hand the opponent a revealed soldier's original weapon.
+   *
+   * The bot's card counting is what needs it. It subtracts revealed hands from a known 4/4/4 pool
+   * (bot.ts residualHandCounts), which is only sound while `hand` is still what was dealt.
+   */
+  dealtHand?: RPSHand | null;
   characterId: string;
   position: Position;
   revealed: boolean; // flips true permanently once moved or battled

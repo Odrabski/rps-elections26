@@ -31,6 +31,7 @@ export default function App() {
     view,
     opponentConnected,
     errorMessage,
+    errorNotice,
     vsBot,
     createRoom,
     joinRoom,
@@ -195,7 +196,14 @@ export default function App() {
         )}
 
         {view.phase === 'playing' && (
-          <GameBoard view={view} team={team} onMove={move} onTiePick={tiePick} onExit={resignAndLeave} />
+          <GameBoard
+            view={view}
+            team={team}
+            onMove={move}
+            onTiePick={tiePick}
+            onExit={resignAndLeave}
+            notice={errorNotice}
+          />
         )}
 
         {view.phase === 'gameover' && view.winner && (

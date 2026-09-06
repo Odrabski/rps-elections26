@@ -4,10 +4,13 @@
  * all-Hebrew UI. Anything unrecognised falls back to a generic message rather than leaking the
  * slug itself.
  *
- * Only slugs that can arrive while the player is on the home screen are listed. `errorMessage` is
- * passed to HomeScreen alone, and App renders that only when there is no room — so an error raised
- * mid-game is received, translated, and dropped. Ten in-game slugs were being translated here for
- * nobody; if an error surface is ever added to the game screens, they want bringing back.
+ * Both surfaces are covered: the home screen's own message, and the board, which shows these in the
+ * turn pill (see GameBoard's notice effect). In-game slugs used to be translated for nobody — App
+ * passed `errorMessage` to HomeScreen alone — so a rejected move or a stale tie-break pick left the
+ * player looking at a control that simply did not respond.
+ *
+ * Most in-game slugs are unreachable through the UI, which only ever offers legal targets; the ones
+ * listed are the ones a race can actually produce. Anything else falls back to the generic line.
  */
 const MESSAGES: Record<string, string> = {
   'room-not-found': 'המשחק לא נמצא — ייתכן שהסתיים',
@@ -15,6 +18,14 @@ const MESSAGES: Record<string, string> = {
   'invalid-token': 'לא הצלחנו לחבר אתכם חזרה למשחק',
   'invalid-room-code': 'קוד משחק לא תקין',
   'server-error': 'שגיאת שרת — נסו שוב',
+
+  // In-game. Reachable when the server and the board briefly disagree — a tap that lands just
+  // after a fight starts, or just after a tie-break round rolls over.
+  'not-your-turn': 'לא התור שלכם',
+  resolving: 'רגע, הקרב עוד מתנהל',
+  'immobile-piece': 'הכלי הזה לא יכול לזוז',
+  'stale-round': 'הסיבוב כבר התחלף — בחרו שוב',
+  'already-picked': 'כבר בחרתם לסיבוב הזה',
 };
 
 export function errorText(slug: string): string {

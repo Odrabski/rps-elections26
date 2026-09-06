@@ -35,6 +35,7 @@ export function initializeTeamPieces(state: GameState, team: Team): void {
       team,
       kind: 'unassigned',
       hand: null,
+      dealtHand: null,
       characterId: `${team}-piece`,
       position,
       revealed: false,
@@ -93,6 +94,7 @@ function finalizeSoldiersIfReady(state: GameState, setupData: Record<Team, TeamS
     .forEach((p, i) => {
       p.kind = 'soldier';
       p.hand = data.handOrder[i];
+      p.dealtHand = p.hand;
       p.characterId = `${team}-soldier`;
     });
 }
@@ -112,6 +114,7 @@ export function shuffleHands(
   shuffleInPlace(data.handOrder);
   soldiers.forEach((p, i) => {
     p.hand = data.handOrder[i];
+    p.dealtHand = p.hand;
   });
   return null;
 }
@@ -135,6 +138,7 @@ export function resetSpecials(
   for (const piece of teamPieces(state, team)) {
     piece.kind = 'unassigned';
     piece.hand = null;
+    piece.dealtHand = null;
     piece.characterId = `${team}-piece`;
   }
   return null;

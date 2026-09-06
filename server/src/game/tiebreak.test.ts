@@ -42,7 +42,7 @@ describe('tie-break flow', () => {
     startTieBreak(state, 'a', 'd');
 
     expect(tryResolveTieBreak(state)).toBeNull();
-    expect(submitTiePick(state, 'red', 'rock')).toBeNull();
+    expect(submitTiePick(state, 'red', 'rock', state.tieBreak!.round)).toBeNull();
     expect(tryResolveTieBreak(state)).toBeNull(); // still waiting on blue
   });
 
@@ -52,15 +52,33 @@ describe('tie-break flow', () => {
     const state = makeState(attacker, defender);
     startTieBreak(state, 'a', 'd');
 
-    submitTiePick(state, 'red', 'rock');
-    expect(submitTiePick(state, 'red', 'paper')).toBe('already-picked');
+    submitTiePick(state, 'red', 'rock', state.tieBreak!.round);
+    expect(submitTiePick(state, 'red', 'paper', state.tieBreak!.round)).toBe('already-picked');
+  });
+
+  it('rejects a pick made for a round that has already rolled over', () => {
+    const attacker = soldier('a', 'red', 3, 3);
+    const defender = soldier('d', 'blue', 3, 4);
+    const state = makeState(attacker, defender);
+    startTieBreak(state, 'a', 'd');
+    // Both pick the same weapon, so the round repeats and both picks are cleared.
+    submitTiePick(state, 'red', 'rock', 1);
+    submitTiePick(state, 'blue', 'rock', 1);
+    tryResolveTieBreak(state);
+    expect(state.tieBreak?.round).toBe(2);
+
+    // A tap sent from the round-1 panel, arriving after the rollover, must not become round 2's
+    // pick — the player has not been shown round 2 yet.
+    expect(submitTiePick(state, 'red', 'paper', 1)).toBe('stale-round');
+    expect(state.tieBreak?.picks.red).toBeNull();
+    expect(submitTiePick(state, 'red', 'paper', 2)).toBeNull();
   });
 
   it('rejects a pick when no tie-break is pending', () => {
     const attacker = soldier('a', 'red', 3, 3);
     const defender = soldier('d', 'blue', 3, 4);
     const state = makeState(attacker, defender);
-    expect(submitTiePick(state, 'red', 'rock')).toBe('no-tie-break');
+    expect(submitTiePick(state, 'red', 'rock', 1)).toBe('no-tie-break');
   });
 
   it('a decisive re-pick eliminates the loser and moves the winner onto the tile', () => {
@@ -69,8 +87,8 @@ describe('tie-break flow', () => {
     const state = makeState(attacker, defender);
     startTieBreak(state, 'a', 'd');
 
-    submitTiePick(state, 'red', 'rock');
-    submitTiePick(state, 'blue', 'scissors');
+    submitTiePick(state, 'red', 'rock', state.tieBreak!.round);
+    submitTiePick(state, 'blue', 'scissors', state.tieBreak!.round);
     const event = tryResolveTieBreak(state);
 
     expect(event).toEqual({ type: 'battle', attackerId: 'a', defenderId: 'd', outcome: 'attacker-wins' });
@@ -102,8 +120,8 @@ describe('tie-break flow', () => {
     const state = makeState(attacker, defender);
     startTieBreak(state, 'a', 'd');
 
-    submitTiePick(state, 'red', 'paper');
-    submitTiePick(state, 'blue', 'paper');
+    submitTiePick(state, 'red', 'paper', state.tieBreak!.round);
+    submitTiePick(state, 'blue', 'paper', state.tieBreak!.round);
     const event = tryResolveTieBreak(state);
 
     expect(event).toEqual({ type: 'tie-break-repeat', attackerId: 'a', defenderId: 'd', round: 2 });
@@ -129,7 +147,7 @@ describe('tie-break flow', () => {
     const defender = soldier('d', 'blue', 3, 4);
     const state = makeState(attacker, defender);
     startTieBreak(state, 'a', 'd');
-    submitTiePick(state, 'red', 'rock');
+    submitTiePick(state, 'red', 'rock', state.tieBreak!.round);
 
     autoFillTiePicks(state);
 

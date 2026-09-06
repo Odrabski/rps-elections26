@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { TIE_BREAK_SECONDS } from 'shared';
 import type { ClientPieceView, ClientTieBreakView, RPSHand, Team } from 'shared';
 import { CountdownRing } from './CountdownRing';
@@ -11,7 +12,7 @@ interface TieBreakPanelProps {
   pieces: ClientPieceView[];
   team: Team;
   seed: string;
-  onPick: (hand: RPSHand) => void;
+  onPick: (hand: RPSHand, round: number) => void;
 }
 
 const HAND_OPTIONS: Array<{ hand: RPSHand; label: string; emoji: string }> = [
@@ -23,8 +24,14 @@ const HAND_OPTIONS: Array<{ hand: RPSHand; label: string; emoji: string }> = [
 export function TieBreakPanel({ tieBreak, pieces, team, seed, onPick }: TieBreakPanelProps) {
   const attacker = pieces.find((p) => p.id === tieBreak.attackerId);
   const defender = pieces.find((p) => p.id === tieBreak.defenderId);
-  const picked = tieBreak.yourPick !== null;
-  const pickedLabel = HAND_OPTIONS.find((o) => o.hand === tieBreak.yourPick)?.label;
+  // Locked locally the instant you tap, as well as when the server echoes the pick back. The echo
+  // alone left the buttons live for the whole round-trip, which is where a second tap could slip
+  // through — and if that first tap was the one that caused a repeat, the second landed as your
+  // pick for a round you had not been shown yet. Keyed by round so a genuine repeat re-arms them.
+  const [localPick, setLocalPick] = useState<{ round: number; hand: RPSHand } | null>(null);
+  const pending = localPick?.round === tieBreak.round ? localPick.hand : null;
+  const picked = tieBreak.yourPick !== null || pending !== null;
+  const pickedLabel = HAND_OPTIONS.find((o) => o.hand === (tieBreak.yourPick ?? pending))?.label;
 
   // Your own soldier always renders on the left, matching the same convention as the collision
   // cinematic — regardless of which of the two was the original attacker/defender.
@@ -80,7 +87,8 @@ export function TieBreakPanel({ tieBreak, pieces, team, seed, onPick }: TieBreak
                 // The pick is the one moment in a tie-break the player acts, and it had no sound
                 // at all — the panel just went quiet until the next cinematic.
                 play('ui.tap');
-                onPick(hand);
+                setLocalPick({ round: tieBreak.round, hand });
+                onPick(hand, tieBreak.round);
               }}
               disabled={picked}
             >

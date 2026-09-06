@@ -47,10 +47,31 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
   const [phase, setPhase] = useState<Phase>('intro');
   const [beat, setBeat] = useState(0);
 
+  const attackerVisual = resolveFightVisual(attacker, seed);
+  const defenderVisual = resolveFightVisual(defender, seed);
+
+  /*
+   * Everything the schedule below needs, reduced to plain strings.
+   *
+   * `attacker` and `defender` are pieces looked up out of `view.pieces`, which is re-parsed from
+   * JSON on every server broadcast — so they arrive as fresh objects several times a second while
+   * a cinematic plays, even though nothing about the two combatants can change for the life of one
+   * fight. Depending on the objects meant each of those broadcasts tore down all ~15 timers and
+   * rescheduled the sequence from beat 0 while `phase`/`beat` stayed where they were: the countdown
+   * rewound and "FIGHT" fired twice. GameBoard's dismiss timer is keyed on `activeEvent`, whose
+   * identity does *not* change, so it kept the original deadline and ended the overlay mid-standoff
+   * — the clash never played. A repeat tie-break hit this every single time, because the bot's next
+   * pick always broadcasts inside that window.
+   */
+  const attackerHeadId = attackerVisual.headId;
+  const defenderHeadId = defenderVisual.headId;
+  const winnerHeadId = outcome === 'attacker-wins' ? attackerHeadId : defenderHeadId;
+  const winnerTeam = outcome === 'attacker-wins' ? attacker.team : defender.team;
+
   useEffect(() => {
     // The reveal is ~6s away; fetching both now means the announcement is decoded and ready.
-    prefetchClip(`win.${resolveFightVisual(attacker, seed).headId}`);
-    prefetchClip(`win.${resolveFightVisual(defender, seed).headId}`);
+    prefetchClip(`win.${attackerHeadId}`);
+    prefetchClip(`win.${defenderHeadId}`);
 
     const timers: ReturnType<typeof setTimeout>[] = [];
     for (let i = 1; i <= 3; i++)
@@ -86,8 +107,7 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
         // Each side hears its own flourish, but both then hear the same name — the winner is the
         // winner whichever end of it you are on.
         if (outcome !== 'tie') {
-          const winner = outcome === 'attacker-wins' ? attacker : defender;
-          play(winner.team === viewerTeam ? 'fight.win-fanfare' : 'fight.lose-fanfare');
+          play(winnerTeam === viewerTeam ? 'fight.win-fanfare' : 'fight.lose-fanfare');
         }
       }, revealAt),
     );
@@ -97,20 +117,16 @@ export function FightSequence({ attacker, defender, outcome, seed, viewerTeam }:
     timers.push(
       setTimeout(() => {
         if (outcome === 'tie') return;
-        const winner = outcome === 'attacker-wins' ? attacker : defender;
         // Announce who won by name — both players hear the same call, since the face on screen
         // is the same for both (the disguise head is seeded per piece, not per viewer). Falls
         // back to the old win/lose sting only if the clip somehow hasn't loaded.
-        if (!playClip(`win.${resolveFightVisual(winner, seed).headId}`)) {
-          play(winner.team === viewerTeam ? 'fight.win' : 'fight.lose');
+        if (!playClip(`win.${winnerHeadId}`)) {
+          play(winnerTeam === viewerTeam ? 'fight.win' : 'fight.lose');
         }
       }, revealAt + WIN_CALL_DELAY_MS),
     );
     return () => timers.forEach(clearTimeout);
-  }, [attacker, defender, outcome, seed, viewerTeam]);
-
-  const attackerVisual = resolveFightVisual(attacker, seed);
-  const defenderVisual = resolveFightVisual(defender, seed);
+  }, [attackerHeadId, defenderHeadId, winnerHeadId, winnerTeam, outcome, viewerTeam]);
 
   // The viewer's own soldier always renders on the left in the standoff/clash arena, regardless
   // of whether they were the attacker or defender in this particular clash.

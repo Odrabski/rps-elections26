@@ -271,8 +271,13 @@ function residualHandCounts(state: GameState, team: Team): Record<RPSHand, numbe
   const counts: Record<RPSHand, number> = { rock: 0, paper: 0, scissors: 0 };
   for (const hand of balancedHandPool()) counts[hand]++;
   for (const piece of Object.values(state.pieces)) {
-    if (piece.team === team && piece.kind === 'soldier' && piece.revealed && piece.hand) {
-      counts[piece.hand]--;
+    // `dealtHand`, not `hand`: a tie-break overwrites `hand` with the pick that settled it, and
+    // subtracting that from a pool of *dealt* hands counts a weapon the piece never held while
+    // leaving the one it did. That drives counts negative, and residualExpectedValue below then
+    // divides by a total that no longer means anything.
+    const dealt = piece.dealtHand ?? piece.hand;
+    if (piece.team === team && piece.kind === 'soldier' && piece.revealed && dealt) {
+      counts[dealt]--;
     }
   }
   return counts;
