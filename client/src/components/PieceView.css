@@ -157,12 +157,6 @@
   --mask-shift-y: -1.5px; /* 4px shared baseline - 1px - 2.5px - 2px */
 }
 
-.piece-mask-co_gafni {
-  width: 53.24%; /* 48.4% * 1.1 */
-  --mask-shift-x: -1px;
-  --mask-rotate: 10deg; /* clockwise — this portrait sits noticeably tilted in its own frame */
-}
-
 .piece-mask-co_bengvir {
   width: 53.24%; /* (44% + 10%) * 1.1 */
   --mask-shift-x: -2px;

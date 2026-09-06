@@ -115,9 +115,9 @@ export function pieceHeadAsset(piece: ClientPieceView, seed: string): string {
  * here, so a newly added portrait never ends up with a blank name. */
 const HEAD_DISPLAY_NAME: Record<string, string> = {
   co_aryederi: 'DERI',
+  co_asher: 'ASHER',
   co_bengvir: 'BEN-GVIR',
   co_bibi: 'BIBI',
-  co_gafni: 'GAFNI',
   co_goldknopf: 'GOLDKNOPF',
   co_karii: 'KARHI',
   co_katz: 'KATZ',

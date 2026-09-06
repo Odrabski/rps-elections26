@@ -103,7 +103,7 @@ export const HIDDEN_HEAD_POOL: Record<Team, string[]> = {
     'co_bengvir.webp',
     'co_taly.webp',
     'co_katz.webp',
-    'co_gafni.webp',
+    'co_asher.webp',
     'co_levin.webp',
     'co_strook.webp',
     'co_karii.webp',
