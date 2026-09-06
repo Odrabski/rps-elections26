@@ -423,7 +423,29 @@
 }
 
 /* A soft ellipse cast on the board right at the figure's feet — painted first (::before), so
-   the figure itself always renders on top of its own shadow. */
+   the figure itself always renders on top of its own shadow.
+
+   Tinted to the figure's own side: a deep navy under the coalition, a deep maroon under the
+   opposition. Both are dark enough to still read as shadow rather than glow — they are the team
+   colours taken most of the way to black, not the colours themselves.
+
+   Held as bare channels so the gradient can fade to the *same* hue at zero alpha. Fading to a flat
+   `transparent` instead would drift through black on the way out, which is what turns a coloured
+   shadow back into a grey one at its edge. */
+.board-piece-wrap {
+  --piece-shadow-rgb: 0 0 0;
+}
+
+/* `:has()` because the team class sits on .piece-view, a child of the wrap the shadow belongs to
+   — the same pattern the legal-move hover glow above already uses. */
+.board-piece-wrap:has(.team-blue) {
+  --piece-shadow-rgb: 4 34 74;
+}
+
+.board-piece-wrap:has(.team-red) {
+  --piece-shadow-rgb: 74 8 26;
+}
+
 .board-piece-wrap::before {
   content: '';
   position: absolute;
@@ -432,7 +454,11 @@
   transform: translateX(-50%);
   width: 46%;
   height: 13%;
-  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 75%);
+  background: radial-gradient(
+    ellipse,
+    rgb(var(--piece-shadow-rgb) / 0.6) 0%,
+    rgb(var(--piece-shadow-rgb) / 0) 75%
+  );
   border-radius: 50%;
 }
 
