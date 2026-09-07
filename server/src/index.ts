@@ -35,13 +35,9 @@ const serveStatic = sirv(clientDist, {
     if (HASHED_FILENAME.test(pathname)) {
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     } else if (pathname.startsWith('/assets/')) {
-      // Revalidated on every load, which is what the previous `max-age=3600, must-revalidate`
-      // claimed to do and did not: must-revalidate only bites once a response is already stale, so
-      // a replaced sprite stayed pinned for an hour. These filenames never change — unlike the
-      // hashed bundle above — so the ETag is the only thing that can tell a new sprite from an old
-      // one. The cost is a conditional request per asset, answered with a ~150-byte 304 when
-      // nothing changed; the images themselves still come from the browser's cache.
-      res.setHeader('Cache-Control', 'no-cache');
+      // Cached, but revalidated against the ETag — a replaced sprite shows up on the next load
+      // rather than being pinned for a year.
+      res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
     } else {
       // index.html: never cache, or a deploy can't reach anyone.
       res.setHeader('Cache-Control', 'no-cache');
