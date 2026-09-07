@@ -495,6 +495,14 @@
     rgb(var(--piece-shadow-rgb) / 0) 84%
   );
   border-radius: 50%;
+  transition: opacity 0.15s ease;
+}
+
+/* Gone while the piece is mid-hop. A ring that travels with the figure reads as a sticker attached
+   to its feet rather than something cast on the board — the ground does not move with you. It
+   fades back as the piece lands. */
+.piece-jumping .board-piece-wrap::before {
+  opacity: 0;
 }
 
 /* An occasional idle wobble on one random piece at a time. Applied to the inner .piece-view
