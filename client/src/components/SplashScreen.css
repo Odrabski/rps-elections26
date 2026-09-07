@@ -40,7 +40,7 @@
   max-width: 92vw;
   /* Height of the loaded state (play button + gap + toggles), reserved up front so the loader sits
      roughly where the play button will appear rather than jumping when it swaps in. */
-  min-height: 234px;
+  min-height: 188px;
 }
 
 /* ── while loading ───────────────────────────────────────────────────────── */
@@ -52,7 +52,7 @@
   justify-content: center;
   gap: 12px;
   /* Matches .splash-play, so the loader is already standing where the button appears. */
-  height: 184px;
+  height: 138px;
 }
 
 .splash-spinner {
@@ -87,8 +87,8 @@
   border: none;
   background: none;
   cursor: pointer;
-  width: 184px;
-  height: 184px;
+  width: 138px;
+  height: 138px;
   -webkit-tap-highlight-color: transparent;
   animation: splashPlayFloat 2.8s ease-in-out infinite;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
@@ -133,13 +133,13 @@
   .splash-controls {
     bottom: 5%;
     gap: 12px;
-    min-height: 113px; /* button + gap + one row of toggles */
+    min-height: 97px; /* button + gap + one row of toggles */
   }
 
   .splash-play,
   .splash-loader {
-    width: 66px;
-    height: 66px;
+    width: 50px;
+    height: 50px;
   }
 }
 
@@ -148,13 +148,13 @@
   .splash-controls {
     bottom: 5%;
     gap: 18px;
-    min-height: 291px;
+    min-height: 236px;
   }
 
   .splash-play,
   .splash-loader {
-    width: 220px;
-    height: 220px;
+    width: 165px;
+    height: 165px;
   }
 
   /* Half again as large — at this distance the phone sizing reads as an afterthought. */
