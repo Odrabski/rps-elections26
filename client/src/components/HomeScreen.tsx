@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { BotDifficulty, Team } from 'shared';
 import { HIDDEN_HEAD_POOL } from 'shared';
 import { TEAM_THEME } from '../data/theme';
@@ -82,14 +82,52 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
   const [modal, setModal] = useState<ModalKind>(null);
   /**
    * Code-entry mode: while the field has focus, the menu gets out of the way and the field alone
-   * sits at the top of the screen, where a keyboard cannot reach it on any browser.
+   * sits in the middle of the screen, clear of a keyboard, on any browser.
    *
-   * Done by flexbox alone — the screen switches from centring its card to docking it at the top —
-   * rather than by measuring the viewport and translating the card up, which is what this replaced.
-   * That push moved whatever was above the field out of bounds to make room, and it depended on
-   * numbers iOS does not report the way other browsers do. Docking needs no numbers at all.
+   * Centring is done by flexbox — the card keeps its alignment and simply becomes the height of the
+   * field — rather than by translating it up, which is what this replaced. That push moved whatever
+   * sat above the field out of bounds to make room, and measured a position its own transform had
+   * already changed.
    */
   const [typing, setTyping] = useState(false);
+
+  /**
+   * While typing, the screen shrinks to the strip the keyboard leaves visible, so `align-items:
+   * center` centres the field in what you can actually *see* rather than in the whole phone. At
+   * 100svh the card is centred on the device — which puts it right on top of the keyboard, since a
+   * keyboard eats the bottom 40%.
+   *
+   * Measured, unlike the lift this replaced, but safely: the numbers describe the viewport, not the
+   * card, so nothing here can move what it is measuring. `top` follows offsetTop because iOS can
+   * push the visual viewport down the layout one, and this element is fixed to the layout one.
+   */
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    const root = document.documentElement;
+    const clear = () => {
+      root.style.removeProperty('--kb-vh');
+      root.style.removeProperty('--kb-top');
+    };
+    if (!typing || !viewport) {
+      clear();
+      return;
+    }
+    const track = () => {
+      root.style.setProperty('--kb-vh', `${viewport.height}px`);
+      root.style.setProperty('--kb-top', `${viewport.offsetTop}px`);
+    };
+    track();
+    // The keyboard animates in and the first resize lands before it has finished.
+    const settle = setTimeout(track, 250);
+    viewport.addEventListener('resize', track);
+    viewport.addEventListener('scroll', track);
+    return () => {
+      clearTimeout(settle);
+      viewport.removeEventListener('resize', track);
+      viewport.removeEventListener('scroll', track);
+      clear();
+    };
+  }, [typing]);
 
 
   /** Which body the About figure is wearing, and whose head is on it. Purely a toy: the body and

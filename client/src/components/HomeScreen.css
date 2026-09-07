@@ -43,9 +43,15 @@
    `display: none` also takes the hidden controls out of the tab order, which is right — there is
    one thing to do in this mode. */
 @media (pointer: coarse) {
+  /* The alignment is left alone — the field stays centred, exactly as the menu was. What changes is
+     what it is centred *in*: the screen shrinks to the strip the keyboard leaves visible (--kb-vh,
+     set in HomeScreen while the field has focus), so the middle of it is the middle of what you can
+     see. Without that, centring in a full 100svh puts the field right on top of the keyboard, since
+     a keyboard takes the bottom 40% of the phone. Falls back to 100svh if there is no measurement,
+     which is the same layout as the menu itself. */
   .home-screen-typing {
-    align-items: flex-start;
-    padding-top: max(16px, env(safe-area-inset-top));
+    height: var(--kb-vh, 100svh);
+    top: var(--kb-top, 0px);
   }
 
   .home-screen-typing > :not(.home-card-wrap) {
