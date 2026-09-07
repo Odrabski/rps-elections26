@@ -49,6 +49,11 @@
 /* Sits directly on the board itself, vertically centered between the two zones (row 3/4) —
    mirrors .trap-warning-banner's positioning pattern but centered rather than pinned near the
    top, since this isn't reacting to a specific tile. */
+/* Centred by auto margins between left:0 and right:0, not by translateX(-50%). The percentage form
+   measured 11px off centre on iOS Safari while Chrome had it exact — a shrink-to-fit box resolving
+   its own percentage differently. Auto margins are arithmetic the engine cannot disagree about, and
+   they take the horizontal half out of `transform` entirely, so the pop keyframes no longer have to
+   restate it to avoid throwing the box across the board. */
 .setup-onboard-banner {
   position: absolute;
   /* Dead centre on the board. It used to sit 20px above that line, which is what read as "not
@@ -56,9 +61,12 @@
      the only thing left that could be off. Any offset belongs here in `top` rather than in the
      transform: the pop keyframes carry the translate and would drop anything baked into it. */
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  transform: translateY(-50%);
   z-index: 4;
+  width: max-content;
   max-width: 92%;
   white-space: nowrap;
   text-align: center;
@@ -96,16 +104,15 @@
   line-height: 1.3;
 }
 
-/* Both frames restate translate(-50%, -50%). A keyframe that sets `transform` replaces the base
-   rule's outright, so leaving it out here would drop the centering and fling the banner to the
-   board's centre-right on the first frame. */
+/* Only the vertical half to restate now that auto margins do the horizontal — a keyframe that sets
+   `transform` still replaces the base rule's outright. */
 @keyframes setupOnboardBreathe {
   0%,
   100% {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-50%) scale(1);
   }
   50% {
-    transform: translate(-50%, calc(-50% - 4px)) scale(1.06);
+    transform: translateY(calc(-50% - 4px)) scale(1.06);
   }
 }
 
@@ -116,8 +123,10 @@
   /* Nudged up in `top`, not in the transform — the pop keyframes below carry the transform and
      would drop any offset baked into it. Same reason as .setup-onboard-banner above. */
   top: calc(50% - 5px);
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  transform: translateY(-50%);
   z-index: 4;
   display: flex;
   gap: 8px;
@@ -190,18 +199,16 @@
   font-size: 0.85rem;
 }
 
-/* Both .setup-onboard-banner and .setup-onboard-buttons are centered with translate(-50%, -50%),
-   so their pop has to carry both axes the whole way through — otherwise the vertical centering is
-   dropped mid-pop and snaps into place once the animation ends, which is what caused the visible
-   "jump". Kept separate from BoardGrid's trapWarningPop, which is the same shape but belongs to a
-   different screen. */
+/* Carries the vertical centering the whole way through — otherwise it is dropped mid-pop and snaps
+   into place once the animation ends, which is what caused the visible "jump". The horizontal half
+   is gone: auto margins hold it, and no keyframe can disturb what is not in `transform`. */
 @keyframes setupOnboardPop {
   from {
-    transform: translate(-50%, -50%) scale(0.6);
+    transform: translateY(-50%) scale(0.6);
     opacity: 0;
   }
   to {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-50%) scale(1);
     opacity: 1;
   }
 }

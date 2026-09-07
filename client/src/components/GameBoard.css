@@ -81,8 +81,12 @@
 .turn-pill {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   z-index: 25;
+  width: max-content;
+  max-width: 88%;
   padding: 7px 18px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.7);
@@ -94,10 +98,8 @@
   white-space: nowrap;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   pointer-events: none;
-  /* Both frames restate the centring translate: a keyframe that sets `transform` replaces the
-     whole value, and without it the pill would fly in from the board's top-left corner. */
   animation: turnPillPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
 }
 
 /* Same pill, saying why a tap did nothing rather than whose turn it is. Only the edge is tinted —
@@ -111,7 +113,9 @@
 .board-warning {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   z-index: 25;
   width: max-content;
   max-width: 88%;
@@ -126,30 +130,28 @@
   text-align: center;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   pointer-events: none;
-  /* Restates the centring translate in every frame — a keyframe that sets `transform` replaces the
-     whole value, so leaving it out would fling the banner off the board's centre on frame one. */
   animation: boardWarningPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
 }
 
 @keyframes boardWarningPop {
   from {
-    transform: translate(-50%, -50%) scale(0.6);
+    transform: translateY(-50%) scale(0.6);
     opacity: 0;
   }
   to {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-50%) scale(1);
     opacity: 1;
   }
 }
 
 @keyframes turnPillPop {
   from {
-    transform: translate(-50%, -50%) scale(0.6);
+    transform: translateY(-50%) scale(0.6);
     opacity: 0;
   }
   to {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-50%) scale(1);
     opacity: 1;
   }
 }
