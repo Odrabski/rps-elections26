@@ -56,9 +56,16 @@
 }
 
 /* Calls out the one tile/piece the cursor is actually over, among all the legal ones —
-   e.g. during setup, so it's clear exactly which soldier a click would designate. */
-.board-tile-legal:hover:not(:disabled) {
-  background: rgba(212, 175, 55, 0.4);
+   e.g. during setup, so it's clear exactly which soldier a click would designate.
+
+   Pointer devices only. A touchscreen has no cursor, but it does latch :hover onto whatever was
+   last tapped and hold it there until something else is touched — so on a phone this read as the
+   piece you tapped being permanently lit rather than as a passing highlight. The legal tiles keep
+   their own gold tint and their pulsing arrows either way, so nothing is lost. */
+@media (hover: hover) {
+  .board-tile-legal:hover:not(:disabled) {
+    background: rgba(212, 175, 55, 0.4);
+  }
 }
 
 /* Each team's most recent move destination — a diagonal-line fill in that team's color (no
@@ -274,8 +281,10 @@
   }
 }
 
-.board-cell:has(.board-tile-legal:hover) .board-piece-wrap .piece-portrait {
-  filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold)) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+@media (hover: hover) {
+  .board-cell:has(.board-tile-legal:hover) .board-piece-wrap .piece-portrait {
+    filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold)) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+  }
 }
 
 /* Sized to exactly one cell, sitting between .board-cell and .board-piece-wrap purely so

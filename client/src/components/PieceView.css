@@ -32,8 +32,13 @@
   filter: grayscale(1) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
 }
 
-.piece-selected .piece-portrait {
-  filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold));
+/* The gold glow on the piece you have picked up — pointer devices only, alongside the hover
+   highlights in BoardGrid.css. On a phone it is redundant with the cue that actually tells you
+   something is selected: every tile you may move to lights up gold and grows a pulsing arrow. */
+@media (hover: hover) {
+  .piece-selected .piece-portrait {
+    filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold));
+  }
 }
 
 /* Your own pieces sit at the bottom of the board (closer to camera) and render 15% larger.
