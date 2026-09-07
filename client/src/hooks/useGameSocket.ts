@@ -23,6 +23,9 @@ const RECONNECT_DELAYS_MS = [400, 800, 1600, 3000, 5000, 8000];
 export function useGameSocket() {
   const socketRef = useRef<WebSocket | null>(null);
   const rejoinAttempted = useRef(false);
+  /** True while a `rejoin` is out and unanswered. See the 'error' branch: it is what tells a real
+   *  failed reclaim from a stale one about a room we have already stopped caring about. */
+  const rejoinPending = useRef(false);
   /** Set once the player deliberately leaves, so a close we caused ourselves isn't treated as a
    * drop worth reconnecting from. */
   const leftRef = useRef(false);
@@ -79,12 +82,15 @@ export function useGameSocket() {
       switch (msg.type) {
         case 'room-created':
         case 'room-joined':
+          rejoinPending.current = false;
           setRoomCode(msg.roomCode);
           setTeam(msg.team);
           setErrorMessage(null);
           saveSession({ roomCode: msg.roomCode, token: msg.token, team: msg.team });
           break;
         case 'state':
+          // Whatever we are now in, we are in it — any outstanding reclaim is moot.
+          rejoinPending.current = false;
           setView(msg.view);
           break;
         case 'opponent-connected':
@@ -93,24 +99,34 @@ export function useGameSocket() {
         case 'opponent-disconnected':
           setOpponentConnected(false);
           break;
-        case 'error':
+        case 'error': {
           // Rooms only live in the server's memory, so every deploy invalidates them. Without
           // dropping the saved session here, a returning player skips the splash (App.tsx reads
           // it), fails to rejoin, and is stranded on the home screen with no way back.
           if (msg.message === 'room-not-found' || msg.message === 'invalid-token') {
+            // Only ever the answer to a `rejoin`. Arriving with none outstanding, it is about a
+            // room we have already left — a reclaim fired on load or on a reconnect, overtaken by
+            // the player simply starting a new game. Acting on it then was the bug: it wiped the
+            // session of the game now in progress and flashed "המשחק לא נמצא" over a board that
+            // was working perfectly well, which is why it looked broken and then carried on.
+            if (!rejoinPending.current) break;
+            rejoinPending.current = false;
             // The room is genuinely gone — stop trying to reclaim a seat that no longer exists.
             clearSession();
             if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
             reconnectTimer.current = null;
             setStatus('disconnected');
+            // Deliberately not the board's pill. That pill is for corrections to something the
+            // player just did; losing a seat is a connection state, and `status` already says so.
+            setErrorMessage(errorText(msg.message));
+            break;
           }
-          {
-            const text = errorText(msg.message);
-            setErrorMessage(text);
-            noticeSeq.current += 1;
-            setErrorNotice({ text, key: noticeSeq.current });
-          }
+          const text = errorText(msg.message);
+          setErrorMessage(text);
+          noticeSeq.current += 1;
+          setErrorNotice({ text, key: noticeSeq.current });
           break;
+        }
       }
     });
 
@@ -130,6 +146,7 @@ export function useGameSocket() {
       if (!current || leftRef.current) return;
       socketRef.current = null; // force a brand-new socket rather than reusing the dead one
       const socket = ensureSocket();
+      rejoinPending.current = true;
       const claim: ClientMessage = { type: 'rejoin', roomCode: current.roomCode, token: current.token };
       if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(claim));
       else socket.addEventListener('open', () => socket.send(JSON.stringify(claim)), { once: true });
@@ -205,6 +222,7 @@ export function useGameSocket() {
 
     const session = loadSession();
     if (!session) return;
+    rejoinPending.current = true;
     sendWhenOpen(ensureSocket(), { type: 'rejoin', roomCode: session.roomCode, token: session.token });
   }, [ensureSocket, sendWhenOpen]);
 
