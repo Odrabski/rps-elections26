@@ -40,11 +40,14 @@ function write(key: string, value: boolean): void {
   }
 }
 
-/** Both channels default on; a standing mute from the old single switch turns both off instead. */
-const defaultOn = !read(KEY.legacyMute, false);
+/** A standing mute from the old single switch turns everything off; otherwise the effects default
+ *  on and the music defaults off. Sound effects are feedback — a tap, a clash, a win — and a game
+ *  that answers you is worth arriving switched on. A music bed is a preference, and one that starts
+ *  playing by itself is the thing people reach to silence. It is one tap away on the splash. */
+const legacyMuted = read(KEY.legacyMute, false);
 
-let musicOn = read(KEY.music, defaultOn);
-let sfxOn = read(KEY.sfx, defaultOn);
+let musicOn = read(KEY.music, false);
+let sfxOn = read(KEY.sfx, !legacyMuted);
 
 export type Prefs = { music: boolean; sfx: boolean };
 

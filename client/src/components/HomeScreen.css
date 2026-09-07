@@ -30,6 +30,9 @@
   flex-direction: column;
   align-items: center;
   max-height: 100%;
+  /* Only ever moved to lift the room-code field clear of the on-screen keyboard (see HomeScreen's
+     keyboardLift). Eased so the card follows the keyboard up rather than snapping. */
+  transition: transform 0.2s ease;
 }
 
 /* logo.webp is pre-cropped to its opaque bounding box (no transparent canvas padding), so this
