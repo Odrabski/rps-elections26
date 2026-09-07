@@ -94,6 +94,16 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
    */
   const codeInputRef = useRef<HTMLInputElement>(null);
   const [keyboardLift, setKeyboardLift] = useState(0);
+  /**
+   * Code-entry mode: while the field has focus, the menu gets out of the way and the field alone
+   * sits at the top of the screen, where a keyboard cannot reach it on any browser.
+   *
+   * The measured lift below is the belt; this is the braces, and it is the part that actually
+   * holds. iOS is the one browser whose keyboard leaves the layout viewport alone — it shrinks the
+   * visual viewport and sometimes offsets it — so every number that lift depends on is a guess
+   * there. Putting the field at the top needs no numbers at all.
+   */
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -274,7 +284,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
   }
 
   return (
-    <div className="home-screen">
+    <div className={`home-screen${typing ? ' home-screen-typing' : ''}`}>
       <MenuPeekers />
       <div
         className="home-card-wrap"
@@ -316,12 +326,22 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
             ref={codeInputRef}
             className="home-code-input"
             value={code}
+            onFocus={() => setTyping(true)}
+            onBlur={() => setTyping(false)}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="קוד משחק"
             maxLength={4}
             autoCapitalize="characters"
           />
-          <button type="submit" className="btn-secondary" disabled={!code.trim()}>
+          {/* Load-bearing preventDefault: without it this tap blurs the field first, the menu
+              springs back, and the button moves out from under the finger before the tap lands.
+              Stopping the default keeps focus where it is; the click still fires. */}
+          <button
+            type="submit"
+            className="btn-secondary"
+            disabled={!code.trim()}
+            onPointerDown={(e) => e.preventDefault()}
+          >
             הצטרפות
           </button>
         </form>

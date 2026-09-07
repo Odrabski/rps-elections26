@@ -23,6 +23,37 @@
   }
 }
 
+/* Code-entry mode: while the room-code field has focus, everything but the field itself gets out of
+   the way and it sits at the top of the screen — the one place a keyboard can never cover, on any
+   browser, without measuring a viewport. This screen never scrolls (see above), so there is nothing
+   for the browser's own "scroll the focused field into view" to do.
+
+   Touch pointers only. It exists to dodge an on-screen keyboard, and a mouse user has none — for
+   them the menu emptying out on a click would be a startling answer to a problem they do not have.
+
+   Written by structure rather than by naming each thing to hide, so it cannot rot when something
+   here is renamed: keep the card, inside it keep the panel, inside that keep the join form.
+   `display: none` also takes the hidden controls out of the tab order, which is right — there is
+   one thing to do in this mode. */
+@media (pointer: coarse) {
+  .home-screen-typing {
+    align-items: flex-start;
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+
+  .home-screen-typing > :not(.home-card-wrap) {
+    display: none;
+  }
+
+  .home-screen-typing .home-card-wrap > :not(.home-panel) {
+    display: none;
+  }
+
+  .home-screen-typing .home-panel > :not(.home-join-form) {
+    display: none;
+  }
+}
+
 .home-card-wrap {
   position: relative;
   width: min(92vw, 420px);
