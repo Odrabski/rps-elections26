@@ -75,13 +75,13 @@ export const TRAP_ATTACKER_FALL_MS = 600;
 /** How long the "you fell in a trap" banner stays up once the soldier has actually sunk into the
  *  hole. The banner used to open the sequence, announcing the trap before anything had happened;
  *  it now reports it afterwards, which needs its own beat at the end to be readable. */
-export const TRAP_BANNER_MS = 1200;
+export const TRAP_BANNER_MS = 2200;
 /** The trap survives being sprung, so the hole has to close again: the figure rises back into its
  *  tile, wearing the same disguise it wore before, ready to be triggered again.
  *
- *  Carved out of TRAP_BANNER_MS rather than added after it, which keeps TRAP_SEQUENCE_MS — and so
- *  the server's board lock — exactly as long as it was. There is room: by the time the banner is
- *  up the hole has already been on screen for 1100ms, so it has long since read as empty. */
+ *  Carved out of TRAP_BANNER_MS rather than added after it, so the return plays under the banner
+ *  instead of extending the beat past it. There is room: by the time the banner is up the hole has
+ *  already been on screen for 1100ms, so it has long since read as empty. */
 export const TRAP_RETURN_MS = 700;
 
 /**
@@ -90,7 +90,10 @@ export const TRAP_RETURN_MS = 700;
  * It used to open with a 1000ms hold on the untouched trap and a 400ms dissolve before the attacker
  * moved at all — so the first thing that happened after the tap was nothing, twice over. The
  * attacker now steps onto the tile immediately and the trap dissolves under it in the same beat,
- * taking 1400ms off the front: 3700ms down to 2300ms.
+ * taking 1400ms off the front.
+ *
+ * 3300ms: 500 jump + 600 fall + 2200 banner. The banner carries a full sentence and was up for only
+ * 1200ms, which is not long enough to read it and watch the trap climb back out underneath.
  */
 export const TRAP_SEQUENCE_MS = TRAP_ATTACKER_JUMP_MS + TRAP_ATTACKER_FALL_MS + TRAP_BANNER_MS;
 
