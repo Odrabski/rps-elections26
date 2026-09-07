@@ -3,8 +3,10 @@ primary_region = "fra"
 
 [build]
   [build.args]
-    # Paste the Clarity project id here to switch analytics on, then deploy. Public by design.
-    VITE_CLARITY_ID = ""
+    # The Clarity project id. Public by design: the browser fetches clarity.ms/tag/<id>, so this is
+    # readable by anyone with devtools. It lives here rather than in a Fly secret because Vite
+    # inlines VITE_* at build time, and a secret only exists at runtime.
+    VITE_CLARITY_ID = "ye8yai5w8h"
 
 [http_service]
   internal_port = 8080
