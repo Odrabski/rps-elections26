@@ -33,11 +33,26 @@
 }
 
 /* The gold glow on the piece you have picked up — pointer devices only, alongside the hover
-   highlights in BoardGrid.css. On a phone it is redundant with the cue that actually tells you
-   something is selected: every tile you may move to lights up gold and grows a pulsing arrow. */
+   highlights in BoardGrid.css. */
 @media (hover: hover) {
   .piece-selected .piece-portrait {
     filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 4px var(--gold));
+  }
+}
+
+/* On a touchscreen the same piece lights in its own side's colour instead. Gold is the board's
+   "you may act here" colour — it is what the legal tiles and their arrows already wear — so using
+   it for the piece as well left a tap looking like one gold smear. The team colour says something
+   different, and only one thing on the board can be selected. Deliberately mild: this is the piece
+   already in your hand, not a call to action. It builds on the faint team glow every piece carries
+   (above) rather than replacing it, so it reads as the same light turned up. */
+@media (hover: none) {
+  .piece-selected.team-blue .piece-portrait {
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 9px rgba(56, 189, 248, 0.85));
+  }
+
+  .piece-selected.team-red .piece-portrait {
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 9px rgba(251, 113, 133, 0.85));
   }
 }
 

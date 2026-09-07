@@ -102,19 +102,19 @@ function randomBetween(min: number, max: number): number {
 }
 
 /**
- * Two floaters per head in the winning team's pool — the whole bloc turns up, and each face twice.
- * (It once drew ten at random with replacement, which both left some of the winners out and
- * doubled others up; this is deliberate duplication, not that.)
+ * One floater per head in the winning team's pool — fourteen faces, each exactly once. (It once
+ * drew ten at random with replacement, which both left some of the winners out and doubled others
+ * up; and briefly ran two of each, which was twice as many heads as the screen wanted.)
  *
- * The size range is deliberately wide. Rolled independently per floater, the two copies of a face
- * are rarely the same size, so the crowd reads as depth rather than as pairs.
+ * The size range is deliberately wide, rolled per floater, so a crowd of fourteen distinct faces
+ * reads as depth rather than as a row of identical bubbles.
  */
 function makeFloaters(team: Team): Floater[] {
   const pool = HIDDEN_HEAD_POOL[team];
   const width = window.innerWidth;
   const height = window.innerHeight;
 
-  return pool.flatMap((head) => [0, 1].map(() => {
+  return pool.map((head) => {
     const size = randomBetween(34, 190);
     return {
       asset: `/assets/pieces/${head}`,
@@ -128,7 +128,7 @@ function makeFloaters(team: Team): Floater[] {
       rot: randomBetween(0, 360),
       vr: randomBetween(0.7, 3.2) * (Math.random() < 0.5 ? -1 : 1),
     };
-  }));
+  });
 }
 
 /**

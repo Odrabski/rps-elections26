@@ -397,6 +397,10 @@ export function BoardGrid({
           // The defender reacts in place — a quick flinch, not a dissolve — for exactly as long
           // as the attacker takes to jump in, then both turn into the cloud together.
           const atCapturedKing = capturedKing ? samePos(actual, capturedKing.position) : false;
+          // The capture tile is cleared for the beat: the King that was found is dead and no longer
+          // in the piece list anyway, and the soldier that found it is hidden here rather than left
+          // standing on the spot. What is left is the crown, and nothing to read around it.
+          if (atCapturedKing) piece = undefined;
           const defenderFlinch =
             clashEvent && atClashTarget && clashPhase === 'jump' ? clashEvent.defender : null;
 
@@ -538,14 +542,9 @@ export function BoardGrid({
                   className={`board-clash-cloud${clashPhase === 'dissolving' ? ' board-clash-cloud-dissolving' : ''}`}
                 />
               )}
-              {/* Last in the cell, so it paints over the soldier that has just landed on this tile
-                  — the whole point of the beat is seeing who the King was, not the boot on top. */}
-              {atCapturedKing && capturedKing && (
-                <div className="board-piece-anim board-piece-anim-captured-king">
-                  <div className="board-piece-wrap">
-                    <PieceView piece={capturedKing} team={team} seed={seed} mirrorAtEdge={display.col === 0} />
-                  </div>
-                </div>
+              {/* The whole reveal, on an otherwise empty tile: a crown where the King was. */}
+              {atCapturedKing && (
+                <img src="/assets/pieces/crown.webp" alt="" className="board-captured-crown" />
               )}
             </div>
           );
