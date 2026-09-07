@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { BotDifficulty, Team } from 'shared';
 import { HIDDEN_HEAD_POOL } from 'shared';
 import { TEAM_THEME } from '../data/theme';
@@ -81,82 +81,16 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
   const [chosenTeam, setChosenTeam] = useState<Team | null>(null);
   const [modal, setModal] = useState<ModalKind>(null);
   /**
-   * Keeps the room-code field above the on-screen keyboard.
-   *
-   * This screen is `position: fixed` with `overflow: hidden` and deliberately never scrolls (see
-   * HomeScreen.css), so the browser's usual "scroll the focused field into view" has nothing to
-   * scroll and the keyboard simply covers the field. `--app-vh` already shrinks to the visual
-   * viewport when the keyboard opens, which re-centres the card — but the card is taller than what
-   * is left, so its lower half, the join form included, is clipped away.
-   *
-   * So measure it: while the field has focus, lift the card by however far its bottom falls past
-   * the visible area. Zero when it already fits, which is every desktop and most landscape phones.
-   */
-  const codeInputRef = useRef<HTMLInputElement>(null);
-  const [keyboardLift, setKeyboardLift] = useState(0);
-  /**
    * Code-entry mode: while the field has focus, the menu gets out of the way and the field alone
    * sits at the top of the screen, where a keyboard cannot reach it on any browser.
    *
-   * The measured lift below is the belt; this is the braces, and it is the part that actually
-   * holds. iOS is the one browser whose keyboard leaves the layout viewport alone — it shrinks the
-   * visual viewport and sometimes offsets it — so every number that lift depends on is a guess
-   * there. Putting the field at the top needs no numbers at all.
+   * Done by flexbox alone — the screen switches from centring its card to docking it at the top —
+   * rather than by measuring the viewport and translating the card up, which is what this replaced.
+   * That push moved whatever was above the field out of bounds to make room, and it depended on
+   * numbers iOS does not report the way other browsers do. Docking needs no numbers at all.
    */
   const [typing, setTyping] = useState(false);
 
-  useEffect(() => {
-    const viewport = window.visualViewport;
-    if (!viewport) return;
-
-    const reposition = () => {
-      const input = codeInputRef.current;
-      const card = input?.closest<HTMLElement>('.home-card-wrap');
-      if (!input || !card || document.activeElement !== input) {
-        setKeyboardLift(0);
-        return;
-      }
-      // Measure where the field *rests*, not where it currently is: any lift already applied is
-      // subtracted back out first. Without that the sum is self-defeating — lift the card, and the
-      // next measurement sees a field that now fits, decides no lift is needed, and drops it again.
-      // Read from the live matrix rather than from state so it is right mid-transition too.
-      const lifted = new DOMMatrixReadOnly(getComputedStyle(card).transform).m42;
-      // offsetTop matters on iOS: the visual viewport can be pushed down the layout viewport, and
-      // a fixed element is positioned against the layout one.
-      const visibleBottom = viewport.height + viewport.offsetTop;
-      const overshoot = input.getBoundingClientRect().bottom - lifted + 16 - visibleBottom;
-      setKeyboardLift(overshoot > 0 ? Math.round(overshoot) : 0);
-    };
-
-    // The keyboard animates in, and the resize fires before it has finished — so measure again a
-    // beat later rather than against a viewport that is still moving.
-    const settle = () => {
-      reposition();
-      return setTimeout(reposition, 250);
-    };
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const onChange = () => {
-      if (timer) clearTimeout(timer);
-      timer = settle();
-    };
-
-    // Both viewports, because browsers disagree about which one a keyboard resizes: iOS shrinks the
-    // visual viewport only, while Android's default resizes the layout one — and only the latter
-    // fires a window resize.
-    viewport.addEventListener('resize', onChange);
-    viewport.addEventListener('scroll', onChange);
-    window.addEventListener('resize', onChange);
-    window.addEventListener('focusin', onChange);
-    window.addEventListener('focusout', onChange);
-    return () => {
-      if (timer) clearTimeout(timer);
-      viewport.removeEventListener('resize', onChange);
-      viewport.removeEventListener('scroll', onChange);
-      window.removeEventListener('resize', onChange);
-      window.removeEventListener('focusin', onChange);
-      window.removeEventListener('focusout', onChange);
-    };
-  }, []);
 
   /** Which body the About figure is wearing, and whose head is on it. Purely a toy: the body and
    *  the head swap independently, each from its own tap. */
@@ -286,10 +220,7 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
   return (
     <div className={`home-screen${typing ? ' home-screen-typing' : ''}`}>
       <MenuPeekers />
-      <div
-        className="home-card-wrap"
-        style={keyboardLift ? { transform: `translateY(-${keyboardLift}px)` } : undefined}
-      >
+      <div className="home-card-wrap">
         <LogoPeeker />
         <img src="/assets/logo.webp" alt="אבניהו - מהדורת בחירות 2026" className="home-logo" />
         <div className="home-panel panel">
@@ -323,7 +254,6 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
           }}
         >
           <input
-            ref={codeInputRef}
             className="home-code-input"
             value={code}
             onFocus={() => setTyping(true)}
