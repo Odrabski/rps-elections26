@@ -28,8 +28,29 @@
    score-header at the exact same y on both screens, at any viewport size (not just one). */
 /* Inherits everything from .phase-pill (GameBoard.css) so this and the game board's empty slot
    cannot drift apart in height. */
+.setup-header-stack {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Above the timer and out of the flow entirely, so the column's height — and with it the board's
+   y — is exactly what it was when this sat below the board. `transform: none` because .phase-pill
+   carries a translateY(45px) meant for that old slot. */
 .setup-phase-pill {
-  align-self: center;
+  position: absolute;
+  /* 30px, not the 4px it looks like it needs: ScoreHeader is shifted up 15px by a transform of its
+     own, so its painted top sits above the layout box this is measured against. At 4px the pill
+     overlapped it by 14. */
+  bottom: calc(100% + 30px);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: max-content;
+  transform: none;
+  z-index: 5;
 }
 
 /* Same transform as GameBoard's .board-wrap. */

@@ -89,8 +89,12 @@
   max-width: 88%;
   padding: 7px 18px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  /* Whoever's turn it is, in their own colour — the same --turn-color the board's ring and the lit
+     score badge take, so the three can never disagree. It used to be neutral black on the grounds
+     that the ring already carried the colour; naming the bloc and colouring the pill says it in one
+     glance instead of asking you to read a ring. */
+  background: var(--turn-color);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   color: #fff;
   font-weight: 700;
   font-size: 0.85rem;

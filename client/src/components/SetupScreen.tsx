@@ -86,7 +86,15 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReset, on
 
   return (
     <div className="setup-screen">
-      <ScoreHeader
+      {/* The pill rides above the timer, but as an overlay rather than another row: it is absolutely
+          positioned inside this wrapper (see .setup-header-stack), so it adds nothing to the flex
+          column and the board below stays exactly where it was. The slot it used to occupy under
+          the board is now an empty spacer of the same height, which is what holds that. */}
+      <div className="setup-header-stack">
+        <div className="phase-pill setup-phase-pill" style={{ background: theme.solid }}>
+          שלב סידור הלוח
+        </div>
+        <ScoreHeader
         team={team}
         pieces={view.pieces}
         center={
@@ -99,7 +107,8 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReset, on
             numberSize="2.4rem"
           />
         }
-      />
+        />
+      </div>
       <ExitButton onClick={handleExit} />
 
       <div className="setup-board-area">
@@ -176,18 +185,10 @@ export function SetupScreen({ view, team, onPlaceSpecial, onShuffle, onReset, on
         )}
       </div>
 
-      {/* Sits in the slot the game board keeps empty, at the same size, so the board and
-          score-header still land at the exact same y on both screens — it
-          used to be an invisible spacer holding that space open, and now it holds something worth
-          reading. `.phase-pill` lives in GameBoard.css, which is always in the bundle (App imports
-          GameBoard statically), so it needs no import here. */}
-      <div className="phase-pill setup-phase-pill" style={{ background: theme.solid }}>
-        {/* Names the phase, and only that. The instruction for the current step is the banner's
-            job (👑 בחרו את המלך / 🪤 ...) — having both say it left two elements telling you the
-            same thing at once. This is the counterpart to GameBoard's "התור שלך", which also
-            reports where you are rather than what to press. */}
-        שלב סידור הלוח
-      </div>
+      {/* The slot the pill used to fill. Empty now, and kept at exactly its height so the board
+          and score-header still land at the same y here as they do on the game board — the
+          invariant .phase-pill-spacer exists for over there. */}
+      <div className="phase-pill-spacer" />
 
       <HowToPlayButton />
 

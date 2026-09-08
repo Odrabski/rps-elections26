@@ -30,10 +30,12 @@ const TURN_PILL_MS = 1500;
  *  addressed to you, and the board's own ring already carries which colour is up. */
 const PILL_TEXT = {
   startYours: 'המשחק מתחיל - התור שלך',
-  startTheirs: 'המשחק מתחיל - הצד השני מתחיל',
   yours: 'התור שלך',
-  theirs: 'התור של הצד השני',
 } as const;
+
+/** The other side is named rather than called "הצד השני": the pill is coloured in whoever's turn it
+ *  is, and a colour with a name on it is easier to read than a colour alone. */
+const theirTurn = (opponent: Team) => `תור ${TEAM_THEME[opponent].label}`;
 
 /** How long a correction stays up — the same beat the setup screen gives its own warning. */
 const WARNING_MS = 2600;
@@ -128,7 +130,13 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
     // Keyed to a board that has had no move yet rather than to this component mounting: it also
     // mounts on a mid-game rejoin, where announcing the start again would be wrong.
     view.lastMove === null
-      ? { text: view.turn === team ? PILL_TEXT.startYours : PILL_TEXT.startTheirs, key: 0 }
+      ? {
+          text:
+            view.turn === team
+              ? PILL_TEXT.startYours
+              : `המשחק מתחיל - ${theirTurn(team === 'red' ? 'blue' : 'red')}`,
+          key: 0,
+        }
       : null,
   );
   const announcedStart = useRef(false);
@@ -149,7 +157,7 @@ export function GameBoard({ view, team, onMove, onTiePick, onExit, notice }: Gam
     // set it, which is what keeps the pill an event rather than a flicker every few seconds.
     if (wasResolving.current && !resolving && view.phase === 'playing') {
       setTurnPill((prev) => ({
-        text: view.turn === team ? PILL_TEXT.yours : PILL_TEXT.theirs,
+        text: view.turn === team ? PILL_TEXT.yours : theirTurn(team === 'red' ? 'blue' : 'red'),
         key: (prev?.key ?? 0) + 1,
       }));
     }
