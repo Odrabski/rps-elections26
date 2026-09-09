@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { BotDifficulty, Team } from 'shared';
 import { HIDDEN_HEAD_POOL } from 'shared';
 import { TEAM_THEME } from '../data/theme';
@@ -90,6 +90,24 @@ export function HomeScreen({ onCreate, onJoin, errorMessage }: HomeScreenProps) 
    * already changed.
    */
   const [typing, setTyping] = useState(false);
+  const hasProcessedRoomParam = useRef(false);
+
+  /**
+   * If a room code is in the URL (?room=CODE), auto-fill and auto-submit the join form. This
+   * lets WhatsApp links deep-link directly into a match: click the link, land on the home screen,
+   * and the join happens automatically.
+   */
+  useEffect(() => {
+    if (hasProcessedRoomParam.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const roomCode = params.get('room')?.trim().toUpperCase();
+    if (roomCode && roomCode.length > 0) {
+      hasProcessedRoomParam.current = true;
+      setCode(roomCode);
+      // Auto-submit after a tick, so the state update has landed.
+      setTimeout(() => onJoin(roomCode), 0);
+    }
+  }, [onJoin]);
 
   /**
    * While typing, the screen shrinks to the strip the keyboard leaves visible, so `align-items:

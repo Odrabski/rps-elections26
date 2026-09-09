@@ -153,7 +153,7 @@ export default function App() {
           <a
             className="btn-primary lobby-share-btn"
             href={`https://wa.me/?text=${encodeURIComponent(
-              `בואו לשחק אבניהו - מהדורת בחירות 2026!\nקוד המשחק: ${roomCode}\n${window.location.origin}`,
+              `בואו לשחק אבניהו - מהדורת בחירות 2026!\n${window.location.origin}?room=${roomCode}`,
             )}`}
             target="_blank"
             rel="noreferrer"
