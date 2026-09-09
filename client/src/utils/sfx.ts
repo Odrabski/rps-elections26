@@ -46,6 +46,7 @@ const CUES = {
   'king.crown': 1,
   'result.win': 1,
   'result.lose': 1,
+  'result.crowd': 1,
 } as const;
 
 export type Sfx = keyof typeof CUES;

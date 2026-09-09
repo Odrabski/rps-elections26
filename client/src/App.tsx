@@ -7,6 +7,7 @@ import { GameOverScreen } from './components/GameOverScreen';
 import { SplashScreen } from './components/SplashScreen';
 import { SoundToggle } from './components/SoundToggle';
 import { setTrack } from './utils/music';
+import { play } from './utils/sfx';
 import { preloadPieceAssets } from './utils/preloadAssets';
 import { copyText } from './utils/clipboard';
 import { loadSession } from './utils/rejoin';
@@ -106,6 +107,15 @@ export default function App() {
     setTrack(track);
     return () => setTrack(null);
   }, [track]);
+
+  /** Play crowd cheer when entering the gameover screen if SFX is enabled. */
+  const wasGameover = useRef(false);
+  useEffect(() => {
+    if (view?.phase === 'gameover' && !wasGameover.current) {
+      wasGameover.current = true;
+      play('result.crowd');
+    }
+  }, [view?.phase]);
 
   let content: ReactNode;
 
